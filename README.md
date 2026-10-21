@@ -115,8 +115,8 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 
 Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
 y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
-ejemplo disponibles. Fase 3: escenarios locales, edición de emparejamientos y resultados
-del suizo R1–R5 disponibles. Siguen pendientes el editor de knockout y la administración de Fase 4.
+ejemplo disponibles. Fase 3: escenarios locales y cuadro suizo R1–R5 interactivo, con ganadores por clic
+y sorteos automáticos por grupo. Siguen pendientes el editor de knockout y la administración de Fase 4.
 
 ## Base GPR v2
 
@@ -326,53 +326,63 @@ series, filtros, orden numérico, cancelación, preservación al cambiar idioma 
 el cálculo), sin desbordamiento de página ni errores JavaScript ni POST de simulación.
 Las tablas tienen desplazamiento local y primera columna fija en pantallas estrechas.
 
-## Escenarios locales · primer bloque de Fase 3
+## Cuadro interactivo y escenarios locales
 
-Elegir **Mi escenario** en «Desde» crea una copia editable de las restricciones oficiales;
-si el origen anterior era **Desde cero**, empieza sin bloqueos. En R1 se puede fijar el ganador,
-conservar solo el emparejamiento o devolver ese cruce al sorteo. «Quitar todos los bloqueos»
-reinicia las restricciones locales; nunca modifica el snapshot oficial ni los perfiles.
-Un resultado fijado desactiva el contextual y selecciona GPR con un mensaje visible.
-El ejemplo distingue «Fijado por ti» de «Oficial confirmado» y «Simulado».
+El **cuadro suizo** es la vista de edición: cinco columnas en escritorio y pestañas de ronda
+en móvil. Pulsar un equipo elige el ganador; volver a pulsarlo retira la elección. El ganador
+y el perdedor aparecen inmediatamente en su grupo siguiente. Cuando un grupo completa sus
+participantes, sus cruces se sortean automáticamente, aunque otro grupo anterior siga
+pendiente. No hay selector manual de rivales ni es necesario introducir marcadores o JSON.
+El sorteo reutiliza el muestreador completo reglamentario: pools/regiones en R1, records en
+R2–R5, mínimo global de rematches cuando corresponda. Los grupos ya sorteados se conservan
+al resolver nuevos partidos independientes.
+
+**Estado oficial** conserva los cruces publicados y muestra sus resultados conocidos.
+**Desde cero** permite sortear también R1 al iniciar el cuadro. La primera elección crea
+una copia local «Mi escenario», sin modificar el snapshot original. Clasificados y eliminados
+se actualizan al alcanzar tres victorias o derrotas, hasta ocho equipos por lista.
+Los datos de partida siguen consultables en una sección plegada para diferenciarlos del cuadro.
+
+Cambiar o retirar un ganador ya elegido reinicia las rondas posteriores; si se pierden
+otras elecciones, aparece un aviso. **Deshacer** restaura el estado completo anterior,
+con sus cruces, elecciones y contador de sorteo. **Restaurar estado oficial** vuelve al
+snapshot de partida y también puede deshacerse. En móvil se avanza a la siguiente ronda
+al completar la actual; pestañas y elecciones se conservan al cambiar ES/EN.
+
+Una elección de ganador se guarda como `status: decided, winner: teamId`, **sin marcador ni
+orden de games inventados**. Para Monte Carlo, el modelo GPR sortea cada game condicionado
+a ese ganador mediante probabilidades de continuación en logaritmos (`stationary-log-doob-v1`).
+Así, elegir un ganador Bo3 no impone un 2–0: pueden aparecer marcadores 2–0 o 2–1 según su
+distribución condicional. Los resultados del ejemplo llevan `origin: constrained` y la etiqueta
+«Ganador elegido · marcador simulado». Los marcadores oficiales `completed` siguen intactos.
+El manifiesto distingue `swiss16-gpr-winner-constraints-v1`; los requests sin elecciones
+conservan sus versiones y regresiones anteriores. Contextual con elecciones continúa bloqueado
+hasta implementar su condicionamiento; la UI selecciona GPR de forma explícita.
 
 En **Escenarios**, dar nombre y guardar. Volver a guardar el escenario abierto permite
 renombrarlo/actualizarlo; cambiar la selección de la biblioteca no sobrescribe otro escenario.
-También se puede abrir, duplicar, eliminar, exportar o importar. IndexedDB guarda hasta 50
-escenarios mediante transacciones, con ID estable, nombre y fechas. Son locales a este navegador;
-exportar los importantes, porque el navegador puede borrar su almacenamiento.
+Se puede abrir, duplicar, eliminar, exportar e importar. IndexedDB guarda hasta 50 escenarios
+con ID estable, nombre y fechas. Son locales al navegador; exportar los importantes, porque
+su almacenamiento puede borrarse. No se envían las elecciones ni los escenarios al servidor.
 
-El JSON `kind: bracket-lab-scenario`, `schemaVersion: 1` conserva la solicitud GPR completa:
-snapshot, reglas, perfiles fechados, overrides, familias contextuales, semilla, iteraciones
-y restricciones. No incluye resultados ni idioma. La importación está limitada a 1 MiB,
-exige el mismo torneo/IDs y pasa por los validadores existentes antes de cambiar el trabajo.
-Se abre como copia y no sobrescribe la biblioteca. Los nombres se renderizan como texto.
-Los archivos legacy, versiones desconocidas y restricciones imposibles se rechazan.
+La exportación usa `kind: bracket-lab-scenario`, `schemaVersion: 2` para admitir elecciones
+sin marcador. El importador sigue leyendo archivos v1 con restricciones anteriores, sin
+convertir sus resultados en elecciones ni cambiar su modelo. **La versión del fichero es
+independiente de la versión del modelo predictivo**: no activa ni migra al modelo entrenado v3.
+El JSON conserva la solicitud completa, snapshots, perfiles, overrides, familias contextuales,
+semilla, N y restricciones; no incluye resultados agregados ni idioma. La importación está
+limitada a 1 MiB, valida torneo/IDs y estructura antes de cambiar el trabajo y se abre como
+copia. Un archivo con grupos listos aún sin sortear se conserva tal cual hasta una acción
+explícita en el cuadro, para no modificar su distribución de simulación al cargarlo.
 
-El editor cubre **R1–R5 del suizo**. En cada ronda, «Completar sorteo» fija los cruces que
-faltan cuando todos los participantes están determinados por resultados previos. Usa el
-mismo muestreador uniforme de emparejamientos completos del motor, con su minimización de
-rematches; no elige rivales de forma codiciosa. Respeta los cruces y marcadores ya fijados.
-El sorteo interactivo es determinista con semilla, ronda y contador local de sorteos;
-los pares resultantes quedan en el JSON y no necesitan recrear ese contador al importar.
-
-En un cruce pendiente, «Cambiar rival» intercambia o sustituye rivales en una única operación
-validada. Solo ofrece cambios compatibles con pools, regiones, records y restricciones
-posteriores. No modifica cruces con resultados o games conocidos: primero hay que retirar
-su resultado explícitamente. Bo1 permite fijar ganador; Bo3 ofrece sus cuatro marcadores
-legales y nunca inventa el orden de partidas.
-
-«Liberar ronda» elimina sus restricciones solo si las rondas posteriores siguen siendo
-válidas. Ante un conflicto se indica la ronda afectada; se puede liberarla desde la última
-hacia atrás o usar «Quitar todos los bloqueos». No se borran dependencias en silencio.
-La ronda seleccionada se conserva al cambiar de idioma. Un archivo puede conservar también
-fixtures válidos de knockout; su editor visual queda para el siguiente bloque.
-
-Validación: 106 pruebas Vitest, tipos, build, 21 pruebas PHP y Pint. Firefox en ES/EN a
-360, 768 y 1440 px: ganador fijado respetado por el worker, biblioteca en IndexedDB,
-duplicación/eliminación, exportación ES e importación EN, archivo inválido sin perder trabajo,
-persistencia entre pestañas, idioma y ausencia de desbordamientos o errores JavaScript.
-Recorrido adicional R1–R5: intercambio atómico de rivales, sorteos prematuros bloqueados,
-33 series suizas fijadas, formatos Bo3 por ronda 0/0/4/6/3 y protección de dependencias.
+Validación del cuadro: 112 pruebas Vitest y 21 PHP, tipos, build y Pint; fórmulas exactas de
+marcadores condicionados Bo3/Bo5, ganadores muy improbables en logaritmos, regresiones
+legacy/GPR, grupos independientes, 33 elecciones y ocho clasificados/eliminados.
+Firefox en ES/EN a 360, 768 y 1440 px: clics directos, sorteos por grupo, ausencia de selector
+de rivales, cambio de idioma sin alterar resultados, reinicio de dependencias y deshacer.
+Recorrido móvil completo: una ronda visible, avance automático, inicio desde cero,
+guardado local, exportación/importación v2 y recarga sin perder las 33 elecciones.
+El editor de knockout queda pendiente.
 
 ## Internacionalización
 
