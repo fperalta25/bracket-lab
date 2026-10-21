@@ -23,6 +23,11 @@
 .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 88px; border-bottom: 1px solid #2b343b; }
 .brand { display: inline-flex; align-items: center; gap: .65rem; font-weight: 700; font-size: 1.15rem; white-space: nowrap; }
 .brand-symbol { color: #88d3d0; font-size: 2rem; line-height: 1; }
+.header-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.language-switch { gap: .25rem; }
+.language-switch a { justify-content: center; min-width: 44px; }
+.language-switch a[aria-current="true"] { color: #88d3d0; font-weight: 600; text-decoration: underline; text-underline-offset: .3em; }
+.home-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1rem; text-decoration: underline; }
 nav { display: flex; gap: 1.25rem; font-size: .875rem; }
 nav a { display: inline-flex; align-items: center; min-height: 44px; color: #b5c0c7; }
 nav a:hover { color: #88d3d0; }
@@ -63,6 +68,7 @@ footer h2 { font-size: .875rem; margin-bottom: .75rem; }
 @media (max-width: 600px) {
     .fixture-grid { grid-template-columns: minmax(0, 1fr); }
     .site-header { flex-wrap: wrap; gap: 0; padding-block: .75rem; }
+    .header-controls { width: 100%; justify-content: space-between; }
     nav { gap: 1rem; }
     .hero { padding-top: 2rem; }
     .monogram { display: none; }
