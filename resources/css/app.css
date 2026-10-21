@@ -28,15 +28,11 @@ nav a { display: inline-flex; align-items: center; min-height: 44px; color: #b5c
 nav a:hover { color: #88d3d0; }
 .hero { padding-block: 3.5rem 2rem; }
 .eyebrow { color: #88d3d0; font-size: .8rem; font-weight: 600; letter-spacing: .05em; margin-bottom: 1rem; }
-.eyebrow span { padding-inline: .4rem; color: #758892; }
-.intro { max-width: 58ch; margin-top: 1.2rem; color: #b5c0c7; }
 .status-note { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; color: #b5c0c7; font-size: .875rem; }
-.badge { display: inline-block; background: #223b3b; color: #b1e5e1; padding: .2rem .65rem; border-radius: 5px; font-size: .75rem; font-weight: 600; }
 .notice { border-left: 2px solid #617c88; background: #192126; padding: 1rem 1.25rem; font-size: .875rem; }
 .notice p { margin-top: .25rem; color: #b5c0c7; }
 .section { margin-top: 2.5rem; }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
-.section-heading p { color: #a6b4bd; font-size: .8rem; }
 .fixture-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .fixture { padding: 1rem; border: 1px solid #2b343b; border-radius: 8px; background: #181e22; }
 .fixture-meta { display: flex; justify-content: space-between; gap: .5rem; margin-bottom: .9rem; color: #a6b4bd; font-size: .7rem; }
@@ -58,10 +54,9 @@ nav a:hover { color: #88d3d0; }
 .region { font-size: .65rem; color: #b5c0c7; flex-shrink: 0; }
 .calibration { margin-top: 1rem; color: #a6b4bd; font-size: .8rem; max-width: 90ch; }
 .calibration strong { color: #d6c28f; font-weight: 500; }
-.about { max-width: 75ch; }
-.about p { color: #a6b4bd; font-size: .875rem; margin-top: .75rem; }
 footer { padding-block: 1.5rem 2rem; margin-top: 3rem !important; border-top: 1px solid #2b343b; color: #a6b4bd; font-size: .75rem; }
 footer p + p { margin-top: .4rem; }
+footer h2 { font-size: .875rem; margin-bottom: .75rem; }
 .skip-link { position: absolute; top: -100px; left: 1rem; padding: .75rem; background: #223b3b; z-index: 1; }
 .skip-link:focus { top: 1rem; }
 @media (max-width: 900px) { .pool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

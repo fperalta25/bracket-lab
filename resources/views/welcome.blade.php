@@ -21,10 +21,9 @@
 
     <main id="contenido" class="page-width">
         <section class="hero" aria-labelledby="titulo">
-            <p class="eyebrow">{{ $tournament?->name }} <span aria-hidden="true">/</span> {{ __('tournament.independent') }}</p>
-            <h1 id="titulo">{{ __('tournament.heading') }}</h1>
-            <p class="intro">{{ __('tournament.intro') }}</p>
-            <p class="status-note"><span class="badge">{{ __('tournament.preview') }}</span> {{ __('tournament.not_ready') }}</p>
+            <p class="eyebrow">{{ __('tournament.independent') }}</p>
+            <h1 id="titulo">{{ $tournament?->name ?? __('tournament.heading') }}</h1>
+            <p class="status-note">{{ __('tournament.not_ready') }}</p>
         </section>
 
         @if ($tournament)
@@ -36,7 +35,6 @@
             <section id="cruces" class="section" aria-labelledby="cruces-titulo">
                 <div class="section-heading">
                     <h2 id="cruces-titulo">{{ __('tournament.round_one') }}</h2>
-                    <p>{{ __('tournament.round_note') }}</p>
                 </div>
                 <ol class="fixture-grid">
                     @foreach ($tournament->fixtures as $fixture)
@@ -53,7 +51,7 @@
             </section>
 
             <section id="equipos" class="section" aria-labelledby="equipos-titulo">
-                <div class="section-heading"><h2 id="equipos-titulo">{{ __('tournament.pools') }}</h2></div>
+                <div class="section-heading"><h2 id="equipos-titulo">{{ __('tournament.teams') }}</h2></div>
                 <div class="pool-grid">
                     @foreach ($tournament->teams->groupBy('pool') as $pool => $teams)
                         <section class="pool" aria-labelledby="pool-{{ $pool }}">
@@ -72,13 +70,9 @@
             <p class="notice">{{ __('tournament.empty') }}</p>
         @endif
 
-        <section class="about section" aria-labelledby="acerca-titulo">
-            <h2 id="acerca-titulo">{{ __('tournament.about') }}</h2>
-            <p>{{ __('tournament.methodology') }}</p>
-            <p>{{ __('tournament.disclaimer') }}</p>
-        </section>
     </main>
-    <footer class="page-width">
+    <footer class="page-width" aria-labelledby="acerca-titulo">
+        <h2 id="acerca-titulo">{{ __('tournament.about') }}</h2>
         <p>{{ __('tournament.disclaimer') }}</p>
         <p>{{ __('tournament.trademarks') }}</p>
     </footer>

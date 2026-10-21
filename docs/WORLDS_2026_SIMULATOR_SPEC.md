@@ -6,6 +6,11 @@
 
 ## 1. Principios de producto
 
+**Requisito permanente de UX:** aplicar el [anexo de contenido sin metatexto ni sobreexplicaciones](WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md)
+a todas las pantallas existentes y futuras, públicas y de administración. Sus reglas
+concretan los textos orientativos de esta especificación. Revisar el copy antes de dar
+por terminada cada pantalla, conservando la accesibilidad y los avisos necesarios.
+
 1. **La exactitud de las reglas es prioritaria.** Nunca simplificar un sorteo de forma que produzca enfrentamientos inválidos. Distinguir claramente reglas oficiales, supuestos estadísticos y escenarios hipotéticos.
 2. **UX primero.** Interfaz limpia, compacta, legible, oscura y elegante, con un toque e-sports moderado. Nada de paneles sobrecargados, efectos gratuitos ni textos redundantes.
 3. **Uso inmediato sin cuenta.** Entrar, elegir un escenario, configurar las pocas opciones importantes y pulsar «Simular». No solicitar registro, correo ni permisos al público.
