@@ -249,3 +249,83 @@ V3-C, el contrato temporal debe mantener como faltantes los resultados/alineacio
 sin evidencia de disponibilidad; no aprender forma o continuidad usando estos
 registros como si todos fueran conocidos antes de jugar. Los efectos de serie se
 mantienen fuera hasta disponer de un vínculo verificado.
+
+## V3-C · primer bloque: contrato temporal pre-game
+
+`analysis/src/temporal.py` prepara el acceso a resultados y plantillas con evidencia
+fechada. No calcula forma residual, Elo, probabilidades, continuidad ni coeficientes.
+No se ejecuta en Laravel ni en la web.
+
+Contratos inmutables:
+
+- `Evidence`: referencia y SHA-256 de bytes de una fuente revisada. Su presencia es
+  una declaración del llamador; un hash no acredita por sí solo veracidad, zona
+  horaria o fecha histórica de publicación. El importador futuro deberá revisarlos.
+- `HistoricalResult`: game, equipos de origen, target binario, inicio, disponibilidad
+  y evidencia separada de hora/resultado. No admite estadísticas postgame ni GPR
+  actual como campos del contrato. Sin evidencia o disponibilidad queda fuera del
+  historial consultable. Disponibilidad debe ser posterior al inicio.
+- `RosterSnapshot`: cinco IDs estables, equipo, disponibilidad, inicio de vigencia
+  y final opcional. No se convierten los nombres de ChainCC en IDs estables.
+- `PreGameQuery`: game objetivo, equipos, inicio y `as_of_utc < game_start_utc`.
+  Todos los timestamps requieren zona explícita y se normalizan a UTC.
+
+`TemporalHistory.results_before(team_id, query, window_days=30)` devuelve resultados
+iniciados en `[as_of - ventana, as_of)`, con disponibilidad **estrictamente anterior**
+al corte y ambas evidencias. Excluye el game objetivo y los IDs en cuarentena.
+La ventana es una opción de consulta, no un hiperparámetro calibrado. No se realiza
+ponderación por series ni entrenamiento cuando falta su vínculo. La entrada se
+indexa por equipo y el orden de salida es determinista.
+
+La vista devuelve estado `observed` cuando hay resultados elegibles y `missing`
+cuando no los hay. Una vista vacía no acredita cero partidas históricas, cero forma
+ni cobertura completa; no se imputan valores. La falta de GPR histórico tampoco
+activa un fallback al snapshot actual.
+
+`roster_before` utiliza solo snapshots disponibles antes del corte y ya efectivos.
+Una noticia tardía con fecha efectiva retroactiva no modifica consultas anteriores.
+Una plantilla anunciada antes pero aún no efectiva tampoco se utiliza. Se elige el
+snapshot con fecha efectiva más reciente; una revisión conocida posterior resuelve
+la misma fecha efectiva. Conflictos en la misma fecha efectiva y de disponibilidad
+producen error, sin decidir por orden de entrada. Si la última plantilla conocida
+ha caducado, se devuelve `None`; no se recupera silenciosamente una plantilla antigua.
+Los IDs de jugadores se copian a una tupla ordenada para evitar cambios posteriores
+por mutaciones de una lista del llamador. Este bloque no modela roles ponderados.
+
+### Cobertura real, sin generar features ficticias
+
+```bash
+python3 analysis/src/temporal_audit.py \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --corpus-audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --identity-audit models/reports/chaincc-identities-v3b/audit.json \
+  --output data/curated/chaincc-temporal/coverage.json
+python3 -m unittest discover -s analysis/tests -v
+```
+
+La auditoría exige hashes compatibles del corpus y ambos informes, el mismo corte
+y una cuarentena que solo contenga IDs del corpus. Registra 28.791 games fuente,
+ocho en cuarentena y **28.783 candidatos**. El esquema canónico actual no contiene
+referencias revisadas de disponibilidad/hora ni snapshots pre-game con IDs de jugador
+estables; los resultados con evidencia temporal revisada y snapshots pre-game
+utilizables son **cero**. No se presentan como cero los valores de los predictores:
+forma reciente, continuidad y GPR histórico figuran como `status: missing, value: null`.
+No se imputan evidencias ni se fabrican forecasts históricos para generar cifras.
+
+Informe versionado: `models/reports/chaincc-temporal-contract-v3c/coverage.json`.
+Modo `coverage_only`, `training_ready=false`. Este auditor describe únicamente el
+esquema canónico actual; no es un importador de nuevas evidencias ni un entrenamiento.
+Mismos archivos de entrada producen el mismo informe byte a byte.
+
+Validación del bloque: **67 pruebas Python** en total, 142 Vitest, 42 Laravel
+(528 aserciones) y typecheck. Las 20 nuevas pruebas cubren corte pre-game estricto,
+ventana temporal, disponibilidad, cuarentena, resultado objetivo excluido, cambios
+futuros de outcomes/jugadores sin efectos anteriores, plantillas tardías/futuras/
+caducadas/ambiguas, datos inmutables e integridad de los informes de origen.
+Los fixtures sintéticos prueban el contrato; no son evidencia histórica real.
+
+Pendiente de V3-C: importar evidencia temporal e identidades revisadas, obtener una
+referencia pre-game histórica y entonces construir forma residual y continuidad
+con cobertura trazable. Se mantiene la necesidad de separar series en la validación.
+No se ha entrenado, calibrado o habilitado ningún preset adicional y no ha cambiado
+el formato de escenarios, la interfaz ni las probabilidades públicas.

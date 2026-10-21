@@ -583,6 +583,19 @@ series e identidades estables requieren verificación; el corpus no está habili
 para entrenamiento. Pendiente resolver esas limitaciones antes de construir las
 features temporales de V3-C.
 
+## V3-C · contrato temporal inicial
+
+Historial y plantillas inmutables con corte anterior al game, evidencia de
+resultados disponible antes del corte y exclusión del objetivo/cuarentena. Las
+noticias y plantillas futuras no modifican observaciones anteriores; los faltantes
+siguen siendo `missing`, sin imputación a cero. No se han construido ni entrenado
+los predictores de forma/continuidad. Contratos y comandos en
+[analysis/README.md](analysis/README.md); [cobertura temporal real](models/reports/chaincc-temporal-contract-v3c/coverage.json).
+
+67 pruebas Python, 142 Vitest, 42 Laravel (528 aserciones) y typecheck. El corpus
+actual no acredita disponibilidad temporal ni snapshots pre-game con IDs estables;
+el modelo entrenado sigue deshabilitado. No cambia la web ni el formato de escenarios.
+
 ## Internacionalización
 
 - `lang/es.json` y `lang/en.json` son los únicos catálogos de interfaz. Cada cadena nueva
