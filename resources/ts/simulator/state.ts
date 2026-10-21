@@ -25,7 +25,7 @@ export function applySwissMatch(states: Map<string, SwissState>, match: Pick<Pla
 }
 
 export function finalSwissRecords(states: Map<string, SwissState>): Record<string, SwissRecord> {
-    const records: Record<string, SwissRecord> = {};
+    const records = Object.create(null) as Record<string, SwissRecord>;
     const counts = new Map<string, number>();
     for (const [id, state] of states) {
         requireCondition(!isActive(state), 'invariant_violation', { team: id });
