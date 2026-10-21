@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = 'https://chaincc.lol/free/data/'
 LICENSE = 'https://creativecommons.org/licenses/by/4.0/'
-VERSION = 'chaincc-audit-v1'
+VERSION = 'chaincc-audit-v2'
 ROLES = {'top', 'jng', 'mid', 'bot', 'sup'}
 
 
@@ -104,6 +104,7 @@ def audit(teams_data, players_data, cutoff, source_timezone):
     for row in players:
         by_player[row['game_id']].append(row)
     excluded, roster_issues = Counter(), Counter()
+    excluded_by_league = defaultdict(Counter)
     games, quarantine = [], []
     league_counts = Counter()
     aliases = defaultdict(set)
@@ -112,6 +113,9 @@ def audit(teams_data, players_data, cutoff, source_timezone):
 
     def reject(game_id, reason):
         excluded[reason] += 1
+        leagues = {row['league'] for row in by_game[game_id]}
+        league = next(iter(leagues)) if len(leagues) == 1 else '__inconsistent__'
+        excluded_by_league[league][reason] += 1
         quarantine.append({'game_id': game_id, 'reason': reason})
 
     for game_id, sides in sorted(by_game.items()):
@@ -216,6 +220,8 @@ def audit(teams_data, players_data, cutoff, source_timezone):
         'input_rows': {'teams': len(teams), 'players': len(players)},
         'team_game_groups': len(by_game), 'canonical_games': len(games),
         'excluded_games': dict(sorted(excluded.items())),
+        'excluded_games_by_league': {league: dict(sorted(counts.items()))
+                                     for league, counts in sorted(excluded_by_league.items())},
         'games_with_complete_observed_lineups': sum(game['roster_a'] is not None for game in games),
         'lineup_issues': dict(sorted(roster_issues.items())),
         'orphan_player_games': len(by_player.keys() - by_game.keys()),
