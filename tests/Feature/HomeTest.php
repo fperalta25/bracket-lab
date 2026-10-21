@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Team;
 use App\Models\Tournament;
+use Database\Seeders\Worlds2026Seeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,7 +27,8 @@ class HomeTest extends TestCase
         $response->assertOk()
             ->assertSee('Bracket Lab')
             ->assertSee('Worlds 2026')
-            ->assertSee('Puntuaciones iniciales sin calibrar')
+            ->assertSee('GPR 1.519')
+            ->assertSee('19 de octubre de 2026')
             ->assertSee('Sin revisión publicada.')
             ->assertSee('sin respaldo ni patrocinio de Riot Games')
             ->assertSee('Karmine Corp')
@@ -39,6 +41,13 @@ class HomeTest extends TestCase
     public function test_the_page_handles_an_empty_database(): void
     {
         $this->get('/')->assertOk()->assertSee('Todavía no hay datos del torneo.');
+    }
+
+    public function test_missing_gpr_profiles_do_not_fall_back_to_legacy_scores(): void
+    {
+        $this->seed(Worlds2026Seeder::class);
+        $this->get('/')->assertOk()->assertSee('Sin GPR')->assertDontSee('50/100');
+        $this->get('/?lang=en')->assertOk()->assertSee('GPR unavailable')->assertDontSee('50/100');
     }
 
     public function test_team_names_are_escaped(): void

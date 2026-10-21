@@ -8,6 +8,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(Worlds2026Seeder::class);
+        $this->call([Worlds2026Seeder::class, GprStrengthSeeder::class]);
     }
 }

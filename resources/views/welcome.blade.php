@@ -61,13 +61,21 @@
                             <h3 id="pool-{{ $pool }}">{{ __('tournament.pool', ['pool' => $pool]) }}</h3>
                             <ul>
                                 @foreach ($teams as $team)
-                                    <li><div><strong>{{ $team->acronym }}</strong><span>{{ $team->name }}</span></div><span class="region">{{ $team->region }}</span></li>
+                                    <li><div><strong>{{ $team->acronym }}</strong><span>{{ $team->name }}</span>
+                                        @if ($strengthProfiles->has($team->id))
+                                            <span>{{ __('strength.gpr', ['rating' => number_format($strengthProfiles[$team->id]['gpr'], 0, app()->getLocale() === 'es' ? ',' : '.', app()->getLocale() === 'es' ? '.' : ',')]) }}</span>
+                                        @else
+                                            <span>{{ __('strength.unavailable') }}</span>
+                                        @endif
+                                    </div><span class="region">{{ $team->region }}</span></li>
                                 @endforeach
                             </ul>
                         </section>
                     @endforeach
                 </div>
-                <p class="calibration"><strong>{{ __('tournament.uncalibrated') }}.</strong> {{ __('tournament.power_note') }}</p>
+                @if ($ratingDate)
+                    <p class="calibration"><a href="{{ $ratingSource }}">{{ __('strength.snapshot', ['date' => $ratingDate]) }}</a></p>
+                @endif
             </section>
         @else
             <p class="notice">{{ __('tournament.empty') }}</p>

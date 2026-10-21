@@ -346,10 +346,13 @@ El admin debe poder gestionar resultados sin tocar PHP, seeders, JSON de producc
 
 ```ts
 interface SimulationRequest {
-  tournamentSnapshot: TournamentSnapshot; // versión y reglas
-  scenario: ScenarioConstraints;            // resultados/fixtures bloqueados
-  powerScores: Record<TeamId, number>;
-  variance: 'low' | 'normal' | 'high';
+  modelVersion: 'gpr-context-v2';
+  snapshot: TournamentSnapshot; // versión y reglas
+  scenario: ScenarioConstraints; // resultados/fixtures bloqueados
+  strengths: StrengthProfileSet; // snapshot GPR, perfiles y procedencia congelados
+  preset: 'gpr_baseline'; // contextual_v1 se incorpora en el hito contextual
+  denominator?: number; // sensibilidad explícita; 400 provisional por defecto
+  gprOverrides?: Readonly<Record<TeamId, number>>; // puntos GPR, sin normalizar
   iterations: number;
   seed: number;
 }
