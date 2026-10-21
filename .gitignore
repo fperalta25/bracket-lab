@@ -31,3 +31,8 @@ Thumbs.db
 /test-results
 /playwright-report
 /database/*.sqlite*
+
+# Offline historical corpus; never loaded by the public app.
+/data/raw/
+/data/curated/
+/analysis/**/__pycache__/
