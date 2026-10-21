@@ -117,5 +117,15 @@
     "scenario.error_storage": "No se puede acceder a los escenarios guardados. Puedes exportar el actual a JSON.",
     "scenario.error_file": "Archivo incompatible o inválido. Usa un escenario GPR exportado por Bracket Lab, de hasta 1 MB y del mismo torneo.",
     "scenario.storage_note": "Guardados en este navegador. Exporta los importantes: el navegador puede borrarlos.",
-    "scenario.locked": "Fijado por ti"
+    "scenario.locked": "Fijado por ti",
+    "scenario.round": "Ronda suiza",
+    "scenario.complete_draw": "Completar sorteo",
+    "scenario.release_round": "Liberar ronda",
+    "scenario.known": "Participantes conocidos: :known/:total",
+    "scenario.await_results": "Fija los resultados anteriores para completar este sorteo.",
+    "scenario.opponent": "Rival de :team",
+    "scenario.change_opponent": "Cambiar rival",
+    "scenario.score_option": ":team · :score",
+    "scenario.error_round": "Bloqueo incompatible en ronda :round. Libera esa ronda o quita todos los bloqueos para empezar de nuevo.",
+    "scenario.known_games": "Partidas conocidas: :count"
 }
