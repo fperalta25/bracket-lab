@@ -148,5 +148,10 @@
     "board.score_note": "Elegir un ganador no fija el marcador. Los marcadores del ejemplo se simulan condicionados a esa elección.",
     "board.series_progress": ":done/:total series",
     "board.teams_progress": ":done/:total equipos",
-    "tournament.starting_fixtures": "Cruces de partida"
+    "tournament.starting_fixtures": "Cruces de partida",
+    "knockout.title": "Eliminatorias",
+    "knockout.champion": "Campeón",
+    "knockout.pending_team": "Participante pendiente",
+    "knockout.advance": ":team pasa a :stage.",
+    "knockout.champion_announcement": ":team es campeón."
 }

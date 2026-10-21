@@ -5,6 +5,7 @@ import type { WorkerMessage } from './worker';
 import { parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
 import { swissRoundState } from './scenario-rounds';
 import { advanceSwissBoard, BOARD_GROUPS, chooseSwissWinner, swissBoardView } from './swiss-board';
+import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView } from './knockout-board';
 import { listScenarios, storeScenario, removeScenario } from './scenario-storage';
 import { probabilityText, qualificationCount } from './presentation';
 
@@ -27,8 +28,8 @@ export function publicSimulator() {
         mode: 'official_state' as 'official_state' | 'from_scratch' | 'custom',
         previousMode: 'official_state' as 'official_state' | 'from_scratch' | 'custom',
         draftFixtures: [] as readonly Fixture[], draftInitialized: false,
-        editingRound: 1, drawIndex: 0,
-        boardUndo: null as { fixtures: readonly Fixture[]; drawIndex: number; preset: GprSimulationRequest['preset']; editingRound?: number } | null,
+        editingRound: 1, knockoutRound: 1, drawIndex: 0,
+        boardUndo: null as { fixtures: readonly Fixture[]; drawIndex: number; preset: GprSimulationRequest['preset']; editingRound?: number; knockoutRound?: number } | null,
         boardMessage: '', boardReset: false,
         scenarioName: '', selectedScenarioId: '', activeScenarioId: '', library: [] as SavedScenario[], scenarioMessage: '', libraryBusy: false,
         preset: 'gpr_baseline' as GprSimulationRequest['preset'],
@@ -48,6 +49,7 @@ export function publicSimulator() {
                     if (saved.version === 2) {
                         base = saved.base; gprOverrides = saved.gprOverrides; contextualTerms = saved.contextualTerms;
                         this.editingRound = Number.isInteger(c.editingRound) && c.editingRound >= 1 && c.editingRound <= 5 ? c.editingRound : 1;
+                        this.knockoutRound = Number.isInteger(c.knockoutRound) && c.knockoutRound >= 1 && c.knockoutRound <= 3 ? c.knockoutRound : 1;
                         this.drawIndex = Number.isSafeInteger(c.drawIndex) && c.drawIndex >= 0 ? c.drawIndex : 0;
                         this.draftFixtures = c.draftFixtures;
                         if (c.boardUndo && Array.isArray(c.boardUndo.fixtures) && Number.isSafeInteger(c.boardUndo.drawIndex)) {
@@ -87,7 +89,7 @@ export function publicSimulator() {
                         this.finishedAt = saved.finishedAt;
                     }
                 }
-            } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true }; this.teams = payload.snapshot.teams; this.editingRound = 1; this.drawIndex = 0; }
+            } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true }; this.teams = payload.snapshot.teams; this.editingRound = 1; this.knockoutRound = 1; this.drawIndex = 0; }
             void this.refreshLibrary();
             window.addEventListener('pagehide', () => this.save());
             // Finish the current run before a language reload, then restore its completed output.
@@ -128,7 +130,7 @@ export function publicSimulator() {
                 sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, base, gprOverrides, contextualTerms, snapshotId: payload.snapshot.id, profileId: payload.strengths.id,
                     controls: { mode: this.mode, preset: this.preset, iterations: this.iterations, seed: this.seed, denominator: this.denominator,
                         search: this.search, region: this.region, sorts: this.sorts,
-                        editingRound: this.editingRound, drawIndex: this.drawIndex, boardUndo: this.boardUndo, draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, finishedAt: this.finishedAt }));
+                        editingRound: this.editingRound, knockoutRound: this.knockoutRound, drawIndex: this.drawIndex, boardUndo: this.boardUndo, draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, finishedAt: this.finishedAt }));
             } catch { /* Storage availability must not prevent simulation. */ }
         },
         boardRequest(): GprSimulationRequest {
@@ -137,6 +139,7 @@ export function publicSimulator() {
                 : this.mode === 'from_scratch' ? [] : base.snapshot.fixtures } };
         },
         get board() { return swissBoardView(this.boardRequest()); },
+        get knockout() { return knockoutBoardView(this.boardRequest()); },
         currentTeamName(id: string) { return this.teams.find((team) => team.id === id)?.acronym ?? id; },
         startBoard() {
             if (this.mode === 'from_scratch') this.draftInitialized = false;
@@ -144,20 +147,35 @@ export function publicSimulator() {
         },
         fillBoard() {
             this.error = '';
-            try { const next = advanceSwissBoard(this.request(), this.drawIndex); this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex; }
+            try {
+                const swiss = advanceSwissBoard(this.request(), this.drawIndex);
+                const next = advanceKnockoutBoard({ ...this.request(), scenario: { mode: 'custom', fixtures: swiss.fixtures } }, swiss.nextDrawIndex);
+                this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
+            }
             catch { this.error = t('scenario.error_constraints'); }
         },
         pickWinner(fixtureId: string, winner: string) {
             if (this.mode !== 'custom') this.startBoard();
             this.error = ''; this.boardReset = false;
             try {
-                const previous = { fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[], drawIndex: this.drawIndex, preset: this.preset };
+                const previous = { fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[], drawIndex: this.drawIndex, preset: this.preset, editingRound: this.editingRound, knockoutRound: this.knockoutRound };
                 const old = this.draftFixtures.find((f) => f.id === fixtureId)!;
-                const next = chooseSwissWinner(this.request(), fixtureId, winner, this.drawIndex);
-                this.boardUndo = { ...previous, editingRound: old.round }; this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
-                this.boardReset = next.removedResults > 0; this.ensureModel();
+                const chosen = old.stage === 'swiss' ? chooseSwissWinner(this.request(), fixtureId, winner, this.drawIndex)
+                    : chooseKnockoutWinner(this.request(), fixtureId, winner, this.drawIndex);
+                const next = old.stage === 'swiss' ? advanceKnockoutBoard({ ...this.request(), scenario: { mode: 'custom', fixtures: chosen.fixtures } }, chosen.nextDrawIndex) : chosen;
+                this.boardUndo = previous; this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
+                this.boardReset = chosen.removedResults > 0; this.ensureModel();
                 const selected = this.draftFixtures.find((f) => f.id === fixtureId)!;
-                if (fixtureWinner(selected)) {
+                if (fixtureWinner(selected) && old.stage !== 'swiss') {
+                    this.boardMessage = old.stage === 'final' ? t('knockout.champion_announcement', { team: this.currentTeamName(winner) })
+                        : t('knockout.advance', { team: this.currentTeamName(winner), stage: t(old.stage === 'quarterfinal' ? 'simulation.semifinal' : 'simulation.final') });
+                    const current = this.draftFixtures.filter((f) => f.stage === old.stage);
+                    const expected = old.stage === 'quarterfinal' ? 4 : old.stage === 'semifinal' ? 2 : 1;
+                    if (current.length === expected && current.every((f) => fixtureWinner(f)) && old.stage !== 'final') {
+                        this.knockoutRound = old.round + 1;
+                        if (window.matchMedia('(max-width: 760px)').matches) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.knockout-column[data-active="true"] .board-team:not(:disabled)')?.focus());
+                    }
+                } else if (fixtureWinner(selected)) {
                     const states = swissRoundState(this.request(), old.round).states;
                     const loser = winner === old.teamA ? old.teamB : old.teamA;
                     const a = states.get(winner)!; const b = states.get(loser)!;
@@ -167,7 +185,8 @@ export function publicSimulator() {
                     const expected = BOARD_GROUPS[old.round - 1]!.reduce((sum, group) => sum + group.expected / 2, 0);
                     if (current.length === expected && current.every((f) => fixtureWinner(f))) {
                         this.editingRound = Math.min(5, old.round + 1);
-                        if (window.matchMedia('(max-width: 760px)').matches) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.board-column[data-active="true"] .board-team')?.focus());
+                        if (old.round === 5) this.knockoutRound = 1;
+                        if (window.matchMedia('(max-width: 760px)').matches) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(old.round === 5 ? '.knockout-column[data-active="true"] .board-team:not(:disabled)' : '.board-column[data-active="true"] .board-team')?.focus());
                     }
                 } else this.boardMessage = t('board.cleared');
                 this.save();
@@ -176,14 +195,14 @@ export function publicSimulator() {
         undoBoard() {
             if (!this.boardUndo) return;
             this.draftFixtures = this.boardUndo.fixtures; this.drawIndex = this.boardUndo.drawIndex;
-            this.preset = this.boardUndo.preset; this.editingRound = this.boardUndo.editingRound ?? 1; this.boardUndo = null; this.boardReset = false;
+            this.preset = this.boardUndo.preset; this.editingRound = this.boardUndo.editingRound ?? 1; this.knockoutRound = this.boardUndo.knockoutRound ?? 1; this.boardUndo = null; this.boardReset = false;
             this.scenarioMessage = ''; this.boardMessage = t('board.undone'); this.ensureModel(); this.save();
         },
         resetBoard() {
-            this.boardUndo = { fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[], drawIndex: this.drawIndex, preset: this.preset };
+            this.boardUndo = { fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[], drawIndex: this.drawIndex, preset: this.preset, editingRound: this.editingRound, knockoutRound: this.knockoutRound };
             this.mode = 'custom'; this.previousMode = 'custom'; this.draftInitialized = true;
             this.draftFixtures = JSON.parse(JSON.stringify(base.snapshot.fixtures)) as Fixture[];
-            this.editingRound = 1; this.boardReset = false; this.scenarioMessage = ''; this.ensureModel(); this.fillBoard(); this.save();
+            this.editingRound = 1; this.knockoutRound = 1; this.boardReset = false; this.scenarioMessage = ''; this.ensureModel(); this.fillBoard(); this.save();
         },
         get constraintSummary() {
             const fixtures = this.mode === 'custom' ? this.draftFixtures : this.mode === 'from_scratch' ? [] : base.snapshot.fixtures;
@@ -217,7 +236,7 @@ export function publicSimulator() {
             const r = copy.request;
             base = { snapshot: r.snapshot, strengths: r.strengths }; gprOverrides = r.gprOverrides;
             contextualTerms = r.contextualTerms ? { ...r.contextualTerms } : { tournamentForm: true, seriesForm: true, pressure: true, sequence: true };
-            this.editingRound = 1; this.drawIndex = 0; this.boardUndo = null; this.boardReset = false;
+            this.editingRound = 1; this.knockoutRound = 1; this.drawIndex = 0; this.boardUndo = null; this.boardReset = false;
             this.teams = r.snapshot.teams; this.mode = r.scenario.mode; this.previousMode = this.mode;
             this.draftFixtures = r.scenario.mode === 'custom' ? r.scenario.fixtures : [];
             this.draftInitialized = r.scenario.mode === 'custom';
