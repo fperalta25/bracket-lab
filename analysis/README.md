@@ -527,3 +527,113 @@ seleccionar nuevas variantes. El siguiente bloque comparará forma residual fren
 a este Elo mediante un protocolo temporal fijado antes de evaluar la variante,
 con la selección de parámetros limitada a desarrollo y sus límites explicitados.
 No es necesario conseguir más datos para iniciar esa comparación.
+
+## Forma residual — comparación incremental frente al Elo
+
+`analysis/config/residual-form-v1.json` se fijó antes de evaluar las variantes.
+Referencia: el informe y las predicciones congeladas de `internal-elo-v1`, ligados
+por SHA-256. No se recalculan ratings con la forma ni se alteran sus innovaciones.
+
+```bash
+python3 analysis/src/form_backtest.py \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --predictions-dir data/curated/internal-elo-v1 \
+  --protocol analysis/config/residual-form-v1.json \
+  --output data/curated/residual-form-v1
+```
+
+Si faltan las predicciones locales, ejecutar antes el backtest Elo descrito arriba.
+Los hashes deben coincidir con el experimento congelado. Un cambio de entorno o
+protocolo que cambie esos bytes requiere una nueva revisión, sin sustituir los
+archivos del experimento anterior bajo el mismo identificador.
+
+### Definición y selección
+
+Para cada game previo, la innovación de A es `win_a - p_baseline_pre_game`; la de B
+es su opuesta. Solo entra en el historial cuando su disponibilidad **supuesta** es
+anterior al game objetivo. El resultado del objetivo nunca participa en su feature.
+Las innovaciones proceden de predicciones secuenciales anteriores al resultado,
+no de un ajuste retrospectivo que ya conozca ese resultado.
+
+En una ventana de 14, 30 o 60 días se calcula la media de innovaciones por equipo
+y día fuente. Después se suman las medias diarias y se dividen por `días + 3`:
+los tres días de prior reducen hacia cero las muestras pequeñas. Así una Bo5 no
+aporta cinco veces el peso de una Bo1 del mismo día. Es una aproximación por día,
+no agrupación por series verificadas. La ventana se refiere a fecha de inicio y
+solo contiene resultados ya disponibles bajo el retraso supuesto del escenario.
+
+```text
+form_team = sum(mean_innovation_by_day) / (observed_days + 3)
+logit(p_candidate_A) = logit(p_baseline_A) + beta * (form_A - form_B)
+```
+
+Se contrastan nueve variantes: ventanas 14/30/60 × beta 0,5/1/2, más la referencia
+sin ajuste. Los valores de ventana, shrinkage y rejilla son decisiones de investigación,
+no parámetros calibrados. La selección minimiza log loss **solo en 2025** y con el
+retraso principal de un día. En empate numérico se conserva la opción previa más
+simple, empezando por Elo sin forma. El mismo resultado de selección se utiliza
+para los retrasos de 3 y 7 días; no se elige de nuevo mirando esos resultados.
+
+Sin historial elegible se conserva `status: missing, value: null`. El equipo no
+aporta ajuste al predictor, como prior neutral explícito; eso no acredita una forma
+observada igual a cero ni cobertura completa. Con historial, la feature se marca
+`estimated` por los supuestos de fechas/disponibilidad. Se conservan juegos y días
+de soporte. Con beta cero o diferencia cero se reutilizan exactamente los valores
+originales de p, log loss y Brier, sin introducir redondeos por conversiones extra.
+
+### Resultados reales y decisión
+
+Selección en desarrollo: **14 días, beta 1**, con shrinkage fijo de tres días.
+No se ha cambiado tras observar 2026. Informe agregado:
+`models/reports/residual-form-v1/metrics.json`.
+
+Escenario principal de disponibilidad supuesta al día siguiente:
+
+| Periodo | Games | Log loss Elo | Log loss con forma | Brier Elo | Brier con forma |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Desarrollo 2025 | 9.573 | 0,65338 | 0,65087 | 0,23048 | 0,22939 |
+| Evaluación 2026 | 7.839 | 0,64442 | 0,64165 | 0,22578 | 0,22450 |
+| Tramo final 2026 | 1.180 | 0,65654 | 0,65776 | 0,23132 | 0,23185 |
+
+La mejora de log loss sobre Elo en evaluación es 0,00278, con intervalo agrupado
+aproximado `[0,00079; 0,00483]`. En el tramo final es **−0,00122**, con intervalo
+`[−0,00582; 0,00331]`, que incluye cero. El bootstrap es pareado por los mismos games,
+con el proxy `league/year/split`, 1.000 réplicas y semilla 42. Hereda las limitaciones
+del experimento Elo: no prueba independencia por serie ni estabilidad general.
+Las métricas/intervalos de desarrollo son posteriores a selección entre candidatos;
+no son una validación independiente ajustada por esa selección.
+
+En las 348 partidas internacionales de evaluación, la forma empeora el log loss
+unos 0,00532 con el retraso principal. El tramo final internacional solo tiene 34
+games. La mejora global no se presenta como una mejora demostrada para Worlds.
+El tramo final empeora también con retrasos supuestos de tres y siete días, con
+intervalos que incluyen cero. No se adapta la ventana, el signo o el coeficiente
+para corregir estas observaciones de 2026.
+
+Se conserva **Elo sin forma como referencia para los próximos experimentos**.
+La forma reciente queda como hipótesis investigada, sin incorporarse al preset
+público ni tratar su coeficiente como calibrado. Ningún preset entrenado se habilita.
+La evidencia no justifica añadir complejidad pública en este bloque.
+
+La disponibilidad de forma para ambos equipos en evaluación es de 6.448/7.839 games;
+en el tramo final, 869/1.180. El resto puede tener historial solo para uno o ninguno.
+El informe registra esa cobertura, variantes de desarrollo, sensibilidad, calibración,
+ligas, comparaciones pareadas globales/internacionales y hashes. Las predicciones
+completas permanecen locales e ignoradas. Dos ejecuciones reales produjeron idénticos
+bytes en todos los archivos. La base congelada no se ha modificado.
+
+### Validación y siguiente bloque
+
+**126 pruebas Python**, 142 Vitest, 42 Laravel (528 aserciones) y typecheck. Los 18
+casos nuevos comprueban retrasos, expiración, agregación por día, faltantes frente
+a cero observado, antisimetría, equivalencia exacta sin efecto, residual del baseline,
+exclusión de objetivo/futuro, selección insensible a outcomes de 2026, bootstrap
+pareado frente a Elo, integridad y protección de los archivos fuente.
+
+Los resultados de 2026 son comparaciones diagnósticas: el tramo final ya se había
+consultado al evaluar Elo, y no se anuncia como test ciego nuevo. No se usarán estos
+resultados para presentar una variante retocada como si no hubiera visto 2026.
+El siguiente bloque puede contrastar estabilidad de alineaciones **observadas en
+partidas anteriores**, con proxies explícitos y sin usar la alineación del game
+objetivo como si se conociera pre-game. No necesita descargar otro dataset ni
+incorporar la forma descartada al modelo de referencia.

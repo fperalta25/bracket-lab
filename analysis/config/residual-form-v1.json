@@ -1,0 +1,31 @@
+{
+  "protocol_version": "residual-form-research-v1",
+  "baseline_metrics_sha256": "c9be83eee9299e1bdcea5c307c56e6bed7a8c38e5049656eef6354d8a7ca7f7f",
+  "baseline_protocol_sha256": "da8b10937b5bc557881fa96c6725d354d57574dc0d141f09957d3e3377265a12",
+  "windows_days": [
+    14,
+    30,
+    60
+  ],
+  "coefficients": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "aggregation": "mean_residual_per_team_source_day",
+  "shrinkage_days": 3,
+  "selection_period": "development_2025",
+  "selection_delay_days": 1,
+  "selection_metric": "log_loss",
+  "tie_tolerance": 1e-12,
+  "include_zero_effect_baseline": true,
+  "promotion_allowed": false,
+  "evaluation_interpretation": "2026 diagnostic comparison; baseline holdout previously inspected",
+  "bootstrap_replicates": 1000,
+  "bootstrap_seed": 42,
+  "cluster_fields": [
+    "league_id",
+    "year",
+    "split"
+  ]
+}
