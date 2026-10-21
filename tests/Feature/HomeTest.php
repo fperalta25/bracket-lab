@@ -83,10 +83,10 @@ class HomeTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
-    public function test_no_public_authentication_or_administration_is_exposed(): void
+    public function test_public_registration_and_unimplemented_admin_actions_are_unavailable(): void
     {
         $this->get('/register')->assertNotFound();
-        $this->get('/admin')->assertNotFound();
+        $this->get('/admin')->assertRedirect(route('admin.login'));
         $this->post('/admin/publish')->assertNotFound();
     }
 

@@ -186,3 +186,18 @@ progress { accent-color: #88d3d0; max-width: 100%; }
     .knockout-column[data-active="false"] { display: none; }
     .knockout-slots { display: flex; flex-direction: column; }
 }
+
+.admin button, .admin input { min-height: 44px; border: 1px solid #46545e; border-radius: 5px; padding: .5rem .75rem; }
+.admin button { cursor: pointer; }
+.admin :is(button, input, .table-scroll):focus-visible { outline: 2px solid #88d3d0; outline-offset: 3px; }
+.admin-login { width: min(100%, 380px); display: grid; gap: .5rem; }
+.admin-login label { margin-top: .5rem; color: #b5c0c7; font-size: .875rem; }
+.admin-login input { width: 100%; background: #181e22; }
+.admin-login input[aria-invalid="true"] { border-color: #f0bbb1; }
+.form-error { color: #f0bbb1; font-size: .875rem; }
+.admin table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .875rem; font-variant-numeric: tabular-nums; }
+.admin th, .admin td { text-align: left; padding: .65rem .8rem; border-bottom: 1px solid #2b343b; }
+.admin thead { background: #192126; }
+.admin tbody th { font-weight: 500; }
+.admin tbody th span { display: block; color: #a6b4bd; font-size: .75rem; }
+.simulator .group-redraw { font-size: 1.25rem; padding: .2rem .55rem; min-width: 44px; margin-left: auto; margin-right: .4rem; color: #88d3d0; }

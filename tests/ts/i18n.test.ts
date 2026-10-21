@@ -66,7 +66,7 @@ describe('shared translation catalogs', () => {
             const texts = [...source.matchAll(/>([^<>]*)</g)].map((match) => match[1]!);
             const labels = [...source.matchAll(/(?<![:\w-])(?:aria-label|alt|title|content)="([^"]*)"/g)]
                 .map((match) => match[1]!)
-                .filter((text) => !['dark', 'width=device-width, initial-scale=1'].includes(text));
+                .filter((text) => !['dark', 'width=device-width, initial-scale=1', 'noindex, nofollow'].includes(text));
             for (const text of [...texts, ...labels]) {
                 expect(text.replaceAll('Bracket Lab', ''), `${file}: ${text}`).not.toMatch(/\p{L}/u);
             }

@@ -19,12 +19,13 @@ function fixturesOf(request: GprSimulationRequest): readonly Fixture[] {
 }
 
 /** Draw each record group as soon as its entire membership is known, preserving existing locks. */
-export function advanceSwissBoard(request: GprSimulationRequest, drawIndex: number) {
+export function advanceSwissBoard(request: GprSimulationRequest, drawIndex: number, onlyGroup?: { round: number; record: string }) {
     let fixtures = fixturesOf(request);
     let nextDrawIndex = drawIndex;
     for (let round = 1; round <= 5; round++) {
         const info = swissRoundState({ ...request, scenario: { mode: 'custom', fixtures } }, round);
         for (const group of BOARD_GROUPS[round - 1]!) {
+            if (onlyGroup && (onlyGroup.round !== round || onlyGroup.record !== group.record)) continue;
             const ids = info.participants.filter((team) => recordOf(info.states.get(team.id)!) === group.record).map((team) => team.id);
             if (ids.length !== group.expected) continue;
             const locks = fixtures.filter((f) => f.stage === 'swiss' && f.round === round && ids.includes(f.teamA));
@@ -52,6 +53,27 @@ export function advanceSwissBoard(request: GprSimulationRequest, drawIndex: numb
     }
     validateConstraints(request.snapshot, fixtures);
     return { fixtures, nextDrawIndex };
+}
+
+/** Redraw just one group, removing only results and fixtures that depend on it. */
+export function redrawSwissGroup(request: GprSimulationRequest, round: number, record: string, drawIndex: number) {
+    const fixtures = fixturesOf(request);
+    const group = BOARD_GROUPS[round - 1]?.find((g) => g.record === record);
+    if (!group) throw new SimulationError('invalid_fixture');
+    const info = swissRoundState(request, round);
+    const teams = new Set(info.participants.filter((team) => recordOf(info.states.get(team.id)!) === record).map((team) => team.id));
+    const matches = fixtures.filter((f) => f.stage === 'swiss' && f.round === round && teams.has(f.teamA));
+    if (teams.size !== group.expected || matches.length !== group.expected / 2) throw new SimulationError('invalid_constraints');
+    const removed = new Set(matches.map((f) => f.id));
+    for (const fixture of [...fixtures].sort((a, b) => a.round - b.round)) {
+        if (fixture.stage !== 'swiss') { removed.add(fixture.id); continue; }
+        if (fixture.round > round && (teams.has(fixture.teamA) || teams.has(fixture.teamB))) {
+            removed.add(fixture.id); teams.add(fixture.teamA); teams.add(fixture.teamB);
+        }
+    }
+    const retained = fixtures.filter((f) => !removed.has(f.id));
+    const next = advanceSwissBoard({ ...request, scenario: { mode: 'custom', fixtures: retained } }, drawIndex, { round, record });
+    return { ...next, removedResults: fixtures.filter((f) => removed.has(f.id) && fixtureWinner(f)).length };
 }
 
 /** A changed earlier choice resets later draws/results atomically; the UI keeps an undo snapshot. */
