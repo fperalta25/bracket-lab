@@ -116,7 +116,7 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
 y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
 ejemplo disponibles. Fase 3: escenarios locales y cuadro suizo R1–R5 interactivo, con ganadores por clic
-y sorteos automáticos por grupo; eliminatorias interactivas hasta el campeón. Sigue pendiente la administración de Fase 4.
+y sorteos automáticos por grupo; eliminatorias interactivas hasta el campeón y resorteo por grupo. Fase 4 iniciada con acceso protegido y consulta; edición y publicación pendientes.
 
 ## Base GPR v2
 
@@ -417,6 +417,59 @@ Firefox en ES/EN: recorrido completo en escritorio y móvil, teclado, simulació
 Comprobado también a 768 px, con importación de marcadores v1 y sorteo parcial importado:
 se muestran los marcadores originales y se conservan los cuartos ya fijados.
 
+
+## Resorteos y ceros determinados
+
+El botón ↻ de cada grupo suizo resortea solo ese record: por ejemplo, `2-1` mantiene
+los cruces y las elecciones de `1-2`. Se retiran los resultados del grupo y sus
+fixtures dependientes; sobreviven los cruces posteriores independientes. El knockout
+se retira porque depende de la clasificación/sorteo suizos. Deshacer restaura el cuadro
+y el contador de sorteo completos. Se conserva el muestreo de emparejamientos completos
+con el mínimo número de rematches, y las reglas de pools/regiones para R1. Un nuevo
+sorteo puede coincidir con el anterior; no se fuerza un cambio sesgando la distribución.
+
+Las tablas muestran **0 %** si un resultado es imposible por los marcadores oficiales
+o ganadores elegidos: records incompatibles con las victorias/derrotas conocidas,
+clasificación descartada y puestos finales incompatibles con el avance o eliminación.
+La comprobación es conservadora y se basa en el request de los resultados mostrados,
+no en cambios posteriores al cuadro. Si un caso aún posible no aparece en la muestra,
+se conserva el límite aproximado `3/N`. No se infiere imposibilidad de un recuento cero
+ni se cambian los agregados, el motor o los JSON existentes.
+
+## Administración · primer bloque de Fase 4
+
+Acceso en [/admin/login](http://localhost:8000/admin/login), también enlazado al pie
+de la página. Sesiones Laravel y permiso `is_admin` explícito, sin registro público,
+usuarios predeterminados ni promoción automática de cuentas existentes. La migración
+marca como no administradores a los usuarios anteriores.
+
+Para crear una cuenta local:
+
+```bash
+podman compose run --rm app php artisan migrate
+podman compose run --rm app php artisan admin:create tu-correo@example.com --name="Tu nombre"
+```
+
+El comando solicita y confirma la contraseña de forma oculta, sin argumentos ni variables
+con contraseñas. Exige al menos 12 caracteres y como máximo 72 bytes por bcrypt;
+rechaza correos duplicados y no sobrescribe usuarios. Ejecutarlo en una terminal interactiva.
+No se crea una cuenta real durante las comprobaciones del proyecto.
+
+El panel consulta los 16 equipos, pools, seeds, GPR fechado, cruces y marcadores existentes.
+Login, validación, datos, estados vacíos y cierre de sesión están disponibles en ES/EN.
+La sesión se regenera al entrar y se invalida al salir; login/logout conservan CSRF,
+hay límites por cuenta/IP y por IP, y las páginas admin usan `no-store`. El simulador
+público continúa sin requerir sesión ni cuenta.
+
+Este bloque no edita datos oficiales: quedan pendientes borradores, validación de
+cambios, publicación atómica e historial de revisiones. Los documentos nuevos y el
+modelo entrenado siguen aplazados, sin migraciones de escenarios ni cambios de modelo.
+
+Validación conjunta: **125 pruebas Vitest y 32 PHP**, tipos, build y Pint. Incluye ceros
+determinados, conservación de casos no observados, resorteos y dependencias; autenticación,
+autorización, sesiones, CSRF, límites de acceso y creación segura de cuentas. Firefox:
+resorteo `2-1`, conservación de `1-2`, deshacer, tablas ES/EN y persistencia en 360/1440 px;
+login, errores, consulta y logout ES/EN en 360/768/1440 px con base de pruebas aislada.
 
 ## Internacionalización
 
