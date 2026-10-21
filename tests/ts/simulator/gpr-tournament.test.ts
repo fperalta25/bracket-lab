@@ -13,6 +13,12 @@ describe('GPR baseline integration and compatibility', () => {
             .toBe('8583e6d8e2f021f715c1817e8dddb1a64758983126580e05a9d559fac7e06dc4');
     });
 
+    it('pins the keyed GPR engine output to its recorded version', () => {
+        const { aggregates, example } = runSimulations(gprSeedRequest(10, 42));
+        expect(createHash('sha256').update(JSON.stringify({ aggregates, example })).digest('hex'))
+            .toBe('b5a0987c12e58b01c2c55d1645122afe9f1a0f5f8771dec97880caf76dabf4fc');
+    });
+
     it('rejects unversioned, mixed and unsupported contextual requests without reinterpretation', () => {
         const legacy = { snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, variance: 'normal', iterations: 1, seed: 42 };
         expect(() => runSimulations(legacy as SimulationRequest)).toThrow('incompatible_model');
@@ -38,7 +44,7 @@ describe('GPR baseline integration and compatibility', () => {
         expect(first.metadata.model).toMatchObject({ modelVersion: 'gpr-context-v2', preset: 'gpr_baseline',
             denominator: 400, calibration: { status: 'provisional', calibrationId: null }, hypothetical: false,
             enabledTerms: { context: false, tournamentForm: false, seriesForm: false, pressure: false, sequence: false } });
-        expect(first.metadata.request).toEqual(request);
+        expect(first.metadata.request).toEqual(prepareSimulation(request).request);
     });
 
     it('retains exact tournament invariants and reproduces a result from its full manifest', () => {

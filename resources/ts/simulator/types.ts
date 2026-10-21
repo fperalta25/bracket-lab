@@ -30,7 +30,8 @@ export interface StrengthProfile {
     readonly afterLossElo: number;
     readonly contextAdjustment: { readonly elo: number; readonly active: boolean; readonly condition: string | null };
     readonly calibrationStatus: 'experimental';
-    readonly evidence: { readonly key: string; readonly sourceUrl: string };
+    readonly evidence: { readonly key: string; readonly sourceUrl: string;
+        readonly confidence: 'medium' | 'medium_low' | 'low' | 'context_medium_magnitude_low' };
 }
 
 export interface StrengthProfileSet {
@@ -144,6 +145,7 @@ export interface RematchException {
 }
 
 export interface TournamentResult {
+    readonly simulationIndex?: number;
     readonly matches: readonly PlayedMatch[];
     readonly swissRecords: Readonly<Record<TeamId, SwissRecord>>;
     readonly finishes: Readonly<Record<TeamId, FinalBucket>>;

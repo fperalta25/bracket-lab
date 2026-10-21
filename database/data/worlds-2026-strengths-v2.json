@@ -35,7 +35,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:TLAW",
-                "sourceUrl": "https://pem.lol/lcs/2026/summer/matches"
+                "sourceUrl": "https://pem.lol/lcs/2026/summer/matches",
+                "confidence": "low"
             }
         },
         {
@@ -57,7 +58,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:KC",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/World_Championship/2026/Match_Schedule"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/World_Championship/2026/Match_Schedule",
+                "confidence": "low"
             }
         },
         {
@@ -79,7 +81,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:LOS",
-                "sourceUrl": "https://gol.gg/teams/team-matchlist/2895/split-ALL/tournament-/"
+                "sourceUrl": "https://gol.gg/teams/team-matchlist/2895/split-ALL/tournament-/",
+                "confidence": "low"
             }
         },
         {
@@ -101,7 +104,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:DK",
-                "sourceUrl": "https://ewc-web.prod.esf-systems.com/en/competitions/2026/league-of-legends"
+                "sourceUrl": "https://ewc-web.prod.esf-systems.com/en/competitions/2026/league-of-legends",
+                "confidence": "medium_low"
             }
         },
         {
@@ -123,7 +127,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:TES",
-                "sourceUrl": "https://www.sheepesports.com/en/articles/zuian-unable-to-start-for-top-esports-at-worlds-due-to-visa-issues-369-returns/en"
+                "sourceUrl": "https://www.sheepesports.com/en/articles/zuian-unable-to-start-for-top-esports-at-worlds-due-to-visa-issues-369-returns/en",
+                "confidence": "context_medium_magnitude_low"
             }
         },
         {
@@ -145,7 +150,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:AL",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/Anyone%27s_Legend/Results"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Anyone%27s_Legend/Results",
+                "confidence": "medium_low"
             }
         },
         {
@@ -167,7 +173,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:GEN",
-                "sourceUrl": "https://gol.gg/tournament/tournament-matchlist/LCK%202026%20Season%20Playoffs/"
+                "sourceUrl": "https://gol.gg/tournament/tournament-matchlist/LCK%202026%20Season%20Playoffs/",
+                "confidence": "medium"
             }
         },
         {
@@ -189,7 +196,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:IG",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/LPL/2026/Regional_Finals"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/LPL/2026/Regional_Finals",
+                "confidence": "low"
             }
         },
         {
@@ -211,7 +219,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:TSW",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/Secret_Whales/Results"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Secret_Whales/Results",
+                "confidence": "low"
             }
         },
         {
@@ -233,7 +242,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:MKOI",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/Movistar_KOI/Results"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Movistar_KOI/Results",
+                "confidence": "medium_low"
             }
         },
         {
@@ -255,7 +265,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:LYON",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/Mid-Season_Invitational/2026/Bracket_Stage"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Mid-Season_Invitational/2026/Bracket_Stage",
+                "confidence": "low"
             }
         },
         {
@@ -277,7 +288,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:T1",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/T1/Results"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/T1/Results",
+                "confidence": "medium_low"
             }
         },
         {
@@ -299,7 +311,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:G2",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/G2_Esports/Results"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/G2_Esports/Results",
+                "confidence": "medium"
             }
         },
         {
@@ -321,7 +334,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:BLG",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/First_Stand_Tournament/2026"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/First_Stand_Tournament/2026",
+                "confidence": "medium"
             }
         },
         {
@@ -343,7 +357,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:CFO",
-                "sourceUrl": "https://www.sheepesports.com/en/all/teams/CTBC%20Flying%20Oyster"
+                "sourceUrl": "https://www.sheepesports.com/en/all/teams/CTBC%20Flying%20Oyster",
+                "confidence": "low"
             }
         },
         {
@@ -365,7 +380,8 @@
             "calibrationStatus": "experimental",
             "evidence": {
                 "key": "research:HLE",
-                "sourceUrl": "https://liquipedia.net/leagueoflegends/Mid-Season_Invitational/2026/Bracket_Stage"
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Mid-Season_Invitational/2026/Bracket_Stage",
+                "confidence": "medium"
             }
         }
     ]

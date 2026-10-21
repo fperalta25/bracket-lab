@@ -2,7 +2,7 @@ import { requireCondition } from './errors';
 import type { GprSimulationRequest, StrengthProfileSet, Team } from './types';
 
 export const GPR_MODEL_VERSION = 'gpr-context-v2';
-export const GPR_ENGINE_VERSION = 'swiss16-gpr-baseline-v2';
+export const GPR_ENGINE_VERSION = 'swiss16-gpr-baseline-keyed-v2';
 export const DEFAULT_ELO_DENOMINATOR = 400;
 
 export function validateDenominator(value: number): void {
@@ -49,7 +49,8 @@ export function validateStrengthProfiles(set: StrengthProfileSet, teams: readonl
             && bounded(profile.sigmaTournament, 0, 300) && bounded(profile.sigmaSeries, 0, 300)
             && bounded(profile.pressureElo, -100, 100) && bounded(profile.afterWinElo, -100, 100) && bounded(profile.afterLossElo, -100, 100)
             && profile.calibrationStatus === 'experimental' && profile.evidence && nonempty(profile.evidence.key)
-            && sourceUrl(profile.evidence.sourceUrl), 'invalid_request', context);
+            && sourceUrl(profile.evidence.sourceUrl)
+            && ['medium', 'medium_low', 'low', 'context_medium_magnitude_low'].includes(profile.evidence.confidence), 'invalid_request', context);
         const adjustment = profile.contextAdjustment;
         requireCondition(adjustment && bounded(adjustment.elo, -100, 100) && typeof adjustment.active === 'boolean'
             && (adjustment.condition === null || nonempty(adjustment.condition)), 'invalid_request', context);
@@ -61,6 +62,8 @@ export function validateStrengthProfiles(set: StrengthProfileSet, teams: readonl
 export function validateGprRequest(request: GprSimulationRequest): void {
     requireCondition(request.preset === 'gpr_baseline', 'unsupported_model', { field: 'preset' });
     requireCondition(!('variance' in request) && !('powerScores' in request), 'incompatible_model', { reason: 'legacy_fields' });
+    requireCondition(request.snapshot.teams.every((team) => !Object.hasOwn(team, 'powerScore') && !Object.hasOwn(team, 'power_score')),
+        'incompatible_model', { reason: 'legacy_team_scores' });
     validateStrengthProfiles(request.strengths, request.snapshot.teams);
     if (request.denominator !== undefined) validateDenominator(request.denominator);
     if (request.gprOverrides !== undefined) {

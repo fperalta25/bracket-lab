@@ -123,18 +123,19 @@ export function validateRequest(request: SimulationRequest): readonly Fixture[] 
     requireCondition(integer(request.seed, 0, 0xffff_ffff), 'invalid_request', { field: 'seed' });
     if (request.modelVersion === 'gpr-context-v2') validateGprRequest(request);
     else {
-        requireCondition(!('strengths' in request) && !('gprOverrides' in request), 'incompatible_model', { reason: 'gpr_fields' });
+        requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request),
+            'incompatible_model', { reason: 'gpr_fields' });
         for (const team of request.snapshot.teams) {
             requireCondition(Number.isFinite(team.powerScore) && team.powerScore >= 0 && team.powerScore <= 100,
                 'invalid_snapshot', { field: 'legacy_power_score', team: team.id });
         }
         requireCondition(Object.hasOwn(VARIANCE_SCALES, request.variance), 'invalid_request', { field: 'variance' });
         if (request.powerScores !== undefined) {
-        requireCondition(request.powerScores && typeof request.powerScores === 'object' && !isArray(request.powerScores), 'invalid_request', { field: 'power_scores' });
-        const ids = new Set(request.snapshot.teams.map((team) => team.id));
-        for (const [id, power] of Object.entries(request.powerScores)) {
-            requireCondition(ids.has(id) && Number.isFinite(power) && power >= 0 && power <= 100, 'invalid_request', { field: 'power_scores', team: id });
-        }
+            requireCondition(request.powerScores && typeof request.powerScores === 'object' && !isArray(request.powerScores), 'invalid_request', { field: 'power_scores' });
+            const ids = new Set(request.snapshot.teams.map((team) => team.id));
+            for (const [id, power] of Object.entries(request.powerScores)) {
+                requireCondition(ids.has(id) && Number.isFinite(power) && power >= 0 && power <= 100, 'invalid_request', { field: 'power_scores', team: id });
+            }
         }
     }
     const fixtures = request.scenario.mode === 'from_scratch' ? []

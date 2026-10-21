@@ -1,4 +1,5 @@
 import { GPR_ENGINE_VERSION } from './gpr';
+import { KEYED_RANDOM_VERSION } from './random';
 import type { SimulationRequest } from './types';
 
 export function modelManifest(request: SimulationRequest, ratings: Readonly<Record<string, number>>) {
@@ -15,6 +16,6 @@ export function modelManifest(request: SimulationRequest, ratings: Readonly<Reco
         hypothetical: denominator !== request.strengths.calibration.eloDenominator || Object.keys(request.gprOverrides ?? {}).length > 0,
         effectiveRatings: { ...ratings },
         enabledTerms: { context: false, tournamentForm: false, seriesForm: false, pressure: false, sequence: false },
-        randomness: { algorithm: 'mulberry32-v1', hashVersion: null, streams: 'sequential-v1' },
+        randomness: { ...KEYED_RANDOM_VERSION },
     } as const;
 }

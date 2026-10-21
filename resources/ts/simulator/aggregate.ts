@@ -1,4 +1,4 @@
-import { createRandom } from './random';
+import { createRandom, createTournamentRandom } from './random';
 import { prepareSimulation, simulateTournament } from './tournament';
 import { modelManifest } from './manifest';
 import { FINAL_BUCKETS, SWISS_RECORDS, type FinalBucket, type SimulationRequest, type SwissRecord, type Team, type TournamentResult } from './types';
@@ -57,11 +57,14 @@ export function runSimulations(request: SimulationRequest): {
         request: SimulationRequest };
 } {
     const prepared = prepareSimulation(request);
+    request = prepared.request;
     const random = createRandom(request.seed);
     const aggregates = createAggregates(request.snapshot.teams);
-    const example = simulateTournament(prepared, random);
+    const simulate = (index: number): TournamentResult => simulateTournament(prepared, request.modelVersion === 'legacy-score-v1'
+        ? random : createTournamentRandom(request.seed, index));
+    const example = simulate(0);
     accumulate(aggregates, example);
-    for (let iteration = 1; iteration < request.iterations; iteration++) accumulate(aggregates, simulateTournament(prepared, random));
+    for (let iteration = 1; iteration < request.iterations; iteration++) accumulate(aggregates, simulate(iteration));
     return { aggregates, example, metadata: {
         seed: request.seed, iterations: request.iterations, revision: request.snapshot.revision,
         sourceMode: request.scenario.mode, rulesVersion: request.snapshot.rules.version,

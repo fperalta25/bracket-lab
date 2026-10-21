@@ -16,6 +16,8 @@ describe('dated GPR profile set', () => {
         validateStrengthProfiles(profiles(), [...teams].reverse());
         expect(strengths.ratingSnapshot.asOf).toBe('2026-10-19');
         expect(strengths.calibration).toEqual({ eloDenominator: 400, status: 'provisional', calibrationId: null });
+        const confidence: Record<string, string> = { media: 'medium', 'media-baja': 'medium_low', baja: 'low',
+            'media (contexto), baja (magnitud)': 'context_medium_magnitude_low' };
         for (const profile of strengths.profiles) {
             const team = teams.find((team) => team.id === profile.teamId)!;
             const original = source.profiles.find((item) => item.team_acronym === team.acronym)!;
@@ -29,6 +31,7 @@ describe('dated GPR profile set', () => {
             expect(profile.contextAdjustment.elo).toBe(original.context_adjustment_elo_experimental);
             expect(profile.contextAdjustment.active).toBe(false);
             expect(profile.calibrationStatus).toBe('experimental');
+            expect(profile.evidence.confidence).toBe(confidence[original.confidence_label]);
         }
     });
 
