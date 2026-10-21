@@ -651,6 +651,21 @@ activa el factor en la web. [Protocolo](analysis/config/lineup-stability-v1.json
 Siguiente bloque: revisar los parámetros provisionales del Elo propio con desarrollo,
 sin trasladarlos a GPR ni seleccionar variantes por su resultado en 2026.
 
+## Elo propio · selección del parámetro K
+
+Rejilla predefinida K=8/16/32/64, seleccionada solo con desarrollo 2025 y el retraso
+principal. **Vuelve a elegirse K=32**: log loss 0,65338, frente a 0,65471 (K=16),
+0,66135 (K=8) y 0,66779 (K=64). Se fijan las unidades internas (divisor 400/origen
+1500), sin confundir su escala con GPR ni ajustar ambos parámetros equivalentes.
+Las predicciones coinciden exactamente con la referencia anterior para los tres
+retrasos; no se cambia el modelo público ni se afirma una calibración validada.
+
+[Protocolo](analysis/config/internal-elo-tuning-v1.json),
+[informe](models/reports/internal-elo-tuning-v1/metrics.json) y
+[comandos/límites](analysis/README.md). 159 pruebas Python, 142 Vitest, 42 Laravel
+(528 aserciones), typecheck y reproducción byte a byte. Siguiente hipótesis:
+calibración global de confianza con selección limitada a desarrollo.
+
 ## Internacionalización
 
 - `lang/es.json` y `lang/en.json` son los únicos catálogos de interfaz. Cada cadena nueva

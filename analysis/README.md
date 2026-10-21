@@ -737,3 +737,80 @@ Siguiente bloque: revisar los parámetros provisionales del **Elo propio** con
 selección temporal en desarrollo y evaluación diagnóstica de estabilidad. No se
 trasladarán esos parámetros a la escala GPR, ni se retocarán factores contextuales
 para hacerlos ganar después de observar 2026.
+
+## Parámetro de actualización del Elo propio — selección en desarrollo
+
+El experimento `analysis/config/internal-elo-tuning-v1.json` fija una rejilla de
+**K=8/16/32/64** antes de calcular sus métricas. Solo 2025 y el retraso principal de
+un día seleccionan K. Se recalcula el calentamiento de 2024 para cada alternativa,
+sin utilizar ningún game de 2026 en esa selección. Los empates numéricos conservan
+K=32, la referencia existente. No se incorporan forma, alineaciones o bonos.
+
+```bash
+python3 analysis/src/elo_tuning.py \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --corpus-audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --identity-audit models/reports/chaincc-identities-v3b/audit.json \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --predictions-dir data/curated/internal-elo-v1 \
+  --protocol analysis/config/internal-elo-tuning-v1.json \
+  --output data/curated/internal-elo-tuning-v1
+```
+
+### Qué se ajusta y qué no
+
+K controla la velocidad de actualización con el error de predicción pasado. Se
+mantienen divisor 400 y rating inicial 1500 como convenciones de escala. Para Elo
+interno, escalar todos los ratings, K y divisor por el mismo factor, o desplazar
+el origen de ratings, conserva las probabilidades. Por eso no se buscan K y divisor
+independientemente: lo identificable de la actualización es su relación K/divisor.
+No se estima el divisor de probabilidades **GPR** con resultados y ratings propios.
+
+El K elegido queda fijo para los tres retrasos y todos los periodos de evaluación.
+Los ratings continúan aprendiendo secuencialmente tras cada disponibilidad supuesta,
+como en el primer benchmark; no se vuelven a seleccionar hiperparámetros en 2026.
+El calentamiento, los siete días de separación, la cuarentena, las hipótesis de
+fechas/disponibilidad y el bootstrap agrupado se conservan.
+
+### Resultado
+
+Log loss en las **9.573 partidas de desarrollo de 2025**, menor es mejor:
+
+| K | Log loss |
+| --- | ---: |
+| 8 | 0,66135 |
+| 16 | 0,65471 |
+| **32** | **0,65338** |
+| 64 | 0,66779 |
+
+La selección devuelve **K=32**. No se amplía la rejilla después de ver 2026 ni se
+presenta este mínimo entre cuatro candidatos como un óptimo universal o una prueba
+de significación entre ellos. No hay un nuevo parámetro que incorporar a la web.
+
+La evaluación principal se mantiene: 7.839 games de 2026, log loss 0,64442 y Brier
+0,22578; tramo final de 1.180 games, 0,65654 y 0,23132. Las predicciones seleccionadas
+son idénticas byte a byte a las de la referencia original para retrasos de 1/3/7 días.
+Sus diferencias pareadas e intervalos `[0, 0]` reflejan **identidad de predicciones**,
+no certeza estadística sobre el rendimiento futuro del modelo.
+
+Informe agregado: `models/reports/internal-elo-tuning-v1/metrics.json`, con candidatos
+de desarrollo, protocolo de replay seleccionado, calibración, ligas, internacionales,
+comparaciones pareadas y hashes. Conserva estado `development_selected_not_publicly_validated`;
+no afirma calibración probabilística, estabilidad por región o mejora sobre GPR.
+2026 sigue siendo diagnóstico por la inspección de esos periodos en experimentos
+anteriores. Las métricas de desarrollo se consultan tras la selección.
+
+### Comprobación y siguiente paso
+
+**159 pruebas Python**, 142 Vitest, 42 Laravel (528 aserciones) y typecheck. Los doce
+casos nuevos cubren equivalencia de escala/origen, selección sin outcomes de 2026,
+empates, exclusión de cambios de divisor/retraso, rejillas inválidas, ausencia de datos
+de desarrollo, entradas inmutables, pipeline reproducible, compatibilidad exacta
+con K=32, integridad y protección de archivos. Dos ejecuciones reales produjeron
+exactamente los mismos bytes de informe y predicciones. Se verificaron recuentos
+y hashes contra la referencia congelada. Solo el informe agregado se versiona.
+
+Se mantiene Elo K=32 como referencia de investigación y GPR como modelo público
+predeterminado. No se habilita un artefacto entrenado ni se transfieren estas unidades
+al GPR. El siguiente bloque puede contrastar calibración global de confianza de las
+predicciones, con selección en desarrollo, sin retocar estos parámetros por 2026.
