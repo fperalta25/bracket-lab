@@ -1,22 +1,19 @@
 # Worlds Simulator — Especificación funcional y técnica para Codex
 
-> **Estado:** propuesta de implementación · **Fecha:** 21-10-2026 · **Idiomas del MVP:** español e inglés · **Rama principal de desarrollo:** `development`
+> **Estado:** especificación viva · **Revisión:** 2 (modelo GPR contextual) · **Fecha:** 21-10-2026 · **Idiomas del MVP:** español e inglés · **Rama principal de desarrollo:** `development`
 >
 > **Objetivo para Codex:** implementar progresivamente una aplicación web pública, rápida e intuitiva para simular Worlds 2026 de League of Legends miles de veces, respetando el formato del torneo, y consultar probabilidades de clasificación y de resultado final. Solo la administración requiere autenticación.
 
 ## 1. Principios de producto
-
-**Requisitos de interfaz permanentes:** aplicar el [anexo de UX sin metatexto](WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md)
-y el [anexo de internacionalización ES/EN](WORLDS_2026_ANEXO_I18N_EN_ES.md) en todas las vistas,
-públicas y de administración. Cada pantalla requiere revisión de copy y verificación en ambos idiomas.
 
 1. **La exactitud de las reglas es prioritaria.** Nunca simplificar un sorteo de forma que produzca enfrentamientos inválidos. Distinguir claramente reglas oficiales, supuestos estadísticos y escenarios hipotéticos.
 2. **UX primero.** Interfaz limpia, compacta, legible, oscura y elegante, con un toque e-sports moderado. Nada de paneles sobrecargados, efectos gratuitos ni textos redundantes.
 3. **Uso inmediato sin cuenta.** Entrar, elegir un escenario, configurar las pocas opciones importantes y pulsar «Simular». No solicitar registro, correo ni permisos al público.
 4. **Bajo coste.** Las simulaciones corren en el navegador, sin trabajos de cómputo de invitados en el VPS; el servidor solo publica la configuración oficial y permite administrarla.
 5. **Fiabilidad y transparencia.** Resultados reproducibles con semilla, validaciones estrictas, pruebas automatizadas y aclaración visible de que las probabilidades **son estimaciones del modelo**, no probabilidades oficiales.
-6. **Desarrollo incremental.** Completar y verificar cada etapa antes de abordar la siguiente. Evitar arquitecturas excesivas, abstracciones prematuras y dependencias grandes.
-7. **Portfolio profesional.** Código y commits profesionales, documentación útil, historial limpio y diseño original; sin marcas de asistentes de IA en nombres de ramas o mensajes de commit.
+6. **Modelo auditable.** El GPR fechado es fortaleza base; consistencia, presión, racha y cambios de plantilla se versionan y se distinguen claramente de resultados observados. El preset GPR es la referencia neutral.
+7. **Desarrollo incremental.** Completar y verificar cada etapa antes de abordar la siguiente. Evitar arquitecturas excesivas, abstracciones prematuras y dependencias grandes.
+8. **Portfolio profesional.** Código y commits profesionales, documentación útil, historial limpio y diseño original; sin marcas de asistentes de IA en nombres de ramas o mensajes de commit.
 
 ### Alcance del MVP
 
@@ -24,7 +21,7 @@ públicas y de administración. Cada pantalla requiere revisión de copy y verif
 - Datos oficiales, configuración de equipos y actualización manual de sorteos/resultados desde panel admin.
 - Simulación completa del suizo y las eliminatorias con **partidas individuales** en Bo1, Bo3 y Bo5.
 - Tres formas de empezar: desde cero, desde la situación oficial actual y desde un escenario personalizado.
-- Configuración de fuerza relativa, varianza de resultados y número de iteraciones.
+- GPR oficial fechado, presets GPR puro/contextual, perfiles individuales, imprevisibilidad exploratoria y número de iteraciones. Las cifras contextuales iniciales son hipótesis no calibradas.
 - Tabla de probabilidad por puesto final; tabla de resultado suizo; estadísticas adicionales útiles.
 - Escenarios del visitante guardados localmente, sin cuentas.
 - Diseño responsive y accesible.
@@ -77,11 +74,13 @@ Un torneo tiene `id`, `year`, `slug`, `name`, `format_version`, `status` y `publ
 
 ### 3.2. Equipo
 
-- Identificador estable, nombre, acrónimo único dentro del torneo, región, *seed regional* (informativo para el MVP), **pool asignado explícitamente**, logo opcional y `power_score` 0–100.
+- Identificador estable, nombre, acrónimo único dentro del torneo, región, *seed regional* (informativo para el MVP), **pool asignado explícitamente** y logo opcional. La fortaleza queda en un **perfil de fuerza versionado** asociado al equipo, no en un `power_score` anónimo de 0–100.
 - El pool **nunca se deriva automáticamente** del seed; el administrador lo asigna. Validar cuatro equipos por pool en el formato 2026.
 - Regiones 2026: `LCK`, `LPL`, `LEC`, `LCS`, `LCP` (Asia-Pacífico; no confundir con un identificador `APAC`) y `CBLOL`.
-- No presumir que el `power_score` deriva del seed o de rankings publicados. Inicialmente pueden cargarse valores neutros de demostración (50) con aviso explícito **«Puntuaciones iniciales sin calibrar»**, hasta que el admin configure estimaciones razonables.
-- El visitante podrá modificar localmente power scores sin alterar los datos oficiales.
+- **Cargar GPR de Riot 19-10-2026 en puntos originales**, para los 16 participantes; conservar `rating_snapshot_id`, fecha y enlace de origen. No actualizar silenciosamente mientras avanza Worlds.
+- Cada perfil define GPR, categoría de consistencia (alta/normal/baja), sigmas de torneo/serie, presión, después de ganar/perder, ajuste de contexto, procedencia, confianza y revisión. Los parámetros *distintos del GPR* son experimentales hasta calibración.
+- El visitante podrá modificar **perfiles localmente**, sin alterar datos oficiales; un GPR no es un porcentaje ni se convierte arbitrariamente desde 0–100.
+- Escenarios creados durante el desarrollo con `power_score` 0–100 requieren versión `legacy-score-v1`, conversión explícita verificada o reset consentido. **Nunca** reinterpretar 50 como rating GPR.
 
 ### 3.3. Partido frente a serie
 
@@ -108,7 +107,7 @@ El admin trabaja sobre un **borrador** y pulsa «Publicar cambios» cuando todo 
 
 Un escenario del visitante es una copia editable del torneo publicado, con:
 
-- ID local, nombre, fecha, revisión base, parámetros de simulación, power scores sobrescritos y valores de sorteos/resultados fijados.
+- ID local, nombre, fecha, revisión base, parámetros de simulación, perfiles/GPR sobrescritos y valores de sorteos/resultados fijados.
 - `source_mode`: `from_scratch`, `official_state` o `custom`.
 - Semilla PRNG y número de simulaciones usado en la última ejecución.
 - Estadísticas agregadas opcionales en IndexedDB para reabrirlas; validar versión de formato al importar.
@@ -224,41 +223,46 @@ Son siete categorías exclusivas:
 
 La suma de todos los equipos de cada simulación es siempre 16.
 
-## 6. Modelo probabilístico — explícito y comprensible
+## 6. Modelo probabilístico — GPR de Riot + perfiles contextuales
 
-### 6.1. Probabilidad de ganar una **partida**
+**Fuente técnica normativa para Codex:** `WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md`. Leerlo íntegramente antes de modificar el algoritmo de simulación. En caso de discrepancia sobre ratings, calibración, consistencia, presión, momentum, posterior, versiones, datos y validaciones, **prevalece el anexo v2** sobre esta sección y cualquier implementación antigua 0–100. Las reglas del torneo de §5 siguen vigentes sin cambios.
 
-Cada equipo tiene un `power_score` editable (`0..100`), no un porcentaje. Modelo simple inicial:
+### 6.1. Ratings y probabilidades por game
+
+- Utilizar los **Global Power Rankings (GPR) de Riot**, con snapshot oficial fechado **19 de octubre de 2026** (16 equipos; ver anexo). No codificar las posiciones ordinales como distancia de fuerza.
+- Por partida, dadas las fortalezas efectivas `R_A*` y `R_B*`:
 
 ```text
-powerDiff = effectivePower(A) - effectivePower(B)
-pGame(A gana) = 1 / (1 + exp(-powerDiff / scale))
+P(A gana) = 1 / (1 + 10 ^ ((R_B* - R_A*) / D))
 ```
 
-Parámetro `scale` según selector de varianza:
+- `D = 400` inicial es **provisional**, no una calibración garantizada para el GPR de Riot. Ajustarlo solo tras comparar predicciones con resultados históricos previos a la fecha prevista. No aplicar probabilidades mínimas arbitrarias de 5% ni multiplicadores regionales que duplican la información GPR.
+- Sortear **cada game individualmente** con PRNG determinista; las Bo3 y Bo5 se resuelven por acumulación de victorias de games, no por una única tirada de serie.
 
-| Opción visible | `scale` inicial propuesto | Significado |
-|---|---:|---|
-| Poca varianza | 9 | Favoritos más consistentes |
-| Varianza normal (por defecto) | 15 | Equilibrio de sorpresas y favoritos |
-| Mucha varianza | 24 | Más sorpresas |
+### 6.2. Presets
 
-Estos valores **no están calibrados empíricamente**. Documentarlos y permitir cambiarlos internamente tras pruebas; no presentarlos como probabilidades extraídas de Riot. Con igualdad de potencia, `p = 0,5`, y al intercambiar equipos las probabilidades deben sumar 1. Evitar probabilidades absolutas extremas con un acotamiento simétrico p. ej. `0,05..0,95` documentado si se considera necesario; probar que mantiene simetría.
+| Preset | Fuerza efectiva | Estado |
+|---|---|---|
+| `gpr_baseline` | `GPR` solamente | **Predeterminado** hasta validación; referencia neutral |
+| `contextual_v1` | `GPR + ajuste de contexto + forma del torneo + forma de serie + presión + transiciones` | Experimental, configurable, con procedencia visible |
 
-**Cada partida** consume una tirada aleatoria independiente con esa probabilidad; una Bo3 termina en 2 victorias y una Bo5 en 3. Guardar marcador de cada serie y, para la simulación de ejemplo, el orden de vencedores de sus games. Nunca sustituir una Bo5 por una sola moneda ponderada.
+**Forma estocástica**: `T_i~Normal(0, sigma_t_i²)` sorteado una vez por torneo y `S_i~Normal(0, sigma_s_i²)` una vez por serie. Ambos son por equipo, con media cero. Consistencia alta 20/10; normal 40/20; baja 65/30 puntos de rating (hipótesis sujetas a calibración). No volver a sortearlos en cada game. La clasificación de cada uno de los 16 equipos y todos sus parámetros están en el anexo y en `WORLDS_2026_STRENGTH_PROFILES_V2.json`.
 
-**Semilla reproducible:** generador pseudoaleatorio determinista explícito y probado, independiente de `Math.random()` global, para poder repetir `N` simulaciones con la misma configuración y semilla.
+**Presión:** ajuste Elo temporal proporcional a una intensidad de 0, 0.5 o 1, definida por estado decisivo del encuentro, no por una etiqueta psicológica. **Momentum y recuperación:** ajustes separados después de victoria o derrota *del game anterior de la misma serie*, todos inicialmente a 0. **Contexto:** TES -25 es hipótesis no activa hasta verificar el estado de la plantilla; no sumarlo al preset GPR. No añadir automáticamente «Worlds buff» encima de presión para justificar dos veces las mismas finales de T1.
 
-### 6.2. Factor Worlds — **opcional después del núcleo del MVP**
+**Imprevisibilidad:** control opcional para experimentar con `D=320/400/520`, etiquetando la variante como hipotética; **no** modificar al mismo tiempo las sigmas. Nunca presentar parámetros arbitrarios como mediciones oficiales de Riot.
 
-Posibilidad de ofrecer un pequeño ajuste de potencia por equipo, denominado «Factor Worlds» o «Rendimiento en Worlds», particularmente en knockout. Por defecto **desactivado / valor cero para todos**. No aplicar automáticamente bonificaciones a T1 ni inferirlas de narrativas. Si se añade: configurar magnitud (+/-) y fase de aplicación; mostrar siempre que es una hipótesis divertida del usuario. Debe ser un modificador explícito del `effectivePower`, con test y trazabilidad.
+### 6.3. Resultados reales y forma latente
 
-### 6.3. Limitaciones estadísticas
+- Las partidas oficiales completadas son **condiciones inmutables**: no se vuelven a jugar y no se reconstruye el orden de games desde un simple marcador.
+- Con forma de torneo persistente, un resultado real también aporta evidencia sobre dicha forma. El modelo contextual que quiera representar un **pronóstico condicionado a partidas oficiales previas** debe muestrear la forma latente de una distribución **posterior** compatible con los resultados, con diagnóstico de convergencia/ESS y likelihood correcto, como describe el anexo v2. Si ese módulo no está implementado, usar GPR puro para el resultado oficial o identificar inequívocamente la alternativa contextual como *escenario prospectivo sin actualización de forma por el pasado*; no llamarla estimación posterior.
+- Mantener el snapshot **pre-suizo** para evitar incorporar dos veces resultados del Mundial (una vez en el nuevo GPR y otra al condicionarlos en el simulador).
 
-- Se modela fuerza relativa fija y aleatoriedad por partida; no ajuste automático por rival, composición, meta, lado o cambios de forma.
-- Los valores no son una predicción científica calibrada, sino resultados condicionales a los supuestos y scores seleccionados.
-- Más iteraciones reducen **error Monte Carlo**, no corrigen un modelo de fuerzas incorrecto.
-- No interpretar la frecuencia de un encuentro como una probabilidad independiente: depende de cómo se sortea y se llega a las rondas.
+### 6.4. Fiabilidad, iteraciones y evidencia
+
+- Semillas reproducibles y algoritmos versionados, parámetros completos y revisión de perfiles en cada informe. Más iteraciones reducen error Monte Carlo, **no** eliminan incertidumbre de parámetros o del modelo.
+- Comparar siempre baseline frente a contextual mediante log loss/Brier, calibración, separación temporal y torneos posteriores fuera de muestra antes de promover coeficientes experimentales a predeterminados.
+- Presiones, sigmas y ajustes iniciales de equipos son **propuestas con confianza limitada** derivadas de `WORLDS_2026_TEAM_CONTEXT_RESEARCH.md`; no hay un ajuste estadístico completo realizado a 21-10-2026. No vender resultados como probabilidades respaldadas por Riot.
 
 ## 7. Flujos públicos y experiencia de usuario
 
@@ -270,9 +274,9 @@ Cabecera concisa: nombre propio de producto, «Worlds 2026», y etiqueta «Simul
 
 1. **Estado oficial actual** — selección por defecto: respeta fixtures y resultados publicados; sortea y simula lo que falte.
 2. **Desde cero** — sortea R1 y el resto del torneo, aunque exista sorteo oficial.
-3. **Mi escenario** — crear una copia y personalizar restricciones, emparejamientos, ganadores y potencias.
+3. **Mi escenario** — crear una copia y personalizar restricciones, emparejamientos, ganadores y perfiles de fuerza.
 
-Control de varianza con tres opciones, y selector de iteraciones: `1.000`, `10.000` por defecto, `50.000`, más una opción avanzada hasta el máximo seguro que permita el dispositivo. Acción principal **«Simular torneo»**. Mostrar progreso, opción cancelar y datos suficientes para saber qué se está calculando.
+Selector de modelo GPR/Contextual, ajustes avanzados opcionales de imprevisibilidad y selector de iteraciones: `1.000`, `10.000` por defecto, `50.000`, más una opción avanzada hasta el máximo seguro que permita el dispositivo. Acción principal **«Simular torneo»**. Mostrar progreso, opción cancelar y datos suficientes para saber qué se está calculando.
 
 ### 7.2. «Mi escenario» sin complejidad innecesaria
 
@@ -305,7 +309,7 @@ Control de varianza con tres opciones, y selector de iteraciones: `1.000`, `10.0
 - Filtrar por región, buscar equipo por nombre/acrónimo, mantener cabeceras claras. Resaltar moderadamente el equipo seleccionado y permitir ver su ficha ampliada.
 - En móvil usar tabla desplazable con primera columna de equipo anclada **solo si funciona correctamente**, o filas/tarjetas detalladas por equipo. Evitar interfaces rotas y letras diminutas.
 - Porcentajes con precisión sensata (p. ej. 1 decimal), manejo correcto de valores menores que el umbral visual y estado «Sin datos» antes de ejecutar.
-- Encima de los resultados: escenario, revisión oficial de partida, varianza, iteraciones, fecha/hora y potencia usada. Las estimaciones nunca se etiquetan como «probabilidades oficiales».
+- Encima de los resultados: escenario, revisión oficial de partida, preset/modelo, snapshot GPR, revisión de perfiles, iteraciones, fecha/hora y ratings usados. Las estimaciones nunca se etiquetan como «probabilidades oficiales».
 
 **Estadísticas adicionales útiles del MVP, si no complican:** probabilidad de llegar a cuartos/semis/final, veces que queda 3-0, rivales más frecuentes en suizo, frecuencia de enfrentamientos y win rate de games/series **entre encuentros realmente simulados**, con denominador mostrado. **Registrar siempre la frecuencia de excepciones de rematch en el suizo** (simulaciones afectadas y número de series repetidas); presentar este indicador discretamente en la información de metodología. Permitir detalle por equipo. Métricas más sofisticadas y gráficos decorativos quedan para después.
 
@@ -313,7 +317,7 @@ Control de varianza con tres opciones, y selector de iteraciones: `1.000`, `10.0
 
 ### 7.5. Comparación (fase posterior opcional)
 
-Comparar escenario **«Desde cero»** vs **«Sorteo oficial»**, o escenarios A/B: diferencia en puntos porcentuales de clasificación y campeonato por equipo. Es una funcionalidad interesante para el producto, pero no debe bloquear el MVP. Mostrar contexto de modelo/semillas e incertidumbre por muestreo; evitar afirmar causalidad fuerte o atribuir toda diferencia al sorteo si también varían scores.
+Comparar **GPR vs Contextual** o escenario **«Desde cero»** vs **«Sorteo oficial»**, o escenarios A/B: diferencia en puntos porcentuales de clasificación y campeonato por equipo. Es una funcionalidad interesante para el producto, pero no debe bloquear el MVP. Mostrar contexto de modelo/semillas e incertidumbre por muestreo; evitar afirmar causalidad fuerte o atribuir toda diferencia al sorteo si también varían GPR o parámetros contextuales.
 
 ### 7.6. Estilo visual
 
@@ -327,7 +331,7 @@ Comparar escenario **«Desde cero»** vs **«Sorteo oficial»**, o escenarios A/
 
 Solo accesible tras login de admin. No existe registro ni perfil público.
 
-1. **Equipos:** alta/edición/orden, región, seed, pool **manual**, acrónimo, score, logo. Importación/exportación de valores por JSON/CSV opcional. Mostrar inconsistencias entre la configuración 2026 y los requisitos del sorteo antes de publicar.
+1. **Equipos:** alta/edición/orden, región, seed, pool **manual**, acrónimo, logo y **perfil de fuerza GPR/contextual versionado** (fecha/fuente, consistencia, presión, transiciones, ajuste, confianza). Importación/exportación de valores por JSON/CSV opcional. Mostrar inconsistencias entre la configuración 2026 y los requisitos del sorteo antes de publicar.
 2. **Torneo y R1:** vista clara de pools y sorteo oficial. Crear/editar fixtures validados.
 3. **Resultados y sorteos posteriores:** introducir emparejamientos recién sorteados, y después resultado/marcador por serie (Bo1, Bo3 o Bo5). Se conoce el formato por estado previo; no permitir resultados incompatibles. Puede haber fixtures pendientes mezclados con completados, si la ronda y estado lo permiten.
 4. **Cuadro eliminatorio:** introducir sorteo real de cuartos cuando exista, luego resultados de cuartos, semifinales y final.
@@ -412,8 +416,8 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 
 ### Unitarias del motor
 
-- Puntuaciones iguales => probabilidad de game 50/50; p(A,B)+p(B,A)=1; al subir power de A nunca disminuye su probabilidad.
-- Con mismos inputs/semilla, resultados bit a bit equivalentes; distinta semilla habitualmente da recorridos diferentes.
+- Ratings efectivos iguales => probabilidad de game 50/50; p(A,B)+p(B,A)=1; al subir GPR de A nunca disminuye su probabilidad. Diferencia de 400 con D=400 => 90% de game.
+- Con mismos inputs/semilla **y versión del motor**, resultados bit a bit equivalentes; distinta semilla habitualmente da recorridos diferentes. GPR baseline ≡ contextual con todos los términos desactivados.
 - Una Bo1/Bo3/Bo5 termina respectivamente al alcanzar 1/2/3 victorias, sin partidas extra; la serie reporta ganador y marcador coherente.
 - Primer sorteo: cada equipo aparece una vez, parejas 1↔4 y 2↔3, sin misma región. Miles de draws para detectar infracciones.
 - R2–R5: solo records idénticos, sin rematches cuando existe un sorteo completo sin ellos, ninguna plaza duplicada; fixture parcial respetado. Si una ronda es estrictamente imposible, fallback que **minimiza** rematches; comprobar que nunca aplica un rematch si hay cualquier matching sin repetición.
@@ -423,13 +427,13 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 - Conteos exactos de records al acabar suizo: `2/3/3/3/3/2`.
 - Cuartos: ambos `3-0` ante `3-2` y en mitades distintas; resto cuatro distribuidos correctamente; knockout sin rematches prohibidos solo por haber existido antes (aquí sí están permitidos).
 - Finales: siete buckets con conteos `1/1/2/4/3/3/2`, sin tercer puesto separado.
-- Si se fijan fixtures y resultados oficiales de todo el torneo: todas las simulaciones dan el mismo resultado final **independientemente de power score, varianza o semilla**.
+- Si se fijan fixtures y resultados oficiales de todo el torneo: todas las simulaciones dan el mismo resultado final **independientemente de GPR, modelo, consistencia o semilla**.
 - Escenario oficial parcial: nunca sobrescribe un resultado fijo; escenario hipotético cambia solo copia local.
 - Acumuladores agregados suman correctamente después de N simulaciones; suma exacta y sin NaN/Infinity.
 
 ### Backend y UX
 
-- Admin no autenticado no puede crear/modificar/publicar; usuario invitado puede acceder y simular sin sesión.
+- Admin no autenticado no puede crear/modificar/publicar; usuario invitado puede acceder y simular sin sesión. El resultado publicado lleva versión de GPR/modelo/perfil.
 - Un logo inválido, resultados incoherentes o un sorteo imposible no se publican.
 - Las correcciones de resultados que invaliden sorteos posteriores generan errores claros antes de publicar.
 - Escenario guardado sobrevive a recargar página, se puede duplicar/exportar/importar, y señala revisión antigua.
@@ -446,14 +450,20 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 
 ### Fase 1 — Dominio y motor de torneo (prioridad absoluta)
 
-- Tipos, states, función de probabilidad por game, series BoX, fixtures y records.
+- Tipos, states, función de probabilidad por game **GPR Elo (D=400 provisional)**, series BoX, fixtures y records.
 - Sorteo de R1 y sorteos posteriores con matching completo válido; knockouts y posiciones finales.
 - Tests exhaustivos sin UI. Exponer una CLI de test o script Node local pequeño para 1.000/10.000 simulaciones (útil para validar rápidamente el motor, **sin añadir producto CLI público**).
 - No empezar gráficos/estilos sofisticados hasta que las invariantes se cumplan.
 
+### Fase 1B — Modelo contextual, sin romper el trabajo existente
+
+- Revisar campos `power_score` heredados y migración explícita; importar snapshot GPR 19-10-2026; definir `StrengthProfile` y presets.
+- Aplicar el **anexo estadístico v2**: forma de torneo/serie, presión, después de ganar/perder, ajuste documentado, tests de equivalencia con baseline. Mantener ajustes subjetivos separados, reproducibles y desactivables.
+- Si hay resultados oficiales conocidos y el posterior contextual todavía no está desarrollado, el pronóstico oficial predeterminado permanece en GPR puro y el contextual se etiqueta como escenario prospectivo. Implementar el posterior y calibración offline por pasos, sin bloquear el uso neutral.
+
 ### Fase 2 — Simulador público funcional
 
-- Selector de origen, varianza, potencia, N, botón ejecutar, worker, progreso y cancelación.
+- Selector de origen, modelo GPR/Contextual, ajustes de perfil si corresponde, N, botón ejecutar, worker, progreso y cancelación.
 - Agregados y dos tablas principales, muestra de un recorrido completo.
 - Diseño oscuro, limpio y responsive. UI realmente utilizable sin admin.
 
@@ -485,7 +495,7 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 
 ## 14. Definición de terminado del MVP
 
-Un invitado abre la web sin login, elige **estado oficial** (los ocho fixtures R1 conocidos), varianza normal y 10.000 simulaciones; obtiene estadísticas coherentes sin bloquear la pantalla, con progreso y sin errores de reglas. Puede comparar mentalmente el resultado con **desde cero**, donde cada iteración realiza un sorteo R1 nuevo. Puede crear un **escenario hipotético**, cambiar un enfrentamiento válido, fijar un ganador, volver a simular y guardar localmente el escenario. Puede inspeccionar un recorrido de ejemplo y las tablas de probabilidades.
+Un invitado abre la web sin login, elige **estado oficial** (los ocho fixtures R1 conocidos), modelo GPR base y 10.000 simulaciones; obtiene estadísticas coherentes sin bloquear la pantalla, con progreso y sin errores de reglas. Puede comparar mentalmente el resultado con **desde cero**, donde cada iteración realiza un sorteo R1 nuevo. Puede crear un **escenario hipotético**, cambiar un enfrentamiento válido, fijar un ganador, volver a simular y guardar localmente el escenario. Puede inspeccionar un recorrido de ejemplo y las tablas de probabilidades.
 
 El admin accede a un panel protegido, registra un sorteo real y sus resultados, publica una revisión válida y desde ese momento las simulaciones públicas **respetan lo sucedido sin volver a simularlo**. Tests verifican cantidades, emparejamientos, series y resultados finales. La interfaz es agradable en móvil/escritorio y el proyecto funciona localmente en Fedora con Podman.
 
@@ -498,3 +508,15 @@ El admin accede a un panel protegido, registra un sorteo real y sus resultados, 
 5. [Riot Games Developer Portal — League of Legends](https://developer.riotgames.com/docs/lol) y [Política de proyectos de fans](https://www.riotgames.com/es/legal): revisar identidad, logos, aviso de no afiliación y obligaciones del producto antes de publicar.
 
 **Nota reglamentaria importante:** El documento oficial contempla la posibilidad de que los organizadores levanten la prohibición de rematches en un caso excepcional sin sorteo posible. El simulador **aplicará automáticamente y de forma transparente** una aproximación conservadora (mínimo número de rematches necesarios) y la registrará en las métricas; esta elección estadística **no equivale a una decisión oficial de Riot**. Igualmente, el muestreo uniforme de cuadros válidos es una decisión del modelo matemático, no una reproducción exacta del sorteo televisado. En materia de imagen, la opción segura por defecto es una identidad independiente **sin recursos visuales de Riot** y sin escudos de terceros de licencia no verificada.
+
+## 16. Anexos obligatorios y precedencia documental
+
+El modelo y la UX se detallan en los siguientes documentos del repositorio (mantener juntos dentro de `docs/`):
+
+1. `WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md` — fuente normativa del motor probabilístico, perfiles, incertidumbre, condicionamiento por resultados reales y plan de calibración. **Reemplaza enteramente cualquier receta anterior de ratings 0–100.**
+2. `WORLDS_2026_STRENGTH_PROFILES_V2.json` — datos semilla GPR + atributos de los 16 equipos, marcados explícitamente como experimentales; asociar por acrónimo/ID verificando correspondencia, no por orden de filas.
+3. `WORLDS_2026_TEAM_CONTEXT_RESEARCH.md` — antecedentes y enlaces de investigación; referencia cualitativa, **no validación estadística**.
+4. `WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md` — UX sin subtítulos redundantes.
+5. `WORLDS_2026_ANEXO_I18N_EN_ES.md` — internacionalización ES/EN en todas las pantallas.
+
+Orden de decisión: **normativa oficial del torneo y reglas §5** para sorteos; **anexo estadístico v2** para ratings y simulaciones; **anexos UX/i18n** para presentación. No rehacer pantallas correctas, no introducir servicios externos solo para calcular probabilidades y no cambiar arbitrariamente decisiones previas sin verificar su impacto en tests y datos locales.
