@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Fixture;
 use App\Models\Team;
 use App\Models\Tournament;
 use Database\Seeders\Worlds2026Seeder;
@@ -36,6 +37,27 @@ class HomeTest extends TestCase
             ->assertSee('lang="es"', false);
         $this->assertCount(0, $response->headers->getCookies());
         $this->assertSame(8, substr_count($response->getContent(), 'class="fixture"'));
+    }
+
+    public function test_the_simulator_uses_database_ids_profiles_and_known_scores_without_legacy_scores(): void
+    {
+        $this->seed();
+        $fixture = Fixture::orderBy('slot')->firstOrFail();
+        $fixture->update(['status' => 'completed', 'score_a' => 1, 'score_b' => 0]);
+
+        $this->get('/')->assertOk()->assertSee('Simular torneo')->assertViewHas('simulationData', function ($data) use ($fixture) {
+            $this->assertCount(16, $data['snapshot']['teams']);
+            $this->assertCount(16, $data['strengths']['profiles']);
+            $this->assertArrayNotHasKey('powerScore', $data['snapshot']['teams'][0]);
+            $this->assertArrayNotHasKey('power_score', $data['snapshot']['teams'][0]);
+            $match = collect($data['snapshot']['fixtures'])->firstWhere('id', $fixture->id);
+            $this->assertSame(['a' => 1, 'b' => 0], $match['score']);
+            $this->assertSame('completed', $match['status']);
+            $this->assertArrayNotHasKey('games', $match);
+
+            return true;
+        });
+        $this->get('/?lang=en')->assertOk()->assertSee('Simulate tournament');
     }
 
     public function test_the_page_handles_an_empty_database(): void

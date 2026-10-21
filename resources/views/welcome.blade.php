@@ -15,6 +15,7 @@
         <a class="brand" href="{{ route('home') }}"><span class="brand-symbol" aria-hidden="true">⫶</span> Bracket Lab</a>
         <div class="header-controls">
             <nav aria-label="{{ __('nav.main') }}">
+                <a href="#simulacion">{{ __('simulation.title') }}</a>
                 <a href="#cruces">{{ __('tournament.fixtures') }}</a>
                 <a href="#equipos">{{ __('tournament.teams') }}</a>
             </nav>
@@ -26,7 +27,6 @@
         <section class="hero" aria-labelledby="titulo">
             <p class="eyebrow">{{ __('tournament.independent') }}</p>
             <h1 id="titulo">{{ $tournament?->name ?? __('tournament.heading') }}</h1>
-            <p class="status-note">{{ __('tournament.not_ready') }}</p>
         </section>
 
         @if ($tournament)
@@ -34,6 +34,10 @@
                 <strong>{{ __('tournament.initial_data', ['date' => $initialDataDate]) }}</strong>
                 <p>{{ __('tournament.initial_note') }}</p>
             </aside>
+
+            @if ($simulationData)
+                <x-public-simulator :simulation-data="$simulationData" />
+            @endif
 
             <section id="cruces" class="section" aria-labelledby="cruces-titulo">
                 <div class="section-heading">

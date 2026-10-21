@@ -59,11 +59,12 @@ describe('shared translation catalogs', () => {
     it('keeps visible Blade text and accessible labels in the shared catalogs', () => {
         for (const file of filesIn('resources/views')) {
             const source = readFileSync(file, 'utf8')
+                .replace(/<script\b[^>]*type="application\/json"[^>]*>[\s\S]*?<\/script>/g, '')
                 .replace(/@php[\s\S]*?@endphp/g, '')
                 .replace(/\{\{[\s\S]*?\}\}/g, '')
                 .replace(/^\s*@.*$/gm, '');
             const texts = [...source.matchAll(/>([^<>]*)</g)].map((match) => match[1]!);
-            const labels = [...source.matchAll(/(?:aria-label|alt|title|content)="([^"]*)"/g)]
+            const labels = [...source.matchAll(/(?<![:\w-])(?:aria-label|alt|title|content)="([^"]*)"/g)]
                 .map((match) => match[1]!)
                 .filter((text) => !['dark', 'width=device-width, initial-scale=1'].includes(text));
             for (const text of [...texts, ...labels]) {

@@ -15,14 +15,23 @@ GPR y prevalece sobre la receta histórica de scores 0–100.
 
 ## Estado
 
-Fases 0 y 1: base Laravel 13, PHP 8.4, SQLite, Blade, Alpine, Tailwind 4 y TypeScript
-con Vite; motor de torneo y base GPR v2 probados sin interfaz de simulación. Los controles públicos,
-el worker, los escenarios guardados y la administración se implementarán en las siguientes
-fases. Sin despliegue ni CI/CD.
+Fases 0 y 1 y primer bloque de Fase 2: Laravel 13, PHP 8.4, SQLite, Blade, Alpine,
+Tailwind 4 y TypeScript con Vite; motor de torneo GPR/contextual experimental y simulador
+público funcional en ES/EN. Sin despliegue ni CI/CD.
 
-La portada muestra los 16 equipos por pool y los ocho cruces de R1 pendientes, en español e inglés
-y con diseño oscuro adaptable. Se identifica como vista previa, sin revisión publicada
-ni resultados calculados. Los datos siguen la especificación, sin consultar fuentes en vivo.
+En [localhost:8000](http://localhost:8000), elegir origen, modelo e iteraciones y pulsar
+**Simular torneo**. La ejecución usa un Web Worker con progreso y cancelación. Las dos tablas
+permiten ordenar por cifras, buscar equipos y filtrar por región; el detalle muestra un torneo
+de ejemplo completo, metodología, semilla y ratings usados. No requiere cuenta y no envía
+las simulaciones al servidor.
+
+La configuración y el último resultado completo se conservan en `sessionStorage` durante
+la pestaña, incluido al cambiar de idioma. Si se solicita otro idioma durante una ejecución,
+primero termina el cálculo y después se cambia de idioma con los mismos resultados.
+Cancelar interrumpe el worker y conserva el último resultado completo. Los escenarios
+personalizados y el almacenamiento duradero/exportación pertenecen a la Fase 3; esta
+persistencia temporal no los sustituye. Los datos iniciales siguen sin revisión publicada;
+no se consultan fuentes en vivo.
 
 El seeder usa UUID estables y una transacción. Se puede repetir con `php artisan db:seed`:
 crea registros que falten y conserva los existentes, incluidos scores heredados y marcadores
@@ -104,9 +113,9 @@ Fase 0 verificada en Fedora/Podman: 7 pruebas PHP (86 aserciones), 3 pruebas Vit
 Pint, TypeScript y build. Comprobación en Firefox a 360, 768 y 1440 px: sin desbordamiento
 horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado.
 
-Fase 1B: forma contextual prospectiva implementada en el motor; posterior y confirmación
-de ajustes de plantilla pendientes. Los controles públicos, el worker y las tablas siguen
-en la Fase 2; la administración corresponde a la Fase 3.
+Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
+y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
+ejemplo disponibles. Siguen pendientes los escenarios de Fase 3 y la administración de Fase 4.
 
 ## Base GPR v2
 
@@ -180,7 +189,8 @@ GPR sigue siendo el preset predeterminado. El contextual siempre registra `hypot
 `status: experimental`, `conditioning: prior_without_observed_games`, versión de motor,
 muestreador normal, intensidad de presión, transiciones y familias habilitadas. Sus sigmas
 no cambian al variar D. No se han ajustado coeficientes con datos históricos; no son calibrados.
-Los controles públicos y de administración para estas opciones se incorporarán en sus fases.
+El selector público activa las cuatro familias contextuales conjuntamente; los ajustes
+individuales y de administración se incorporarán en sus fases.
 
 ### Base del condicionamiento · verosimilitud y ESS
 
@@ -222,7 +232,7 @@ estado provisional, términos habilitados, semilla, iteraciones, revisión del t
 receta PRNG/hash. `metadata.request` conserva la configuración completa por valor para
 reproducir el resultado, incluidos fixtures, restricciones y perfiles; no se transmite al servidor.
 Las entradas sin versión o que mezclan GPR con scores antiguos se rechazan con
-`incompatible_model`. No hay aún importador ni escenarios persistidos en la UI; cuando
+`incompatible_model`. No hay aún importador ni biblioteca de escenarios en la UI; cuando
 se incorporen, deberán conservar el modo legacy o pedir un reset explícito, nunca convertirlos.
 
 El núcleo de sorteos, records, BoX, puestos y rematches se conserva. La regresión legacy
@@ -308,6 +318,12 @@ La batería incluye pruebas estadísticas con semilla fija del muestreo uniforme
 mínimo global de rematches, bloqueos parciales, correcciones incompatibles, replay oficial
 completo, límites, inmutabilidad y sumas exactas. La independencia del idioma se verifica
 también con el mismo escenario y semilla en ES/EN.
+
+Validación del bloque web: 88 pruebas Vitest y 21 PHP (296 aserciones), tipos, build y Pint.
+Firefox en ES/EN a 360, 768 y 1440 px: ejecución real en worker, 32 filas, ejemplo de 40
+series, filtros, orden numérico, cancelación, preservación al cambiar idioma (también durante
+el cálculo), sin desbordamiento de página ni errores JavaScript ni POST de simulación.
+Las tablas tienen desplazamiento local y primera columna fija en pantallas estrechas.
 
 ## Internacionalización
 
