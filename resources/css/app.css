@@ -201,3 +201,17 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 .admin tbody th { font-weight: 500; }
 .admin tbody th span { display: block; color: #a6b4bd; font-size: .75rem; }
 .simulator .group-redraw { font-size: 1.25rem; padding: .2rem .55rem; min-width: 44px; margin-left: auto; margin-right: .4rem; color: #88d3d0; }
+
+.draft-link, .draft-actions a { display: inline-flex; align-items: center; min-height: 44px; color: #88d3d0; text-decoration: underline; text-underline-offset: .2em; }
+.draft-actions { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; padding-block: .75rem; background: #111518; }
+.draft-actions .primary-button { margin-top: 0; }
+.team-draft-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.team-draft-card { border: 1px solid #35434a; border-radius: 8px; padding: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.team-draft-card legend { color: #88d3d0; font-weight: 650; padding-inline: .35rem; }
+.draft-field { display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+.draft-field:first-of-type { grid-column: 1 / -1; }
+.draft-field label { font-size: .8rem; color: #b5c0c7; }
+.draft-field input, .draft-field select { width: 100%; min-height: 44px; border: 1px solid #46545e; border-radius: 5px; padding: .5rem .65rem; background: #181e22; scroll-margin-top: 6rem; }
+.admin .draft-field select:focus-visible { outline: 2px solid #88d3d0; outline-offset: 3px; }
+.draft-field [aria-invalid="true"] { border-color: #f0bbb1; }
+@media (max-width: 760px) { .team-draft-grid { grid-template-columns: minmax(0, 1fr); } }

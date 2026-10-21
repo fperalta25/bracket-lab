@@ -116,7 +116,7 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
 y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
 ejemplo disponibles. Fase 3: escenarios locales y cuadro suizo R1–R5 interactivo, con ganadores por clic
-y sorteos automáticos por grupo; eliminatorias interactivas hasta el campeón y resorteo por grupo. Fase 4 iniciada con acceso protegido y consulta; edición y publicación pendientes.
+y sorteos automáticos por grupo; eliminatorias interactivas hasta el campeón y resorteo por grupo. Fase 4 en progreso: acceso protegido, consulta y borrador de equipos; resultados oficiales y publicación pendientes.
 
 ## Base GPR v2
 
@@ -461,8 +461,9 @@ La sesión se regenera al entrar y se invalida al salir; login/logout conservan 
 hay límites por cuenta/IP y por IP, y las páginas admin usan `no-store`. El simulador
 público continúa sin requerir sesión ni cuenta.
 
-Este bloque no edita datos oficiales: quedan pendientes borradores, validación de
-cambios, publicación atómica e historial de revisiones. Los documentos nuevos y el
+Los datos públicos siguen sin modificarse desde el panel. La edición de equipos usa
+el borrador descrito abajo; quedan pendientes resultados, validación completa del
+torneo, publicación atómica e historial de revisiones. Los documentos nuevos y el
 modelo entrenado siguen aplazados, sin migraciones de escenarios ni cambios de modelo.
 
 Validación conjunta: **125 pruebas Vitest y 32 PHP**, tipos, build y Pint. Incluye ceros
@@ -470,6 +471,42 @@ determinados, conservación de casos no observados, resorteos y dependencias; au
 autorización, sesiones, CSRF, límites de acceso y creación segura de cuentas. Firefox:
 resorteo `2-1`, conservación de `1-2`, deshacer, tablas ES/EN y persistencia en 360/1440 px;
 login, errores, consulta y logout ES/EN en 360/768/1440 px con base de pruebas aislada.
+
+### Borrador de equipos
+
+Desde **Administración → Editar borrador**, o `/admin/teams`, se pueden modificar nombre,
+acrónimo, región, seed regional y pool de los 16 equipos. El pool se asigna de forma
+explícita. El formulario exige IDs originales sin duplicados, acrónimos únicos sin
+distinguir mayúsculas/minúsculas, regiones admitidas, seeds 1–16 y cuatro equipos en cada
+uno de los cuatro pools. No permite añadir campos de rating ni reinterpretar GPR.
+
+«Guardar borrador» persiste el conjunto completo en `tournament_drafts`, separado de
+`teams`, fixtures y perfiles congelados. Conserva una copia de los equipos de partida,
+la revisión base, una huella de los datos oficiales, versión incremental y autor de la
+última edición. Leer el formulario no crea un borrador. El JSON público y los escenarios
+existentes permanecen idénticos después de guardar.
+
+La escritura es transaccional y comprueba la versión: una pestaña antigua no sobrescribe
+cambios de otra. El conflicto conserva sus campos y ofrece abrir el borrador actualizado.
+Si cambian la revisión oficial o los equipos de origen, se bloquea el guardado; no se
+reinterpreta ni se rebasa el borrador automáticamente. La recuperación/revisión frente a
+una publicación nueva se completará con el flujo de publicación.
+
+Interfaz ES/EN, controles táctiles y errores asociados a sus campos. Los valores sin
+guardar se transfieren una sola vez al cambiar de idioma mediante `sessionStorage`,
+con clave de usuario/torneo; se excluyen credenciales y CSRF y se retira la copia al
+restaurarla. La versión original también se conserva para que el cambio de idioma no
+eluda la protección frente a pestañas antiguas. Funciona como formulario normal sin JS.
+
+Las instalaciones existentes necesitan `podman compose run --rm app php artisan migrate`.
+No se han creado administradores ni borradores de ejemplo en la base local real.
+
+Validación de este bloque: **42 pruebas PHP, 125 Vitest**, tipos, build y Pint. Diez pruebas
+PHP nuevas cubren guardado aislado, IDs y campos, pools, duplicados, versiones, origen
+obsoleto, escape de texto, autorización y CSRF. Firefox en 360/1440 px, ES/EN: guardado y
+recarga, campos sin guardar al cambiar idioma, dos pestañas en conflicto, pools inválidos
+y JSON público idéntico antes/después. Comprobado también el cuadro público con resorteos,
+deshacer y porcentajes en ambos idiomas.
 
 ## Internacionalización
 

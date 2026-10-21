@@ -8,7 +8,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title }} · Bracket Lab</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/ts/app.ts'])
 </head>
 <body class="admin">
     <a href="#contenido" class="skip-link">{{ __('tournament.skip') }}</a>
