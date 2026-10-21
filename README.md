@@ -182,6 +182,41 @@ muestreador normal, intensidad de presión, transiciones y familias habilitadas.
 no cambian al variar D. No se han ajustado coeficientes con datos históricos; no son calibrados.
 Los controles públicos y de administración para estas opciones se incorporarán en sus fases.
 
+### Base del condicionamiento · verosimilitud y ESS
+
+`likelihood.ts` aporta `seriesLogLikelihood(fixture, logProbabilities)`:
+
+- Con orden conocido, multiplica las probabilidades de los games observados en el estado
+  previo de cada uno. Un prefijo pendiente no añade evidencia de games futuros.
+- Con solo marcador final, suma **todos los órdenes legales**, terminando en cuanto se
+  alcanza la victoria. La DP usa `(winsA, winsB, previousWinner)`; su callback debe ser
+  una función pura de ese estado, con las fortalezas latentes fijadas para la evaluación.
+- Todo se calcula en logaritmos, con `gprGameLogProbabilities` y log-sum-exp. Así no se
+  pierde evidencia improbable por calcular `log(1 - p)` después de redondear p a 1.
+  No se modifica el cálculo de probabilidades ni el PRNG de los motores existentes.
+- La evaluación es condicional a los participantes observados; no incluye la probabilidad
+  del sorteo. Tampoco genera orden de games, cambia fixtures o consume azar.
+
+`importance.ts` aporta `normalizeLogWeights(logWeights, minEss)`. Devuelve pesos normalizados,
+ESS absoluto y relativo, peso máximo, logaritmo del peso medio y el estado
+`sufficient_ess`, `insufficient_ess` o `zero_sample_support`. El umbral ESS es explícito:
+una guarda numérica elegida por el llamador, **no** un parámetro calibrado. La ausencia de
+soporte en las muestras no demuestra que el resultado sea imposible en todo el modelo;
+no se sustituye por una distribución uniforme ni por un pronóstico de éxito.
+
+Estos son módulos matemáticos preparatorios: **todavía no muestrean la posterior ni habilitan
+el contextual con resultados conocidos**. ESS por sí solo no certifica convergencia ni
+precisión. El siguiente bloque debe muestrear o marginalizar conjuntamente las formas de
+torneo y serie, conservar la forma de series parcialmente observadas y aplicar una política
+comprobada ante degeneración antes de conectarse al motor. El prior no se presentará como
+posterior ni se volverán a aprender games ya incluidos en un rating actualizado.
+
+Pruebas: fórmulas cerradas para todos los marcadores Bo1/Bo3/Bo5, enumeración independiente
+de órdenes legales con transiciones, prefijos, ceros de soporte, probabilidades extremas,
+pesos y ESS exactos, y un ejemplo bayesiano de dos estados con solución analítica. Este
+último comprueba la mecánica del condicionamiento, no valida la posterior gaussiana completa.
+Validación del bloque: 82 pruebas Vitest, 20 PHP (284 aserciones), tipos, build y Pint.
+
 Cada resultado contiene versión de motor/modelo, snapshot y revisión de perfiles, D,
 estado provisional, términos habilitados, semilla, iteraciones, revisión del torneo y
 receta PRNG/hash. `metadata.request` conserva la configuración completa por valor para
