@@ -16,45 +16,58 @@
                 @endforeach
 </select></label>
             </div>
-            <div class="scenario-actions" x-show="mode !== 'custom'">
-                <button type="button" @click="mode = 'custom'; changeMode(); $nextTick(() => $refs.roundSelector.focus())">{{ __('scenario.edit') }}</button>
-            </div>
-            <div class="scenario-editor" x-show="mode === 'custom'">
-                <div class="scenario-actions">
-                    <label>{{ __('scenario.round') }}<select aria-label="{{ __('scenario.round') }}" x-ref="roundSelector" x-model.number="editingRound" @change="save()">
-                        @foreach ([1, 2, 3, 4, 5] as $round)
-                            <option value="{{ $round }}">{{ __('simulation.round', ['round' => $round]) }}</option>
-                        @endforeach
-                    </select></label>
-                    <button type="button" :disabled="!roundInfo.ready || roundInfo.locked === roundInfo.expected / 2" @click="completeRound()">{{ __('scenario.complete_draw') }}</button>
-                    <button type="button" :disabled="roundInfo.locked === 0" @click="clearRound()">{{ __('scenario.release_round') }}</button>
+            <section class="scenario-editor" aria-labelledby="swiss-board-title">
+                <div class="section-heading board-heading">
+                    <h3 id="swiss-board-title">{{ __('board.title') }}</h3>
+                    <div class="board-actions">
+                        <button type="button" :disabled="!boardUndo || mode !== 'custom'" @click="undoBoard()">{{ __('board.undo') }}</button>
+                        <button type="button" @click="resetBoard()">{{ __('board.reset') }}</button>
+                    </div>
                 </div>
-                <p class="scenario-summary" x-text="translate('scenario.known').replace(':known', number(roundInfo.participants.length)).replace(':total', number(roundInfo.expected))"></p>
-                <p class="scenario-summary" x-show="!roundInfo.ready">{{ __('scenario.await_results') }}</p>
-                <p class="scenario-summary" x-text="constraintSummary"></p>
-                <div class="scenario-fixtures">
-                    <template x-for="match in roundRows" :key="`${match.round}-${match.slot}-${match.teamA}-${match.teamB}-${match.selection}`">
-                        <div class="scenario-fixture">
-                            <div class="scenario-match-meta"><span x-text="translate('tournament.fixture').replace(':slot', number(match.slot)).replace(':best_of', number(match.bestOf))"></span><span x-show="editingRound > 1" x-text="match.record"></span></div>
-                            <strong x-text="`${currentTeamName(match.teamA)} — ${currentTeamName(match.teamB)}`"></strong>
-                            <select :aria-label="translate('scenario.winner').replace(':match', `${currentTeamName(match.teamA)} — ${currentTeamName(match.teamB)}`)" :value="match.selection" x-init="$nextTick(() => $el.value = match.selection)" @change="changeFixture(match.slot, $event.target.value) || ($el.value = match.selection)">
-                                <option value="random">{{ __('scenario.random') }}</option>
-                                <option value="pending">{{ __('scenario.pending') }}</option>
-                                <template x-for="option in scoreOptions(match)" :key="option.value"><option :value="option.value" x-text="option.label"></option></template>
-                            </select>
-                            <p class="scenario-summary" x-show="match.games?.length" x-text="translate('scenario.known_games').replace(':count', number(match.games?.length ?? 0))"></p>
-                            <template x-if="match.selection === 'pending' && !match.games?.length"><details class="pairing-editor">
-                                <summary>{{ __('scenario.change_opponent') }}</summary>
-                                <select :aria-label="translate('scenario.opponent').replace(':team', currentTeamName(match.teamA))" :value="match.teamB" x-init="$nextTick(() => $el.value = match.teamB)" @change="changeRival(match.slot, $event.target.value) || ($el.value = match.teamB)">
-                                    <template x-for="team in rivalOptions(match)" :key="team.id"><option :value="team.id" x-text="team.acronym"></option></template>
-                                </select>
-                            </details></template>
-                        </div>
-                    </template>
-                </div>
-                <button type="button" @click="resetFixtures()">{{ __('scenario.clear') }}</button>
+                <p class="scenario-summary" x-show="boardReset" role="status">{{ __('board.reset_later') }}</p>
                 <p class="scenario-summary" x-show="scenarioMessage" x-text="scenarioMessage" role="status"></p>
-            </div>
+                <p class="sr-only" role="status" aria-live="polite" x-text="boardMessage"></p>
+                <nav class="board-rounds" aria-label="{{ __('scenario.round') }}">
+                    <template x-for="round in [1, 2, 3, 4, 5]" :key="round">
+                        <button type="button" :aria-pressed="editingRound === round" :aria-label="translate('simulation.round').replace(':round', number(round))" @click="editingRound = round; save()" x-text="translate('board.short_round').replace(':round', number(round))"></button>
+                    </template>
+                </nav>
+                <div class="board-scroll" tabindex="0" role="region" aria-label="{{ __('board.title') }}">
+                    <div class="swiss-board">
+                        <template x-for="column in board.columns" :key="column.round">
+                            <section class="board-column" :data-active="editingRound === column.round ? 'true' : 'false'">
+                                <h4 x-text="translate('simulation.round').replace(':round', number(column.round))"></h4>
+                                <template x-for="group in column.groups" :key="group.record">
+                                    <section class="board-group" :aria-label="group.record">
+                                        <header><h5 x-text="group.record"></h5><span x-text="group.drawn ? translate('board.series_progress').replace(':done', number(group.matches.filter(match => match.selectedWinner).length)).replace(':total', number(group.matches.length)) : translate('board.teams_progress').replace(':done', number(group.arrivals.length)).replace(':total', number(group.expected))"></span></header>
+                                        <template x-for="match in group.matches" :key="match.id">
+                                            <div class="board-match" :data-fixture-id="match.id" :data-round="column.round">
+                                                <div class="board-match-meta" x-text="translate('board.best_of').replace(':count', number(match.bestOf))"></div>
+                                                <template x-for="teamId in [match.teamA, match.teamB]" :key="teamId">
+                                                    <button type="button" class="board-team" :class="{ 'is-picked': match.selectedWinner === teamId, 'is-loser': match.selectedWinner && match.selectedWinner !== teamId }" :aria-pressed="match.selectedWinner === teamId" :aria-label="translate('board.pick').replace(':team', currentTeamName(teamId))" @click="pickWinner(match.id, teamId)">
+                                                        <span x-text="currentTeamName(teamId)"></span><span aria-hidden="true" x-text="match.status === 'completed' ? (teamId === match.teamA ? match.score.a : match.score.b) : match.selectedWinner === teamId ? '✓' : ''"></span>
+                                                    </button>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <div class="board-arrivals" x-show="!group.drawn">
+                                            <template x-for="team in group.arrivals" :key="team.id"><span class="board-arrival" x-text="team.acronym"></span></template>
+                                            <span x-show="group.arrivals.length === 0" aria-hidden="true">—</span>
+                                            <span class="sr-only">{{ __('board.waiting') }}</span>
+                                            <button type="button" x-show="group.arrivals.length === group.expected" @click="mode === 'custom' ? (fillBoard(), save()) : startBoard()">{{ __('board.start') }}</button>
+                                        </div>
+                                        <p class="scenario-summary" x-show="group.rematches" x-text="translate('board.rematches').replace(':count', number(group.rematches))"></p>
+                                    </section>
+                                </template>
+                            </section>
+                        </template>
+                    </div>
+                </div>
+                <div class="board-standings">
+                    <section><h4>{{ __('board.qualified') }}</h4><ul><template x-for="team in board.qualified" :key="team.id"><li><strong x-text="team.acronym"></strong><span x-text="team.record"></span></li></template></ul></section>
+                    <section><h4>{{ __('board.eliminated') }}</h4><ul><template x-for="team in board.eliminated" :key="team.id"><li><strong x-text="team.acronym"></strong><span x-text="team.record"></span></li></template></ul></section>
+                </div>
+            </section>
             <details class="scenario-library">
                 <summary>{{ __('scenario.title') }}</summary>
                 <div class="scenario-actions">
@@ -110,7 +123,7 @@
                 </div>
                 <p x-show="rows(table).length === 0" class="empty-state">{{ __('simulation.no_matches') }}</p>
             </section></template>
-            <details class="method"><summary>{{ __('simulation.method') }}</summary><p x-text="methodSummary"></p><p x-text="samplingError"></p><p>{{ __('simulation.zero_note') }}</p><p x-text="rematches"></p><ul class="ratings-used"><template x-for="item in usedRatings" :key="item.name"><li><strong x-text="item.name"></strong> <span x-text="number(item.rating)"></span></li></template></ul></details>
+            <details class="method"><summary>{{ __('simulation.method') }}</summary><p x-text="methodSummary"></p><p x-text="samplingError"></p><p>{{ __('simulation.zero_note') }}</p><p>{{ __('board.score_note') }}</p><p x-text="rematches"></p><ul class="ratings-used"><template x-for="item in usedRatings" :key="item.name"><li><strong x-text="item.name"></strong> <span x-text="number(item.rating)"></span></li></template></ul></details>
             <details class="example"><summary>{{ __('simulation.example') }}</summary><div class="example-grid"><template x-for="round in exampleRounds" :key="round.key"><section><h3 x-text="round.label"></h3><ol><template x-for="match in round.matches" :key="match.id"><li><span x-text="teamName(match.teamA)"></span><strong x-text="`${match.score.a}–${match.score.b}`"></strong><span x-text="teamName(match.teamB)"></span><small x-text="originLabel(match.origin)"></small></li></template></ol></section></template></div></details>
         </div></template>
     </section>
