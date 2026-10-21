@@ -1,0 +1,40 @@
+{
+  "as_of_utc": "2026-10-21T00:00:00+00:00",
+  "candidate_games": 28783,
+  "canonical_games": 28791,
+  "feature_blocks": {
+    "historical_gpr": {
+      "status": "missing",
+      "value": null
+    },
+    "recent_form": {
+      "status": "missing",
+      "value": null
+    },
+    "roster_continuity": {
+      "status": "missing",
+      "value": null
+    }
+  },
+  "historical_results_with_reviewed_temporal_evidence": 0,
+  "limitations": [
+    "Coverage audit only; no features, baseline probabilities or coefficients are fitted.",
+    "Current canonical schema has no reviewed temporal evidence or pre-game roster snapshots.",
+    "Evidence references require review; a source hash does not establish historical availability.",
+    "No use of current GPR for past matches; missing blocks remain missing."
+  ],
+  "missing_evidence_by_game": {
+    "pre_game_roster_snapshot": 28783,
+    "result_available_at_utc": 28783,
+    "reviewed_time_and_result_evidence": 28783,
+    "stable_player_ids": 28783
+  },
+  "mode": "coverage_only",
+  "pre_game_roster_snapshots": 0,
+  "quarantined_games": 8,
+  "source_canonical_sha256": "07965d750bfa743e82091dfa6f61313b635ebe1e90610f7a7708c0ea9781ecae",
+  "source_corpus_audit_sha256": "b55b55c1a1eb2b027d38d7ccc6fbe61e9bf316934edc4e84f6da507bf2fb3631",
+  "source_identity_audit_sha256": "3ab71785caeefe24efdfd82b917fc335bf59ac21845a256d274adcaca6ef82d5",
+  "temporal_audit_version": "pregame-contract-v1",
+  "training_ready": false
+}
