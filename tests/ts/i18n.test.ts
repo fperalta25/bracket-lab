@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import en from '../../lang/en.json';
 import es from '../../lang/es.json';
 import { formatDate, formatNumber, formatPercent, resolveLocale, t, type TranslationKey } from '../../resources/ts/i18n';
+
+function filesIn(directory: string): string[] {
+    return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(directory, entry.name);
+        return entry.isDirectory() ? filesIn(path) : [path];
+    });
+}
 
 describe('shared translation catalogs', () => {
     it('has matching nonempty keys and interpolation parameters in both languages', () => {
@@ -31,8 +40,35 @@ describe('shared translation catalogs', () => {
 
     it('formats dates with an explicit data timezone independent of the UI language', () => {
         const date = new Date('2026-10-21T00:00:00Z');
-        expect(formatDate(date, 'es', { timeZone: 'UTC' })).toBe('21 de octubre de 2026');
-        expect(formatDate(date, 'en', { timeZone: 'UTC' })).toBe('October 21, 2026');
+        expect(formatDate(date, 'es', { dateStyle: 'long', timeZone: 'UTC' })).toBe('21 de octubre de 2026');
+        expect(formatDate(date, 'en', { dateStyle: 'long', timeZone: 'UTC' })).toBe('October 21, 2026');
         expect(date.toISOString()).toBe('2026-10-21T00:00:00.000Z');
+    });
+
+    it('provides every literal catalog key referenced by Blade and TypeScript', () => {
+        const files = [...filesIn('resources/views'), ...filesIn('resources/ts')];
+        for (const file of files) {
+            const source = readFileSync(file, 'utf8');
+            for (const match of source.matchAll(/\b(?:__|t)\(\s*['"]([^'"]+)['"]\s*[,)]/g)) {
+                expect(en, `${file}: ${match[1]}`).toHaveProperty(match[1]!);
+                expect(es, `${file}: ${match[1]}`).toHaveProperty(match[1]!);
+            }
+        }
+    });
+
+    it('keeps visible Blade text and accessible labels in the shared catalogs', () => {
+        for (const file of filesIn('resources/views')) {
+            const source = readFileSync(file, 'utf8')
+                .replace(/@php[\s\S]*?@endphp/g, '')
+                .replace(/\{\{[\s\S]*?\}\}/g, '')
+                .replace(/^\s*@.*$/gm, '');
+            const texts = [...source.matchAll(/>([^<>]*)</g)].map((match) => match[1]!);
+            const labels = [...source.matchAll(/(?:aria-label|alt|title|content)="([^"]*)"/g)]
+                .map((match) => match[1]!)
+                .filter((text) => !['dark', 'width=device-width, initial-scale=1'].includes(text));
+            for (const text of [...texts, ...labels]) {
+                expect(text.replaceAll('Bracket Lab', ''), `${file}: ${text}`).not.toMatch(/\p{L}/u);
+            }
+        }
     });
 });

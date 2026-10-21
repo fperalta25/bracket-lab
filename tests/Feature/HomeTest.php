@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Team;
+use App\Models\Tournament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -56,5 +57,38 @@ class HomeTest extends TestCase
         $this->get('/register')->assertNotFound();
         $this->get('/admin')->assertNotFound();
         $this->post('/admin/publish')->assertNotFound();
+    }
+
+    public function test_both_languages_localize_the_page_without_changing_tournament_data(): void
+    {
+        $this->seed();
+        $before = Tournament::with(['teams', 'fixtures'])->sole()->toJson();
+
+        foreach ([
+            'es' => ['Equipos', '21 de octubre de 2026', 'Navegación principal', 'Cruce 1 · Bo1'],
+            'en' => ['Teams', 'October 21, 2026', 'Main navigation', 'Match 1 · Bo1'],
+        ] as $locale => $texts) {
+            $response = $this->get('/?lang='.$locale.'&seed=123&iterations=1000');
+            $response->assertOk()->assertSee('lang="'.$locale.'"', false);
+            foreach ($texts as $text) {
+                $response->assertSee($text);
+            }
+            $response->assertSee('lang=es&amp;seed=123&amp;iterations=1000', false)
+                ->assertSee('lang=en&amp;seed=123&amp;iterations=1000', false)
+                ->assertSee('Karmine Corp')->assertSee('Worlds 2026')
+                ->assertDontSee('Text unavailable.');
+            $this->assertDoesNotMatchRegularExpression('/\b(?:tournament|nav|locale)\.[a-z_]+\b/', $response->getContent());
+            $this->assertSame(8, substr_count($response->getContent(), 'class="fixture"'));
+            $this->assertSame($before, Tournament::with(['teams', 'fixtures'])->sole()->toJson());
+        }
+    }
+
+    public function test_english_empty_state_and_metadata_are_translated(): void
+    {
+        $this->get('/?lang=en')->assertOk()
+            ->assertSee('No tournament data yet.')
+            ->assertSee('Independent simulator for Worlds 2026.')
+            ->assertSee('aria-label="Language"', false)
+            ->assertDontSee('Todavía no hay datos');
     }
 }

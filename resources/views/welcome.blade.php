@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
-    <meta name="description" content="Simulador independiente de torneos. Consulta los equipos y cruces iniciales de Worlds 2026.">
+    <meta name="description" content="{{ __('page.description') }}">
     <title>Bracket Lab · {{ $tournament?->name ?? __('tournament.preview') }}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     @vite(['resources/css/app.css', 'resources/ts/app.ts'])
@@ -13,10 +13,13 @@
     <a href="#contenido" class="skip-link">{{ __('tournament.skip') }}</a>
     <header class="site-header page-width">
         <a class="brand" href="{{ route('home') }}"><span class="brand-symbol" aria-hidden="true">⫶</span> Bracket Lab</a>
-        <nav aria-label="Navegación principal">
-            <a href="#cruces">{{ __('tournament.fixtures') }}</a>
-            <a href="#equipos">{{ __('tournament.teams') }}</a>
-        </nav>
+        <div class="header-controls">
+            <nav aria-label="{{ __('nav.main') }}">
+                <a href="#cruces">{{ __('tournament.fixtures') }}</a>
+                <a href="#equipos">{{ __('tournament.teams') }}</a>
+            </nav>
+            <x-language-switch />
+        </div>
     </header>
 
     <main id="contenido" class="page-width">
@@ -27,8 +30,8 @@
         </section>
 
         @if ($tournament)
-            <aside class="notice" aria-label="{{ __('tournament.initial_data') }}">
-                <strong>{{ __('tournament.initial_data') }}</strong>
+            <aside class="notice" aria-label="{{ __('tournament.initial_data', ['date' => $initialDataDate]) }}">
+                <strong>{{ __('tournament.initial_data', ['date' => $initialDataDate]) }}</strong>
                 <p>{{ __('tournament.initial_note') }}</p>
             </aside>
 
@@ -39,7 +42,7 @@
                 <ol class="fixture-grid">
                     @foreach ($tournament->fixtures as $fixture)
                         <li class="fixture">
-                            <div class="fixture-meta"><span>{{ __('tournament.match', ['slot' => $fixture->slot]) }} · Bo{{ $fixture->best_of }}</span><span>{{ __('tournament.pending') }}</span></div>
+                            <div class="fixture-meta"><span>{{ __('tournament.fixture', ['slot' => $fixture->slot, 'best_of' => $fixture->best_of]) }}</span><span>{{ __('tournament.pending') }}</span></div>
                             <div class="matchup">
                                 <div class="team"><span class="monogram" aria-hidden="true">{{ $fixture->teamA->acronym }}</span><div><strong>{{ $fixture->teamA->acronym }}</strong><span>{{ $fixture->teamA->name }}</span></div></div>
                                 <span class="versus"><span aria-hidden="true">—</span><span class="sr-only">{{ __('tournament.versus') }}</span></span>

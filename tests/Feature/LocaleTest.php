@@ -52,6 +52,7 @@ class LocaleTest extends TestCase
         $this->assertSame('Cruce 2', __('tournament.match', ['slot' => 2], 'es'));
         $this->assertSame('Match 2', __('tournament.match', ['slot' => 2], 'en'));
         $this->assertSame('Match 2', __('tournament.match', ['slot' => 2], 'fr'));
+        $this->assertSame('Match :pool', __('tournament.match', ['slot' => ':pool', 'pool' => 3], 'fr'));
         $this->assertSame('Text unavailable.', __('missing.internal.key'));
     }
 }

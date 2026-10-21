@@ -6,7 +6,7 @@
     "tournament.preview": "Preview",
     "tournament.heading": "Tournament",
     "tournament.not_ready": "Simulation not yet available.",
-    "tournament.initial_data": "Initial data · October 21, 2026",
+    "tournament.initial_data": "Initial data · :date",
     "tournament.initial_note": "No published revision.",
     "tournament.round_one": "Round 1",
     "tournament.pending": "Pending",
@@ -25,5 +25,18 @@
     "locale.label": "Language",
     "locale.es": "Spanish",
     "locale.en": "English",
-    "errors.translation": "Text unavailable."
+    "errors.translation": "Text unavailable.",
+    "page.description": "Independent simulator for Worlds 2026.",
+    "nav.home": "Home",
+    "errors.401": "Sign in to continue.",
+    "errors.402": "Payment required.",
+    "errors.403": "You do not have permission to access this page.",
+    "errors.404": "Page not found.",
+    "errors.405": "Method not allowed.",
+    "errors.419": "Your session has expired. Reload the page.",
+    "errors.429": "Too many requests. Try again later.",
+    "errors.500": "Server error. Try again later.",
+    "errors.503": "Service unavailable. Try again later.",
+    "errors.generic": "The request could not be completed.",
+    "tournament.fixture": "Match :slot · Bo:best_of"
 }

@@ -17,7 +17,7 @@ Fase 0: Laravel 13, PHP 8.4, SQLite, Blade, Alpine, Tailwind 4 y TypeScript con 
 PHPUnit y Vitest preparados. El motor, los escenarios y la administración se implementarán
 en las siguientes fases. Sin despliegue ni CI/CD.
 
-La portada muestra los 16 equipos por pool y los ocho cruces de R1 pendientes, en español
+La portada muestra los 16 equipos por pool y los ocho cruces de R1 pendientes, en español e inglés
 y con diseño oscuro adaptable. Se identifica como vista previa, sin revisión publicada
 ni resultados calculados. Los datos siguen la especificación, sin consultar fuentes en vivo.
 
@@ -102,6 +102,37 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 
 Siguiente paso: Fase 1, dominio y motor TypeScript puro con semilla, series, sorteos
 completos válidos y pruebas de invariantes. Las probabilidades y el worker llegarán después.
+
+## Internacionalización
+
+- `lang/es.json` y `lang/en.json` son los únicos catálogos de interfaz. Cada cadena nueva
+  debe incluir ambas traducciones con las mismas claves y parámetros (`:slot`, `:date`).
+- Blade usa `__('clave', ['parametro' => valor])`. TypeScript importa el helper tipado
+  `t(key, params?)` de `resources/ts/i18n/`; devuelve texto plano para `textContent` o
+  `x-text`, nunca HTML. El fallback es inglés y no expone claves internas.
+- El middleware global aplica el idioma también a las futuras rutas admin. La primera
+  visita usa el idioma preferido del navegador: español si empieza por `es`, inglés
+  en los demás casos. La elección manual prevalece.
+- El componente `<x-language-switch />` muestra ES/EN y se debe incluir también en toda
+  nueva vista pública o admin. `?lang=es` / `?lang=en` transmite la elección y conserva
+  los demás parámetros de la URL. Solo se persiste en la cookie técnica `locale`,
+  limitada a esos valores, HttpOnly, SameSite=Lax, Secure bajo HTTPS y de un año.
+  No se crea una sesión ni una copia de la preferencia en localStorage.
+- El selector actual recarga la página. Cuando existan escenarios o resultados en UI,
+  conservar/restaurar el estado de trabajo al cambiar idioma será obligatorio; no
+  reiniciar simulaciones. No traducir IDs, equipos, regiones ni valores del dominio.
+- Para presentación frontend, usar `formatNumber`, `formatPercent` (fracciones 0..1)
+  y `formatDate` con `Intl`. En Blade, las fechas usan Carbon localizado; la fecha
+  inicial es un dato de calendario en UTC. Indicar la zona del dato cuando importe.
+  Conservar siempre los números originales para cálculo y ordenación.
+- Usar frases completas parametrizadas y variantes singular/plural cuando hagan falta.
+  Las futuras validaciones, errores de escenarios, worker y gráficos deben traducirse
+  en UI mediante códigos estables, sin llevar textos al motor ni al JSON funcional.
+
+Las pruebas comprueban detección/persistencia, fallback, páginas de error y estado vacío,
+fechas, paridad de catálogos y parámetros, claves usadas en Blade/TypeScript y textos
+literales visibles en las plantillas. La revisión de copy y la comprobación móvil
+en ambos idiomas siguen siendo obligatorias en cada pantalla nueva.
 
 ## Organización
 

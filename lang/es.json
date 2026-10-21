@@ -6,7 +6,7 @@
     "tournament.preview": "Vista previa",
     "tournament.heading": "Torneo",
     "tournament.not_ready": "Simulación aún no disponible.",
-    "tournament.initial_data": "Datos iniciales · 21 de octubre de 2026",
+    "tournament.initial_data": "Datos iniciales · :date",
     "tournament.initial_note": "Sin revisión publicada.",
     "tournament.round_one": "Ronda 1",
     "tournament.pending": "Pendiente",
@@ -25,5 +25,18 @@
     "locale.label": "Idioma",
     "locale.es": "Español",
     "locale.en": "Inglés",
-    "errors.translation": "Texto no disponible."
+    "errors.translation": "Texto no disponible.",
+    "page.description": "Simulador independiente de Worlds 2026.",
+    "nav.home": "Inicio",
+    "errors.401": "Inicia sesión para continuar.",
+    "errors.402": "Se requiere un pago.",
+    "errors.403": "No tienes permiso para acceder.",
+    "errors.404": "Página no encontrada.",
+    "errors.405": "Método no permitido.",
+    "errors.419": "La sesión ha caducado. Recarga la página.",
+    "errors.429": "Demasiadas solicitudes. Inténtalo de nuevo más tarde.",
+    "errors.500": "Error del servidor. Inténtalo de nuevo más tarde.",
+    "errors.503": "Servicio no disponible. Inténtalo de nuevo más tarde.",
+    "errors.generic": "No se ha podido completar la solicitud.",
+    "tournament.fixture": "Cruce :slot · Bo:best_of"
 }
