@@ -571,11 +571,14 @@ Firefox headless: 10.000 torneos GPR en el Web Worker, con entrega del resultado
 3.374 ms; cancelación de una ejecución posterior conserva el resultado completo y
 las tablas no muestran NaN.
 
-**V3-B, dos bloques:** auditoría offline de ChainCC 2024–2026, importación/descarga,
+**V3-B, tres bloques:** auditoría offline de ChainCC 2024–2026, importación/descarga,
 canonicalización y trazabilidad por SHA-256. 28.791 games canónicos; 1.212 excluidos
-por IDs ausentes y dos por resultados inconsistentes. Infraestructura, comandos, atribución y límites en
+por IDs ausentes y dos por resultados inconsistentes. La auditoría fechada de identidades
+aísla además ocho registros simultáneos con IDs distintos: 28.783 partidas en el
+registro derivado, 728 IDs y 4.081 alineaciones observadas. No se fusionan nombres
+ambiguos ni se extrapolan plantillas futuras. Infraestructura y límites en
 [analysis/README.md](analysis/README.md); [informe conjunto](models/reports/chaincc-2024-2026-v3b/audit.json).
-35 pruebas Python, 142 Vitest, 42 Laravel y typecheck. La zona horaria, disponibilidad,
+47 pruebas Python, 142 Vitest, 42 Laravel y typecheck. La zona horaria, disponibilidad,
 series e identidades estables requieren verificación; el corpus no está habilitado
 para entrenamiento. Pendiente resolver esas limitaciones antes de construir las
 features temporales de V3-C.
