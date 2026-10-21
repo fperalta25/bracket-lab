@@ -329,3 +329,96 @@ referencia pre-game histórica y entonces construir forma residual y continuidad
 con cobertura trazable. Se mantiene la necesidad de separar series en la validación.
 No se ha entrenado, calibrado o habilitado ningún preset adicional y no ha cambiado
 el formato de escenarios, la interfaz ni las probabilidades públicas.
+
+## V3-C · segundo bloque: importar evidencia revisada
+
+`analysis/src/reviewed.py` conecta archivos de evidencia locales con `TemporalHistory`.
+No cambia los CSV, el corpus canónico ni los informes congelados. No descarga fuentes
+ni deduce fechas o IDs: importa anotaciones explícitas ya revisadas contra sus fuentes.
+Esta revisión de contenido no es una aprobación de modelo ni habilita el preset v3.
+
+```bash
+python3 analysis/src/reviewed.py \
+  --bundle data/raw/evidence/mi-revision/bundle.json \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --corpus-audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --identity-audit models/reports/chaincc-identities-v3b/audit.json \
+  --output data/curated/mi-revision
+```
+
+El bundle es un objeto JSON con estas claves, sin campos adicionales:
+
+| Nivel | Campos |
+| --- | --- |
+| Raíz | `schema_version: 1`, `source_canonical_sha256`, `source_corpus_audit_sha256`, `source_identity_audit_sha256`, arrays `sources`, `results`, `rosters` |
+| Cada fuente | `id`, `path`, `reference`, `sha256`, `retrieved_at_utc`, `reviewed_at_utc`, `review_note`, `license` |
+| Cada resultado | `game_id`, `team_a_id`, `team_b_id`, `win_a`, `event_start_utc`, `available_at_utc`, `time_source_id`, `result_source_id` |
+| Cada plantilla | `snapshot_id`, `team_id`, `player_ids`, `effective_from_utc`, `available_at_utc`, `source_id`; opcional `effective_until_utc` |
+
+Los tres hashes raíz identifican los bytes exactos del corpus y sus dos informes
+(`sha256sum archivo`). Los IDs de equipo/outcome de cada anotación deben coincidir
+con el game canónico; se rechazan IDs desconocidos y todos los de la cuarentena.
+`player_ids` debe contener cinco IDs estables revisados, no nombres convertidos por
+el programa. Los IDs de snapshot y game deben ser únicos en el bundle. No se aceptan
+estadísticas postgame, ratings actuales ni columnas adicionales como features.
+
+Guardar las fuentes referenciadas dentro del directorio del bundle (`path` resuelto
+sin salir de él); se comprueba el SHA-256 real de cada archivo. `reference` identifica
+su origen y `license` registra los términos revisados. `review_note` debe explicar
+la evidencia concreta para fecha, resultado o identidades y sus limitaciones, con
+localizadores de los registros cuando proceda. Un texto genérico o un hash correcto
+**no demuestra** que la interpretación histórica sea cierta: el importador valida
+estructura y coherencia, no autentica el contenido del proveedor.
+
+Todos los timestamps requieren zona explícita. La revisión no puede preceder a la
+captura de los bytes revisados, y una disponibilidad afirmada no puede ser posterior
+a la captura que la respalda. Esto no convierte la captura en fecha de publicación:
+para afirmar una disponibilidad anterior hay que justificarla con el contenido o un
+archivo fechado. Games y disponibilidades importados deben preceder al corte global;
+una plantilla puede estar anunciada y ser efectiva después, pero `roster_before`
+no la aplicará anticipadamente.
+
+Las correcciones de zona/hora son posibles solo como anotaciones separadas con
+evidencia: `reviewed_start_corrections` muestra el valor original y el revisado.
+No se sobrescribe silenciosamente la fecha canónica. Las plantillas incompatibles
+para el mismo equipo, fecha efectiva y disponibilidad se rechazan antes de escribir.
+
+Las salidas locales son `dataset.json` y `audit.json`, con hashes de fuentes/bundle,
+entradas congeladas, conteos importados y correcciones. No incluyen parámetros de
+modelo. `training_ready` permanece en `false`, incluso con anotaciones válidas:
+faltan cobertura, features y validación temporal/predictiva. No se versionan en Git
+corpus enriquecidos ni evidencias grandes; las rutas de ejemplo ya están ignoradas.
+
+Para consumirlos offline:
+
+```python
+from pathlib import Path
+from reviewed import load_imported_history
+
+history = load_imported_history(
+    Path('data/curated/mi-revision/dataset.json'),
+    Path('data/curated/mi-revision/audit.json'),
+)
+# Usar results_before / roster_before con PreGameQuery, nunca el dataset completo
+# como historial de todos los games sin respetar disponibilidad.
+```
+
+El cargador comprueba versión, hash y recuentos antes de construir el historial.
+Se mantiene el filtro temporal del bloque anterior. Los ejemplos sintéticos completos
+están en `analysis/tests/test_reviewed.py`; no representan datos históricos acreditados.
+
+**Resultado comprobado:** 92 pruebas Python (25 nuevas), 142 Vitest, 42 Laravel
+(528 aserciones) y typecheck. Se prueba importación/serialización/recarga/consulta,
+integridad, anotaciones incompatibles, cuarentena, fechas, duplicados, conflictos y
+error de CLI sin salidas. Mismos inputs producen bytes idénticos. Sobre el corpus
+real se verificó además un bundle vacío: sigue vacío, no fabrica evidencias y no
+modifica el hash fuente. No se versiona ese artefacto de prueba vacío como si fuese
+un nuevo corpus científico.
+
+La revisión de las páginas de [datos](https://chaincc.lol/free/data/) y
+[metodología](https://chaincc.lol/about/methodology), el 21-10-2026, no aporta las
+fechas históricas de disponibilidad por game ni IDs estables de jugador para los
+CSV inspeccionados. Se conserva la cobertura pendiente: **no se han incorporado
+nuevos hechos históricos acreditados** en este bloque. El siguiente paso de datos
+es obtener y revisar esas evidencias; el siguiente de features las consumirá sin
+imputar una forma residual ni reutilizar GPR de 2026 para ejemplos antiguos.
