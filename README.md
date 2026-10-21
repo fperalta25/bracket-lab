@@ -116,7 +116,7 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
 y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
 ejemplo disponibles. Fase 3: escenarios locales y cuadro suizo R1–R5 interactivo, con ganadores por clic
-y sorteos automáticos por grupo. Siguen pendientes el editor de knockout y la administración de Fase 4.
+y sorteos automáticos por grupo; eliminatorias interactivas hasta el campeón. Sigue pendiente la administración de Fase 4.
 
 ## Base GPR v2
 
@@ -382,7 +382,41 @@ Firefox en ES/EN a 360, 768 y 1440 px: clics directos, sorteos por grupo, ausenc
 de rivales, cambio de idioma sin alterar resultados, reinicio de dependencias y deshacer.
 Recorrido móvil completo: una ronda visible, avance automático, inicio desde cero,
 guardado local, exportación/importación v2 y recarga sin perder las 33 elecciones.
-El editor de knockout queda pendiente.
+### Eliminatorias
+
+Al determinar los ocho clasificados, se sortean automáticamente los cuatro cuartos con
+el mismo muestreador del motor. Los dos `3-0` se enfrentan a distintos `3-2` y quedan en
+mitades opuestas; los cuatro equipos restantes completan el cuadro sin restricciones
+adicionales. La semilla y el contador local hacen reproducible el sorteo y los cruces
+quedan guardados en el escenario. Un sorteo oficial parcial conserva sus posiciones,
+resultados y partidas conocidas al completarse. Los archivos importados siguen intactos:
+si tienen ocho clasificados y cuartos sin completar, se ofrece «Sortear cruces».
+
+Cada ganador de cuartos avanza a su semifinal según la posición del cuadro. La semifinal
+aparece cuando se conocen sus dos participantes, sin esperar a la otra mitad. La final
+sigue el mismo recorrido y el campeón se destaca al elegir su ganador. Todas las series
+son Bo5 y las elecciones siguen sin imponer marcadores. El motor GPR existente sortea
+marcadores condicionados al ganador, también en estas siete series.
+
+Cambiar o retirar una elección elimina únicamente sus descendientes: se conservan los
+otros cuartos y la semifinal de la otra mitad. Deshacer recupera las elecciones, los
+cruces y las rondas visibles; cambiar un resultado suizo sigue reiniciando las rondas
+posteriores y las eliminatorias. En móvil hay pestañas de cuartos, semifinales y final,
+con avance y foco al completar una ronda. Participantes aún desconocidos quedan como
+huecos deshabilitados; los marcadores oficiales se muestran sin transformarlos.
+
+Se mantiene el JSON v2 y la compatibilidad de importación v1, sin cambiar modelos,
+parámetros ni datos oficiales. La documentación nueva sobre modelos queda para otro
+bloque.
+
+Validación de esta ampliación: **118 pruebas Vitest, 21 PHP**, TypeScript, build y Pint.
+Incluye sorteo legal reproducible e idempotente, sorteo publicado parcial, avance de
+mitades independientes, cambios y retiradas de ganadores y las 40 series hasta el campeón.
+Firefox en ES/EN: recorrido completo en escritorio y móvil, teclado, simulación con las
+40 elecciones, deshacer, biblioteca local, exportación ES/importación EN y recarga.
+Comprobado también a 768 px, con importación de marcadores v1 y sorteo parcial importado:
+se muestran los marcadores originales y se conservan los cuartos ya fijados.
+
 
 ## Internacionalización
 
