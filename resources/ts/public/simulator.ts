@@ -4,9 +4,10 @@ import { SWISS_16_RULES, FINAL_BUCKETS, SWISS_RECORDS, validateRequest, validate
 import type { WorkerMessage } from './worker';
 import { parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
 import { swissRoundState } from './scenario-rounds';
-import { advanceSwissBoard, BOARD_GROUPS, chooseSwissWinner, swissBoardView } from './swiss-board';
+import { advanceSwissBoard, BOARD_GROUPS, chooseSwissWinner, redrawSwissGroup, swissBoardView } from './swiss-board';
 import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView } from './knockout-board';
 import { listScenarios, storeScenario, removeScenario } from './scenario-storage';
+import { outcomeSupport } from './outcome-support';
 import { probabilityText, qualificationCount } from './presentation';
 
 const STORAGE_KEY = 'bracket-lab.public-simulation.v1';
@@ -24,6 +25,7 @@ export function publicSimulator() {
     let contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true };
     let activeWorker: Worker | undefined;
     let pendingLanguage: string | undefined;
+    let supportCache: { request: SimulationOutput['metadata']['request']; values: ReturnType<typeof outcomeSupport> } | undefined;
     return {
         mode: 'official_state' as 'official_state' | 'from_scratch' | 'custom',
         previousMode: 'official_state' as 'official_state' | 'from_scratch' | 'custom',
@@ -153,6 +155,18 @@ export function publicSimulator() {
                 this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
             }
             catch { this.error = t('scenario.error_constraints'); }
+        },
+        redrawGroup(round: number, record: string) {
+            if (this.mode !== 'custom') this.startBoard();
+            this.error = ''; this.boardReset = false;
+            try {
+                const previous = { fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[], drawIndex: this.drawIndex,
+                    preset: this.preset, editingRound: this.editingRound, knockoutRound: this.knockoutRound };
+                const next = redrawSwissGroup(this.request(), round, record, this.drawIndex);
+                this.boardUndo = previous; this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
+                this.boardReset = next.removedResults > 0; this.boardMessage = t('board.redrawn', { record });
+                this.ensureModel(); this.save();
+            } catch { this.error = t('scenario.error_constraints'); }
         },
         pickWinner(fixtureId: string, winner: string) {
             if (this.mode !== 'custom') this.startBoard();
@@ -323,7 +337,13 @@ export function publicSimulator() {
             this.sorts[table] = { key, descending: previous.key === key ? !previous.descending : true }; this.save();
         },
         ariaSort(table: Table, key: string) { return this.sorts[table].key !== key ? 'none' : this.sorts[table].descending ? 'descending' : 'ascending'; },
-        percent(count: number) { return probabilityText(count, this.output!.aggregates.completedIterations, currentLocale()); },
+        percent(team: Team, table: Table, key: string) {
+            const output = this.output!;
+            if (supportCache?.request !== output.metadata.request) supportCache = { request: output.metadata.request, values: outcomeSupport(output.metadata.request) };
+            const support = supportCache.values[team.id]!;
+            const possible = key === 'qualify' ? support.qualify : table === 'swiss' ? support.swiss.has(key) : support.final.has(key as typeof FINAL_BUCKETS[number]);
+            return probabilityText(this.count(team, table, key), output.aggregates.completedIterations, currentLocale(), !possible);
+        },
         number(value: number) { return formatNumber(value); },
         translate(key: TranslationKey) { return t(key); },
         originLabel(origin: string) { return t(origin === 'constrained' ? 'board.constrained' : origin === 'simulated' ? 'simulation.simulated' : this.output?.metadata.sourceMode === 'custom' ? 'scenario.locked' : 'simulation.fixed'); },

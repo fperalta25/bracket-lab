@@ -71,7 +71,7 @@
     "simulation.summary": ":mode · :model · :count iteraciones",
     "simulation.method_values": "GPR :snapshot · Perfil :profile · Revisión: :revision · D :denominator (provisional) · Semilla :seed · :date",
     "simulation.sampling": "Margen Monte Carlo máximo aproximado al 95 %: ±:margin puntos porcentuales. No incluye incertidumbre del modelo.",
-    "simulation.zero_note": "Sin observaciones: límite superior aproximado al 95 % (3/N).",
+    "simulation.zero_note": "0 %: imposible por los resultados fijados. Sin observaciones de un caso posible: límite superior aproximado al 95 % (3/N).",
     "simulation.rematches": "Excepción de repetición: :runs torneos · :series series",
     "simulation.error_data": "No se puede simular esta configuración. Revisa los datos, las iteraciones y la semilla.",
     "simulation.error_worker": "No se ha podido ejecutar la simulación. Recarga la página e inténtalo de nuevo.",
@@ -140,7 +140,7 @@
     "board.advance": ":winner pasa a :winnerRecord; :loser pasa a :loserRecord.",
     "board.cleared": "Elección retirada.",
     "board.undone": "Última elección deshecha.",
-    "board.reset_later": "Se han reiniciado las elecciones de rondas posteriores.",
+    "board.reset_later": "Se han retirado las elecciones afectadas.",
     "board.constrained": "Ganador elegido · marcador simulado",
     "board.best_of": "Bo:count",
     "board.waiting": "Pendiente de resultados",
@@ -153,5 +153,7 @@
     "knockout.champion": "Campeón",
     "knockout.pending_team": "Participante pendiente",
     "knockout.advance": ":team pasa a :stage.",
-    "knockout.champion_announcement": ":team es campeón."
+    "knockout.champion_announcement": ":team es campeón.",
+    "board.redraw": "Resortear :record · ronda :round",
+    "board.redrawn": "Cruces de :record resorteados."
 }

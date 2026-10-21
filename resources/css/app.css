@@ -186,3 +186,5 @@ progress { accent-color: #88d3d0; max-width: 100%; }
     .knockout-column[data-active="false"] { display: none; }
     .knockout-slots { display: flex; flex-direction: column; }
 }
+
+.simulator .group-redraw { font-size: 1.25rem; padding: .2rem .55rem; min-width: 44px; margin-left: auto; margin-right: .4rem; color: #88d3d0; }
