@@ -121,9 +121,8 @@ export function validateRequest(request: SimulationRequest): readonly Fixture[] 
     requireCondition(request.scenario && ['from_scratch', 'official_state', 'custom'].includes(request.scenario.mode), 'invalid_request', { field: 'scenario' });
     requireCondition(integer(request.iterations, 1, MAX_ITERATIONS), 'invalid_request', { field: 'iterations' });
     requireCondition(integer(request.seed, 0, 0xffff_ffff), 'invalid_request', { field: 'seed' });
-    if (request.modelVersion === 'gpr-context-v2') validateGprRequest(request);
-    else {
-        requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request),
+    if (request.modelVersion === 'legacy-score-v1') {
+        requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request) && !('contextualTerms' in request),
             'incompatible_model', { reason: 'gpr_fields' });
         for (const team of request.snapshot.teams) {
             requireCondition(Number.isFinite(team.powerScore) && team.powerScore >= 0 && team.powerScore <= 100,
@@ -141,5 +140,6 @@ export function validateRequest(request: SimulationRequest): readonly Fixture[] 
     const fixtures = request.scenario.mode === 'from_scratch' ? []
         : request.scenario.mode === 'official_state' ? request.snapshot.fixtures : request.scenario.fixtures;
     if (fixtures !== request.snapshot.fixtures) validateConstraints(request.snapshot, fixtures);
+    if (request.modelVersion === 'gpr-context-v2') validateGprRequest(request);
     return fixtures;
 }

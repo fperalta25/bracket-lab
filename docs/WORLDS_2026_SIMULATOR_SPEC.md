@@ -350,7 +350,8 @@ interface SimulationRequest {
   snapshot: TournamentSnapshot; // versión y reglas
   scenario: ScenarioConstraints; // resultados/fixtures bloqueados
   strengths: StrengthProfileSet; // snapshot GPR, perfiles y procedencia congelados
-  preset: 'gpr_baseline'; // contextual_v1 se incorpora en el hito contextual
+  preset: 'gpr_baseline' | 'contextual_v1'; // GPR por defecto
+  contextualTerms?: ContextualTerms; // obligatorio y explícito en contextual; ausente en GPR
   denominator?: number; // sensibilidad explícita; 400 provisional por defecto
   gprOverrides?: Readonly<Record<TeamId, number>>; // puntos GPR, sin normalizar
   iterations: number;

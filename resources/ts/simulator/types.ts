@@ -109,9 +109,18 @@ export interface LegacySimulationRequest extends SimulationRequestBase {
     readonly variance: Variance;
 }
 
+export interface ContextualTerms {
+    readonly tournamentForm: boolean;
+    readonly seriesForm: boolean;
+    readonly pressure: boolean;
+    readonly sequence: boolean;
+}
+
 export interface GprSimulationRequest extends SimulationRequestBase {
     readonly modelVersion: 'gpr-context-v2';
-    readonly preset: 'gpr_baseline';
+    readonly preset: 'gpr_baseline' | 'contextual_v1';
+    /** Required explicitly for contextual; absent for baseline. Roster adjustments remain disabled. */
+    readonly contextualTerms?: ContextualTerms;
     readonly strengths: StrengthProfileSet;
     /** An explicit sensitivity experiment; does not change calibration or individual sigmas. */
     readonly denominator?: number;
