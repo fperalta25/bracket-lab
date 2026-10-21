@@ -1,0 +1,841 @@
+{
+  "audit_version": "chaincc-audit-v2",
+  "canonical_games": 28791,
+  "canonical_sha256": "07965d750bfa743e82091dfa6f61313b635ebe1e90610f7a7708c0ea9781ecae",
+  "corpus_version": "chaincc-corpus-v1",
+  "coverage_by_league": {
+    "AC": 54,
+    "AL": 761,
+    "AL Promotion": 22,
+    "AM": 63,
+    "ASI": 42,
+    "Asia Master": 180,
+    "CBLOL": 538,
+    "CBLOL Promotion": 24,
+    "CBLOLA": 276,
+    "CCWS": 40,
+    "CD": 414,
+    "CD Qualifier": 34,
+    "CDF": 59,
+    "CT": 89,
+    "DCGI": 71,
+    "DCup": 90,
+    "EBL": 502,
+    "EBL Promotion": 10,
+    "EBLPA": 25,
+    "EM": 1358,
+    "EPL": 150,
+    "ESLOL": 182,
+    "ESLOL Promotion": 14,
+    "EWC": 284,
+    "FST": 80,
+    "GLL": 140,
+    "GLL Promotion": 13,
+    "GLLPA": 32,
+    "HC": 494,
+    "HLL": 444,
+    "HM": 504,
+    "HM Promotion": 15,
+    "HW": 278,
+    "IC": 88,
+    "IGNIS": 46,
+    "KeSPA": 102,
+    "KeSPA Cup": 61,
+    "LAS": 1235,
+    "LCK": 1539,
+    "LCKC": 1544,
+    "LCO": 156,
+    "LCP": 556,
+    "LCP Promotion": 18,
+    "LCS": 452,
+    "LCS Promotion": 23,
+    "LDL": 563,
+    "LEC": 983,
+    "LES": 193,
+    "LES Promotion": 15,
+    "LFL": 793,
+    "LFL Promotion": 37,
+    "LFL2": 379,
+    "LIT": 467,
+    "LIT Promotion": 12,
+    "LJL": 581,
+    "LLA": 213,
+    "LPL": 2196,
+    "LPLOL": 298,
+    "LPLOL Promotion": 12,
+    "LRN": 399,
+    "LRN Promotion": 3,
+    "LRS": 420,
+    "LRS Promotion": 3,
+    "LTA": 40,
+    "LTA N": 189,
+    "LTA N Promotion": 24,
+    "LTA S": 194,
+    "LTA S Promotion": 28,
+    "LVP SL": 485,
+    "LVP SL Promotion": 21,
+    "MSI": 229,
+    "NACL": 986,
+    "NACL Promotion": 51,
+    "NEXO": 312,
+    "NL": 142,
+    "NLC": 602,
+    "NLC Aurora Open": 49,
+    "NLC Promotion": 65,
+    "PCL": 338,
+    "PCS": 660,
+    "PRM": 820,
+    "PRM Promotion": 46,
+    "PRMP": 146,
+    "RL": 451,
+    "ROL": 465,
+    "TCL": 611,
+    "TCL Promotion": 23,
+    "TSC": 64,
+    "UL": 143,
+    "UL Promotion": 16,
+    "USP": 25,
+    "VCS": 544,
+    "WLDs": 262,
+    "WLRQ": 6,
+    "WSCI": 85
+  },
+  "coverage_by_month": {
+    "2024-01": 665,
+    "2024-02": 1313,
+    "2024-03": 1504,
+    "2024-04": 622,
+    "2024-05": 633,
+    "2024-06": 1686,
+    "2024-07": 1373,
+    "2024-08": 895,
+    "2024-09": 452,
+    "2024-10": 526,
+    "2024-11": 194,
+    "2024-12": 42,
+    "2025-01": 471,
+    "2025-02": 999,
+    "2025-03": 628,
+    "2025-04": 1574,
+    "2025-05": 1512,
+    "2025-06": 668,
+    "2025-07": 891,
+    "2025-08": 1316,
+    "2025-09": 789,
+    "2025-10": 511,
+    "2025-11": 92,
+    "2025-12": 122,
+    "2026-01": 688,
+    "2026-02": 907,
+    "2026-03": 702,
+    "2026-04": 1432,
+    "2026-05": 1429,
+    "2026-06": 537,
+    "2026-07": 845,
+    "2026-08": 1302,
+    "2026-09": 1087,
+    "2026-10": 384
+  },
+  "cutoff_rule": "event_start_utc < cutoff_utc",
+  "cutoff_utc": "2026-10-21T00:00:00+00:00",
+  "excluded_games": {
+    "invalid_result": 2,
+    "missing_team_id": 1212
+  },
+  "games_with_complete_observed_lineups": 28791,
+  "limitations": [
+    "Source dates have no timezone; explicit timezone is an assumption.",
+    "No verified series IDs/best-of; all games excluded from momentum corpus.",
+    "Player names are not stable IDs; rosters are observed lineups only.",
+    "Availability times, historical GPR, regions and alias validity are unverified."
+  ],
+  "momentum_eligible_games": 0,
+  "seasons": {
+    "2024": {
+      "canonical_games": 9905,
+      "date_range_utc": [
+        "2024-01-01T05:13:15+00:00",
+        "2024-12-08T09:03:13+00:00"
+      ],
+      "excluded_games": {
+        "invalid_result": 2,
+        "missing_team_id": 292
+      },
+      "excluded_games_by_league": {
+        "CDF": {
+          "missing_team_id": 10
+        },
+        "ESLOL": {
+          "invalid_result": 1,
+          "missing_team_id": 94
+        },
+        "GLLPA": {
+          "missing_team_id": 6
+        },
+        "HC": {
+          "missing_team_id": 13
+        },
+        "HW": {
+          "missing_team_id": 15
+        },
+        "IC": {
+          "missing_team_id": 6
+        },
+        "IGNIS": {
+          "missing_team_id": 9
+        },
+        "LDL": {
+          "invalid_result": 1,
+          "missing_team_id": 1
+        },
+        "LFL2 Promotion": {
+          "missing_team_id": 11
+        },
+        "NLC Aurora Open": {
+          "missing_team_id": 28
+        },
+        "PCL": {
+          "missing_team_id": 2
+        },
+        "PRMP": {
+          "missing_team_id": 41
+        },
+        "TSC": {
+          "missing_team_id": 43
+        },
+        "USP": {
+          "missing_team_id": 13
+        }
+      },
+      "games_with_complete_observed_lineups": 9905,
+      "input_rows": {
+        "players": 101990,
+        "teams": 20398
+      },
+      "lineup_issues": {},
+      "missing_cells": {
+        "players": {
+          "assists": 0,
+          "assistsat10": 13920,
+          "assistsat15": 13930,
+          "champion": 0,
+          "controlwardsbought": 0,
+          "csat10": 13920,
+          "csat15": 13930,
+          "csdiffat10": 13920,
+          "csdiffat15": 13930,
+          "cspm": 0,
+          "damagemitigatedperminute": 13910,
+          "damageshare": 0,
+          "damagetakenperminute": 0,
+          "damagetochampions": 0,
+          "damagetotowers": 13910,
+          "date": 0,
+          "deaths": 0,
+          "deathsat10": 13920,
+          "deathsat15": 13930,
+          "doublekills": 13910,
+          "dpm": 0,
+          "earned_gpm": 0,
+          "earnedgold": 0,
+          "earnedgoldshare": 0,
+          "firstblood": 0,
+          "firstbloodkill": 0,
+          "game_id": 0,
+          "gamelength": 0,
+          "goldat10": 13920,
+          "goldat15": 13930,
+          "golddiffat10": 13920,
+          "golddiffat15": 13930,
+          "kills": 0,
+          "killsat10": 13920,
+          "killsat15": 13930,
+          "league": 0,
+          "minionkills": 0,
+          "monsterkills": 0,
+          "opponent_team_name": 0,
+          "patch": 120,
+          "pentakills": 13910,
+          "playername": 0,
+          "playoffs": 0,
+          "position": 0,
+          "quadrakills": 13910,
+          "result": 0,
+          "side": 0,
+          "split": 18440,
+          "team_name": 0,
+          "teamdeaths": 0,
+          "teamkills": 0,
+          "total_cs": 0,
+          "totalgold": 0,
+          "triplekills": 13910,
+          "visionscore": 0,
+          "vspm": 0,
+          "wardskilled": 0,
+          "wardsplaced": 0,
+          "wcpm": 0,
+          "wpm": 0,
+          "xpat10": 13920,
+          "xpat15": 13930,
+          "xpdiffat10": 13920,
+          "xpdiffat15": 13930,
+          "year": 0
+        },
+        "teams": {
+          "ban1": 1243,
+          "ban2": 1215,
+          "ban3": 1230,
+          "ban4": 1266,
+          "ban5": 1308,
+          "barons": 0,
+          "bo_format": 20398,
+          "ckpm": 0,
+          "csdiffat10": 0,
+          "csdiffat15": 0,
+          "cspm": 0,
+          "date": 0,
+          "deathsat10": 0,
+          "deathsat15": 0,
+          "dpm": 0,
+          "dragons": 0,
+          "earned_gpm": 0,
+          "earnedgold": 0,
+          "elders": 0,
+          "first_pick": 0,
+          "firstbaron": 0,
+          "firstblood": 0,
+          "firstdragon": 0,
+          "firstherald": 0,
+          "firstmidtower": 0,
+          "firsttothreetowers": 0,
+          "firsttower": 0,
+          "game_id": 0,
+          "game_in_match": 20398,
+          "game_number": 0,
+          "gamelength": 0,
+          "goldat10": 0,
+          "goldat15": 0,
+          "golddiffat10": 0,
+          "golddiffat15": 0,
+          "heralds": 0,
+          "inhibitors": 0,
+          "kills": 0,
+          "killsat10": 0,
+          "killsat15": 0,
+          "league": 0,
+          "match_in_series": 20398,
+          "opp_barons": 0,
+          "opp_dragons": 0,
+          "opp_elders": 0,
+          "opp_heralds": 0,
+          "opp_inhibitors": 0,
+          "opp_towers": 0,
+          "opp_turretplates": 0,
+          "opp_void_grubs": 0,
+          "opponent_team_name": 0,
+          "patch": 24,
+          "pick1": 0,
+          "pick2": 0,
+          "pick3": 0,
+          "pick4": 0,
+          "pick5": 0,
+          "playoffs": 0,
+          "result": 0,
+          "side": 0,
+          "split": 3688,
+          "team_id": 350,
+          "team_kpm": 0,
+          "team_name": 0,
+          "teamdeaths": 0,
+          "teamkills": 0,
+          "totalgold": 0,
+          "towers": 0,
+          "turretplates": 0,
+          "void_grubs": 0,
+          "vspm": 0,
+          "xpdiffat10": 0,
+          "xpdiffat15": 0,
+          "year": 0
+        }
+      },
+      "source_sha256": {
+        "players": "a7f5904da91e379d9879190a300d6f067f141c30f0dee58ae2bd0df040bfa0e3",
+        "teams": "df629eb85e09f6e25abf16f50990bf08b2fda861dd625f80192e8fb87f2a0766"
+      },
+      "team_game_groups": 10199
+    },
+    "2025": {
+      "canonical_games": 9573,
+      "date_range_utc": [
+        "2025-01-11T11:11:24+00:00",
+        "2025-12-29T10:52:27+00:00"
+      ],
+      "excluded_games": {
+        "missing_team_id": 480
+      },
+      "excluded_games_by_league": {
+        "AL Promotion": {
+          "missing_team_id": 3
+        },
+        "CD Qualifier": {
+          "missing_team_id": 63
+        },
+        "DCup": {
+          "missing_team_id": 6
+        },
+        "EBL": {
+          "missing_team_id": 10
+        },
+        "HLL": {
+          "missing_team_id": 4
+        },
+        "HW": {
+          "missing_team_id": 8
+        },
+        "IC": {
+          "missing_team_id": 2
+        },
+        "KeSPA": {
+          "missing_team_id": 3
+        },
+        "LFL2 Promotion": {
+          "missing_team_id": 15
+        },
+        "LJL": {
+          "missing_team_id": 252
+        },
+        "LPLOL": {
+          "missing_team_id": 50
+        },
+        "LRN": {
+          "missing_team_id": 16
+        },
+        "LRS": {
+          "missing_team_id": 5
+        },
+        "NEXO": {
+          "missing_team_id": 3
+        },
+        "PCS": {
+          "missing_team_id": 16
+        },
+        "PRMP": {
+          "missing_team_id": 20
+        },
+        "VCS": {
+          "missing_team_id": 4
+        }
+      },
+      "games_with_complete_observed_lineups": 9573,
+      "input_rows": {
+        "players": 100530,
+        "teams": 20106
+      },
+      "lineup_issues": {},
+      "missing_cells": {
+        "players": {
+          "assists": 0,
+          "assistsat10": 8170,
+          "assistsat15": 8170,
+          "champion": 0,
+          "controlwardsbought": 0,
+          "csat10": 8170,
+          "csat15": 8170,
+          "csdiffat10": 8170,
+          "csdiffat15": 8170,
+          "cspm": 0,
+          "damagemitigatedperminute": 8170,
+          "damageshare": 0,
+          "damagetakenperminute": 0,
+          "damagetochampions": 0,
+          "damagetotowers": 8170,
+          "date": 0,
+          "deaths": 0,
+          "deathsat10": 8170,
+          "deathsat15": 8170,
+          "doublekills": 8170,
+          "dpm": 0,
+          "earned_gpm": 0,
+          "earnedgold": 0,
+          "earnedgoldshare": 0,
+          "firstblood": 0,
+          "firstbloodkill": 0,
+          "game_id": 0,
+          "gamelength": 0,
+          "goldat10": 8170,
+          "goldat15": 8170,
+          "golddiffat10": 8170,
+          "golddiffat15": 8170,
+          "kills": 0,
+          "killsat10": 8170,
+          "killsat15": 8170,
+          "league": 0,
+          "minionkills": 0,
+          "monsterkills": 0,
+          "opponent_team_name": 0,
+          "patch": 0,
+          "pentakills": 8170,
+          "playername": 0,
+          "playoffs": 0,
+          "position": 0,
+          "quadrakills": 8170,
+          "result": 0,
+          "side": 0,
+          "split": 14390,
+          "team_name": 0,
+          "teamdeaths": 0,
+          "teamkills": 0,
+          "total_cs": 0,
+          "totalgold": 0,
+          "triplekills": 8170,
+          "visionscore": 0,
+          "vspm": 0,
+          "wardskilled": 0,
+          "wardsplaced": 0,
+          "wcpm": 0,
+          "wpm": 0,
+          "xpat10": 8170,
+          "xpat15": 8170,
+          "xpdiffat10": 8170,
+          "xpdiffat15": 8170,
+          "year": 0
+        },
+        "teams": {
+          "ban1": 67,
+          "ban2": 47,
+          "ban3": 61,
+          "ban4": 119,
+          "ban5": 122,
+          "barons": 0,
+          "bo_format": 20106,
+          "ckpm": 0,
+          "csdiffat10": 0,
+          "csdiffat15": 0,
+          "cspm": 0,
+          "date": 0,
+          "deathsat10": 0,
+          "deathsat15": 0,
+          "dpm": 0,
+          "dragons": 0,
+          "earned_gpm": 0,
+          "earnedgold": 0,
+          "elders": 0,
+          "first_pick": 0,
+          "firstbaron": 0,
+          "firstblood": 0,
+          "firstdragon": 0,
+          "firstherald": 0,
+          "firstmidtower": 0,
+          "firsttothreetowers": 0,
+          "firsttower": 0,
+          "game_id": 0,
+          "game_in_match": 20106,
+          "game_number": 0,
+          "gamelength": 0,
+          "goldat10": 0,
+          "goldat15": 0,
+          "golddiffat10": 0,
+          "golddiffat15": 0,
+          "heralds": 0,
+          "inhibitors": 0,
+          "kills": 0,
+          "killsat10": 0,
+          "killsat15": 0,
+          "league": 0,
+          "match_in_series": 20106,
+          "opp_barons": 0,
+          "opp_dragons": 0,
+          "opp_elders": 0,
+          "opp_heralds": 0,
+          "opp_inhibitors": 0,
+          "opp_towers": 0,
+          "opp_turretplates": 0,
+          "opp_void_grubs": 0,
+          "opponent_team_name": 0,
+          "patch": 0,
+          "pick1": 0,
+          "pick2": 0,
+          "pick3": 0,
+          "pick4": 0,
+          "pick5": 0,
+          "playoffs": 0,
+          "result": 0,
+          "side": 0,
+          "split": 2878,
+          "team_id": 604,
+          "team_kpm": 0,
+          "team_name": 0,
+          "teamdeaths": 0,
+          "teamkills": 0,
+          "totalgold": 0,
+          "towers": 0,
+          "turretplates": 0,
+          "void_grubs": 0,
+          "vspm": 0,
+          "xpdiffat10": 0,
+          "xpdiffat15": 0,
+          "year": 0
+        }
+      },
+      "source_sha256": {
+        "players": "48a47fc574fcbe7295133266d6a3a8c0d04d02b2e96a66972fb283ed14a3437a",
+        "teams": "6cf310b5a6b58ffb8bf0fb00c43b6251ce8227ba9e1dc403967ebe131d87d015"
+      },
+      "team_game_groups": 10053
+    },
+    "2026": {
+      "canonical_games": 9313,
+      "date_range_utc": [
+        "2026-01-01T09:14:49+00:00",
+        "2026-10-18T19:48:36+00:00"
+      ],
+      "excluded_games": {
+        "missing_team_id": 440
+      },
+      "excluded_games_by_league": {
+        "AL": {
+          "missing_team_id": 10
+        },
+        "CD Qualifier": {
+          "missing_team_id": 48
+        },
+        "EBL": {
+          "missing_team_id": 24
+        },
+        "HC": {
+          "missing_team_id": 5
+        },
+        "HLL": {
+          "missing_team_id": 8
+        },
+        "LAS": {
+          "missing_team_id": 53
+        },
+        "LIT": {
+          "missing_team_id": 89
+        },
+        "LJL": {
+          "missing_team_id": 52
+        },
+        "LPLOL": {
+          "missing_team_id": 116
+        },
+        "NACL": {
+          "missing_team_id": 8
+        },
+        "NL": {
+          "missing_team_id": 7
+        },
+        "PCS": {
+          "missing_team_id": 10
+        },
+        "ROL Promotion": {
+          "missing_team_id": 4
+        },
+        "TCL Promotion": {
+          "missing_team_id": 6
+        }
+      },
+      "games_with_complete_observed_lineups": 9313,
+      "input_rows": {
+        "players": 97530,
+        "teams": 19506
+      },
+      "lineup_issues": {},
+      "missing_cells": {
+        "players": {
+          "assists": 0,
+          "assistsat10": 1750,
+          "assistsat15": 1740,
+          "champion": 0,
+          "controlwardsbought": 60,
+          "csat10": 1750,
+          "csat15": 1740,
+          "csdiffat10": 1750,
+          "csdiffat15": 1740,
+          "cspm": 0,
+          "damagemitigatedperminute": 1660,
+          "damageshare": 0,
+          "damagetakenperminute": 0,
+          "damagetochampions": 0,
+          "damagetotowers": 1660,
+          "date": 0,
+          "deaths": 0,
+          "deathsat10": 1750,
+          "deathsat15": 1740,
+          "doublekills": 1660,
+          "dpm": 0,
+          "earned_gpm": 0,
+          "earnedgold": 0,
+          "earnedgoldshare": 0,
+          "firstblood": 0,
+          "firstbloodkill": 0,
+          "game_id": 0,
+          "gamelength": 0,
+          "goldat10": 1750,
+          "goldat15": 1740,
+          "golddiffat10": 1750,
+          "golddiffat15": 1740,
+          "kills": 0,
+          "killsat10": 1750,
+          "killsat15": 1740,
+          "league": 0,
+          "minionkills": 0,
+          "monsterkills": 0,
+          "opponent_team_name": 0,
+          "patch": 0,
+          "pentakills": 1700,
+          "playername": 0,
+          "playoffs": 0,
+          "position": 0,
+          "quadrakills": 1700,
+          "result": 0,
+          "side": 0,
+          "split": 16430,
+          "team_name": 0,
+          "teamdeaths": 0,
+          "teamkills": 0,
+          "total_cs": 0,
+          "totalgold": 0,
+          "triplekills": 1660,
+          "visionscore": 0,
+          "vspm": 0,
+          "wardskilled": 0,
+          "wardsplaced": 0,
+          "wcpm": 0,
+          "wpm": 0,
+          "xpat10": 1750,
+          "xpat15": 1740,
+          "xpdiffat10": 1750,
+          "xpdiffat15": 1740,
+          "year": 0
+        },
+        "teams": {
+          "ban1": 197,
+          "ban2": 172,
+          "ban3": 182,
+          "ban4": 225,
+          "ban5": 229,
+          "barons": 0,
+          "bo_format": 19506,
+          "ckpm": 0,
+          "csdiffat10": 0,
+          "csdiffat15": 0,
+          "cspm": 0,
+          "date": 0,
+          "deathsat10": 0,
+          "deathsat15": 0,
+          "dpm": 0,
+          "dragons": 0,
+          "earned_gpm": 0,
+          "earnedgold": 0,
+          "elders": 0,
+          "first_pick": 0,
+          "firstbaron": 0,
+          "firstblood": 0,
+          "firstdragon": 0,
+          "firstherald": 0,
+          "firstmidtower": 0,
+          "firsttothreetowers": 0,
+          "firsttower": 0,
+          "game_id": 0,
+          "game_in_match": 19506,
+          "game_number": 0,
+          "gamelength": 0,
+          "goldat10": 0,
+          "goldat15": 0,
+          "golddiffat10": 0,
+          "golddiffat15": 0,
+          "heralds": 0,
+          "inhibitors": 0,
+          "kills": 0,
+          "killsat10": 0,
+          "killsat15": 0,
+          "league": 0,
+          "match_in_series": 19506,
+          "opp_barons": 0,
+          "opp_dragons": 0,
+          "opp_elders": 0,
+          "opp_heralds": 0,
+          "opp_inhibitors": 0,
+          "opp_towers": 0,
+          "opp_turretplates": 0,
+          "opp_void_grubs": 0,
+          "opponent_team_name": 0,
+          "patch": 0,
+          "pick1": 0,
+          "pick2": 0,
+          "pick3": 0,
+          "pick4": 0,
+          "pick5": 0,
+          "playoffs": 0,
+          "result": 0,
+          "side": 0,
+          "split": 3286,
+          "team_id": 541,
+          "team_kpm": 0,
+          "team_name": 0,
+          "teamdeaths": 0,
+          "teamkills": 0,
+          "totalgold": 0,
+          "towers": 0,
+          "turretplates": 0,
+          "void_grubs": 0,
+          "vspm": 0,
+          "xpdiffat10": 0,
+          "xpdiffat15": 0,
+          "year": 0
+        }
+      },
+      "source_sha256": {
+        "players": "f4f3f3d600ae0953c09e2e6a95d224d688989127a816c0a954e3b0e844e3dda5",
+        "teams": "ae1008ed9424a5eda59a873e9d70d06669337a2068d48497efbbd695e1c8105d"
+      },
+      "team_game_groups": 9753
+    }
+  },
+  "selected_sources_sha256": "82e31aa19adc5cc6121c1b1216872469868a04f8841d558ca98d3d99bda489eb",
+  "source_timezone_assumption": "UTC",
+  "sources": [
+    {
+      "kind": "teams",
+      "row_count": 20398,
+      "season": 2024,
+      "sha256": "df629eb85e09f6e25abf16f50990bf08b2fda861dd625f80192e8fb87f2a0766"
+    },
+    {
+      "kind": "players",
+      "row_count": 101990,
+      "season": 2024,
+      "sha256": "a7f5904da91e379d9879190a300d6f067f141c30f0dee58ae2bd0df040bfa0e3"
+    },
+    {
+      "kind": "teams",
+      "row_count": 20106,
+      "season": 2025,
+      "sha256": "6cf310b5a6b58ffb8bf0fb00c43b6251ce8227ba9e1dc403967ebe131d87d015"
+    },
+    {
+      "kind": "players",
+      "row_count": 100530,
+      "season": 2025,
+      "sha256": "48a47fc574fcbe7295133266d6a3a8c0d04d02b2e96a66972fb283ed14a3437a"
+    },
+    {
+      "kind": "teams",
+      "row_count": 19506,
+      "season": 2026,
+      "sha256": "ae1008ed9424a5eda59a873e9d70d06669337a2068d48497efbbd695e1c8105d"
+    },
+    {
+      "kind": "players",
+      "row_count": 97530,
+      "season": 2026,
+      "sha256": "f4f3f3d600ae0953c09e2e6a95d224d688989127a816c0a954e3b0e844e3dda5"
+    }
+  ],
+  "timezone_verified": false,
+  "training_ready": false,
+  "unique_team_ids": 728,
+  "verified_series": 0
+}

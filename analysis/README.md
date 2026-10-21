@@ -1,6 +1,6 @@
 # Auditoría histórica offline — V3-B
 
-Este primer bloque inspecciona ChainCC 2025. No entrena, no genera features ni
+Los dos primeros bloques inspeccionan ChainCC 2024, 2025 y 2026. No entrena, no genera features ni
 modifica el simulador. Python 3.11+ con biblioteca estándar; comprobado con
 Python 3.14.8. No hay dependencias Python en Laravel ni en el navegador.
 
@@ -69,7 +69,7 @@ Salidas locales, ignoradas por Git:
 
 Mismos bytes, zona, corte y versión producen exactamente las mismas salidas.
 No se incluyen horas de ejecución variables en estos tres archivos.
-Solo se versionan el lock y el informe pequeño de `models/reports/chaincc-2025-v3b/`.
+Solo se versionan el lock y los informes pequeños de `models/reports/`.
 Los CSV completos y el corpus nunca se cargan en la web.
 
 ## Resultado y límites observados
@@ -101,8 +101,8 @@ No se conoce la hora de publicación del resultado (`available_at_utc=null`).
 El corpus no prueba disponibilidad pre-game ni habilita entrenamiento temporal.
 No se incluyen estadísticas postgame ni picks/bans en el esquema canónico.
 
-Falta verificar zonas/horas de disponibilidad, enlazar series, resolver identidades
-por fecha y ampliar la auditoría a 2024/2026. No se ha obtenido GPR histórico ni se
+Falta verificar zonas/horas de disponibilidad, enlazar series y resolver identidades
+por fecha. La ampliación a 2024/2026 se detalla a continuación. No se ha obtenido GPR histórico ni se
 ha usado el snapshot de 2026 para encuentros antiguos. La construcción de features
 (V3-C) queda para un bloque independiente, con estas restricciones explícitas.
 
@@ -114,3 +114,69 @@ esquema malformado, aislamiento de datos futuros, hashes e importación idempote
 transporte de descarga simulado, fallo sin lock parcial y caché corrupta.
 Regresión: 142 pruebas Vitest, 42 pruebas Laravel (528 aserciones) y typecheck.
 La repetición de la auditoría real conserva byte a byte las tres salidas.
+
+
+## Corpus 2024–2026: segundo bloque V3-B
+
+Importar también `teams` y `players` de 2024/2026 con el comando anterior cambiando
+`--season` y el archivo. El lock contiene seis archivos gzip íntegros. Los cortes
+de conexión iniciales no se registraron como adquisiciones correctas; se repitió
+la descarga y solo se importaron archivos que pudieron descomprimirse y leerse.
+
+```bash
+python3 analysis/src/corpus.py --seasons 2024 2025 2026 \
+  --as-of 2026-10-21T00:00:00Z --source-timezone UTC \
+  --output data/curated/chaincc-2024-2026
+```
+
+La selección usa **el corte exacto del lock** y exige un único archivo de cada tipo
+por temporada. Si hay varias versiones del mismo origen/corte, revisar y seleccionar
+explícitamente las entradas del lock; nunca se elige «latest» por orden de lectura.
+Antes de auditar se comprueban SHA-256, tamaño, columnas, número de filas y temporada
+declarada (`year`). Un path fuera del repositorio o un game ID repetido entre
+archivos de distintas temporadas causa un error y no escribe salidas del corpus.
+La deduplicación no puede ocultar conflictos de procedencia.
+
+El resultado se ordena cronológicamente. El informe incluye el hash de las fuentes
+seleccionadas del manifiesto, fuentes individuales, cobertura por mes/liga y
+exclusiones por temporada/liga. Los meses son diagnóstico de cobertura, no folds
+de entrenamiento. No se han contado los mismos games dos veces.
+
+| Temporada | Games de origen | Canónicos | Sin ID de equipo | Resultado inválido |
+| --- | ---: | ---: | ---: | ---: |
+| 2024 | 10.199 | 9.905 | 292 | 2 |
+| 2025 | 10.053 | 9.573 | 480 | 0 |
+| 2026 | 9.753 | 9.313 | 440 | 0 |
+| Total | 30.005 | 28.791 | 1.212 | 2 |
+
+Las 28.791 partidas canónicas tienen ambas alineaciones observadas completas;
+hay 728 IDs de equipo distintos. Esto no significa 728 organizaciones históricas
+resueltas. Por ejemplo, la cobertura excluida de 2025 incluye 252 partidas de LJL:
+las pérdidas no se distribuyen uniformemente entre ligas. El informe desglosa las
+exclusiones para evitar tratar la muestra restante como representativa sin comprobarlo.
+
+La fecha máxima aceptada en 2026 es `2026-10-18T19:48:36+00:00`, bajo la suposición
+UTC indicada. Ningún game de estos archivos superó el corte, por lo que el límite
+exacto se verifica también con fixtures sintéticos. No se confirma la zona horaria
+ni la disponibilidad pública histórica por observar fechas compatibles.
+
+`bo_format`, `match_in_series` y `game_in_match` también están vacíos en las otras
+dos temporadas. No hay series verificadas ni corpus de momentum. No se ha encontrado
+evidencia suficiente para retirar los límites de zona, disponibilidad o identidad:
+`training_ready` continúa en `false`. Ningún dato del corpus se publica en la app.
+
+Informe: `models/reports/chaincc-2024-2026-v3b/audit.json`. El informe anterior de
+2025 conserva su versión `chaincc-audit-v1`; el auditor actual usa `chaincc-audit-v2`
+por el desglose adicional de exclusiones. El hash canónico de 2025 sigue siendo
+idéntico al del primer bloque. La repetición real con temporadas en orden distinto
+conservó los tres archivos de salida byte a byte.
+
+Validación: **35 pruebas Python**, 142 Vitest, 42 Laravel (528 aserciones) y typecheck.
+Los casos nuevos cubren selección inequívoca, cutoff, integridad del lock,
+temporadas mal etiquetadas, colisiones de games, orden reproducible y cambios en
+alineaciones futuras que no modifican registros anteriores.
+
+Siguiente bloque: completar el contrato temporal/identidades con evidencia fechada
+antes de habilitar features de forma y continuidad de plantilla de V3-C. Sin series
+verificadas no se entrenarán efectos de secuencia. El predictor público sigue usando
+los presets existentes; no se ha ajustado ni calibrado ningún parámetro.
