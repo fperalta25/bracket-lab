@@ -31,7 +31,7 @@ export function knockoutSampler(records: Readonly<Record<TeamId, SwissRecord>>, 
                             bracket[secondSlot] = [undefeated[1]!, secondOpponent];
                             bracket[emptySlots[0]!] = [remaining[i]!, remaining[j]!];
                             bracket[emptySlots[1]!] = [rest[0]!, rest[1]!];
-                            if (locks.every((fixture) => fixture.slot >= 1 && fixture.slot <= 4
+                            if (locks.every((fixture) => Number.isInteger(fixture.slot) && fixture.slot >= 1 && fixture.slot <= 4
                                 && samePair(bracket[fixture.slot - 1]!, [fixture.teamA, fixture.teamB]))) brackets.push(bracket);
                         }
                     }

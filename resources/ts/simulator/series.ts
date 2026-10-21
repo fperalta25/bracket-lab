@@ -11,7 +11,10 @@ export function gameProbability(powerA: number, powerB: number, variance: Varian
 }
 
 export function validateSeries(fixture: Fixture): void {
+    requireCondition(fixture && typeof fixture === 'object', 'invalid_fixture');
     const context = { fixture: fixture.id };
+    requireCondition(typeof fixture.teamA === 'string' && fixture.teamA.length > 0 && typeof fixture.teamB === 'string'
+        && fixture.teamB.length > 0 && fixture.teamA !== fixture.teamB, 'invalid_fixture', context);
     requireCondition([1, 3, 5].includes(fixture.bestOf), 'invalid_fixture', context);
     requireCondition(fixture.status === 'scheduled' || fixture.status === 'completed', 'invalid_fixture', context);
     const target = (fixture.bestOf + 1) / 2;

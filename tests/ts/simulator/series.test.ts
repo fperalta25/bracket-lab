@@ -62,5 +62,6 @@ describe('individual games and series', () => {
         expect(() => playSeries({ ...fixture(3), status: 'completed', score: { a: 2, b: 2 } }, 0.5, createRandom(1))).toThrow('invalid_score');
         expect(() => playSeries({ ...fixture(3), status: 'completed', score: { a: 2, b: 1 }, games: ['a', 'a', 'b'] }, 0.5, createRandom(1))).toThrow('invalid_score');
         expect(() => playSeries({ ...fixture(3), games: ['a', 'a'] }, 0.5, createRandom(1))).toThrow('invalid_score');
+        expect(() => playSeries({ ...fixture(3), teamB: 'a' }, 0.5, createRandom(1))).toThrow('invalid_fixture');
     });
 });

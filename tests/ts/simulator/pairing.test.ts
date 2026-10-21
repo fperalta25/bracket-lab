@@ -56,6 +56,7 @@ describe('complete uniform matching', () => {
         const clean = createPairingSampler(ids, () => true, (a, b) => [a, b].sort().join('-') === 'a-b');
         expect(clean.minimumRematches).toBe(0);
         expect(clean.count).toBe(2);
+        for (let i = 0; i < 100; i++) expect(key(clean.sample(random))).not.toContain('a-b');
     });
 
     it('keeps valid locks and rejects duplicate, odd or unknown participants', () => {

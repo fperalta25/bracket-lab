@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { seedSnapshot } from '../../../scripts/seed-snapshot';
 import { runSimulations, createRandom, prepareSimulation, simulateTournament, SimulationError,
-    FINAL_BUCKETS, SWISS_RECORDS, type Fixture, type SimulationRequest, type TournamentResult } from '../../../resources/ts/simulator';
+    createPairingSampler, FINAL_BUCKETS, SWISS_RECORDS, type Fixture, type SimulationRequest, type TournamentResult } from '../../../resources/ts/simulator';
 
 function request(overrides: Partial<SimulationRequest> = {}): SimulationRequest {
     return { snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, variance: 'normal', iterations: 10, seed: 42, ...overrides };
@@ -64,6 +64,20 @@ describe('complete tournament and aggregates', () => {
         const input = freezeDeep(request({ iterations: 50 }));
         expect(runSimulations(input)).toEqual(runSimulations(input));
         expect(runSimulations({ ...input, seed: 43 }).example).not.toEqual(runSimulations(input).example);
+        expect(runSimulations({ ...input, iterations: 1 }).example).toEqual(runSimulations(input).example);
+    });
+
+    it('does not depend on UI language or global Math.random', () => {
+        const spy = vi.spyOn(Math, 'random').mockImplementation(() => { throw new Error('global randomness'); });
+        try {
+            vi.stubGlobal('document', { documentElement: { lang: 'es' } });
+            const spanish = runSimulations(request());
+            vi.stubGlobal('document', { documentElement: { lang: 'en' } });
+            expect(runSimulations(request())).toEqual(spanish);
+        } finally {
+            spy.mockRestore();
+            vi.unstubAllGlobals();
+        }
     });
 
     it('ignores official locks from scratch but preserves every official pending pairing', () => {
@@ -130,5 +144,32 @@ describe('complete tournament and aggregates', () => {
             expect(error).toBeInstanceOf(SimulationError);
             expect((error as SimulationError).context).toMatchObject({ round: 2, reason: 'undetermined_participants' });
         }
+    });
+
+    it('records unavoidable rematches caused by valid partial locks without retrying trajectories', () => {
+        const prior = runSimulations(request()).example.matches.filter((match) => match.stage === 'swiss' && match.round <= 2);
+        const wins = new Map<string, number>();
+        for (const match of prior) wins.set(match.winner, (wins.get(match.winner) ?? 0) + 1);
+        const middle = request().snapshot.teams.filter((team) => wins.get(team.id) === 1).map((team) => team.id);
+        const previous = (a: string, b: string): boolean => prior.some((match) => [match.teamA, match.teamB].includes(a) && [match.teamA, match.teamB].includes(b));
+        let locks: Fixture[] | undefined;
+        for (const old of prior) {
+            if (!middle.includes(old.teamA) || !middle.includes(old.teamB)) continue;
+            const rest = middle.filter((id) => id !== old.teamA && id !== old.teamB);
+            const sampler = createPairingSampler(rest, () => true, previous);
+            if (sampler.minimumRematches) continue;
+            locks = sampler.sample(createRandom(1)).map(([teamA, teamB], index) => ({ id: `locked:${index}`, stage: 'swiss',
+                round: 3, slot: index + 1, teamA, teamB, bestOf: 1, status: 'scheduled' }));
+            break;
+        }
+        expect(locks).toBeDefined();
+        const constrained = request({ scenario: { mode: 'custom', fixtures: [...prior, ...locks!] }, iterations: 30 });
+        const result = runSimulations(constrained);
+        expect(result.aggregates.completedIterations).toBe(30);
+        expect(result.aggregates.rematches.affectedIterations).toBe(30);
+        expect(result.aggregates.rematches.repeatedSeries).toBeGreaterThanOrEqual(30);
+        expect(result.example.rematchExceptions).toContainEqual({ round: 3, record: '1-1', count: 1 });
+        expect(runSimulations(constrained)).toEqual(result);
+        assertTournament(result.example);
     });
 });

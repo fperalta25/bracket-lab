@@ -6,8 +6,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "typecheck": "tsc --noEmit",
-        "test": "vitest run"
+        "typecheck": "tsc --noEmit && tsc -p tsconfig.simulator.json",
+        "test": "vitest run",
+        "simulate": "node scripts/simulate.mjs"
     },
     "dependencies": {
         "alpinejs": "^3.14.0"
