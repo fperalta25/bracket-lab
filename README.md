@@ -28,10 +28,10 @@ las simulaciones al servidor.
 La configuración y el último resultado completo se conservan en `sessionStorage` durante
 la pestaña, incluido al cambiar de idioma. Si se solicita otro idioma durante una ejecución,
 primero termina el cálculo y después se cambia de idioma con los mismos resultados.
-Cancelar interrumpe el worker y conserva el último resultado completo. Los escenarios
-personalizados y el almacenamiento duradero/exportación pertenecen a la Fase 3; esta
-persistencia temporal no los sustituye. Los datos iniciales siguen sin revisión publicada;
-no se consultan fuentes en vivo.
+Cancelar interrumpe el worker y conserva el último resultado completo. El primer bloque
+de Fase 3 añade escenarios locales en IndexedDB y exportación/importación JSON, separados
+de esta sesión temporal. Los datos iniciales siguen sin revisión publicada; no se consultan
+fuentes en vivo.
 
 El seeder usa UUID estables y una transacción. Se puede repetir con `php artisan db:seed`:
 crea registros que falten y conserva los existentes, incluidos scores heredados y marcadores
@@ -115,7 +115,8 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 
 Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
 y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
-ejemplo disponibles. Siguen pendientes los escenarios de Fase 3 y la administración de Fase 4.
+ejemplo disponibles. Fase 3: escenarios locales y restricciones de R1 disponibles; siguen
+pendientes la edición de emparejamientos/rondas posteriores y la administración de Fase 4.
 
 ## Base GPR v2
 
@@ -232,8 +233,8 @@ estado provisional, términos habilitados, semilla, iteraciones, revisión del t
 receta PRNG/hash. `metadata.request` conserva la configuración completa por valor para
 reproducir el resultado, incluidos fixtures, restricciones y perfiles; no se transmite al servidor.
 Las entradas sin versión o que mezclan GPR con scores antiguos se rechazan con
-`incompatible_model`. No hay aún importador ni biblioteca de escenarios en la UI; cuando
-se incorporen, deberán conservar el modo legacy o pedir un reset explícito, nunca convertirlos.
+`incompatible_model`. El importador público acepta exclusivamente documentos GPR v2;
+rechaza archivos legacy sin convertirlos. El motor conserva el modo legacy explícito.
 
 El núcleo de sorteos, records, BoX, puestos y rematches se conserva. La regresión legacy
 compara una huella de agregados y recorrido capturada antes del cambio; los nuevos tests
@@ -324,6 +325,38 @@ Firefox en ES/EN a 360, 768 y 1440 px: ejecución real en worker, 32 filas, ejem
 series, filtros, orden numérico, cancelación, preservación al cambiar idioma (también durante
 el cálculo), sin desbordamiento de página ni errores JavaScript ni POST de simulación.
 Las tablas tienen desplazamiento local y primera columna fija en pantallas estrechas.
+
+## Escenarios locales · primer bloque de Fase 3
+
+Elegir **Mi escenario** en «Desde» crea una copia editable de las restricciones oficiales;
+si el origen anterior era **Desde cero**, empieza sin bloqueos. En R1 se puede fijar el ganador,
+conservar solo el emparejamiento o devolver ese cruce al sorteo. «Quitar todos los bloqueos»
+reinicia las restricciones locales; nunca modifica el snapshot oficial ni los perfiles.
+Un resultado fijado desactiva el contextual y selecciona GPR con un mensaje visible.
+El ejemplo distingue «Fijado por ti» de «Oficial confirmado» y «Simulado».
+
+En **Escenarios**, dar nombre y guardar. Volver a guardar el escenario abierto permite
+renombrarlo/actualizarlo; cambiar la selección de la biblioteca no sobrescribe otro escenario.
+También se puede abrir, duplicar, eliminar, exportar o importar. IndexedDB guarda hasta 50
+escenarios mediante transacciones, con ID estable, nombre y fechas. Son locales a este navegador;
+exportar los importantes, porque el navegador puede borrar su almacenamiento.
+
+El JSON `kind: bracket-lab-scenario`, `schemaVersion: 1` conserva la solicitud GPR completa:
+snapshot, reglas, perfiles fechados, overrides, familias contextuales, semilla, iteraciones
+y restricciones. No incluye resultados ni idioma. La importación está limitada a 1 MiB,
+exige el mismo torneo/IDs y pasa por los validadores existentes antes de cambiar el trabajo.
+Se abre como copia y no sobrescribe la biblioteca. Los nombres se renderizan como texto.
+Los archivos legacy, versiones desconocidas y restricciones imposibles se rechazan.
+
+Este editor expone R1. Si un archivo contiene rondas posteriores válidas, se conservan sus
+restricciones; cambiar R1 se rechaza si invalida sus participantes. El botón de quitar todos
+los bloqueos permite empezar de nuevo sin retener restricciones invisibles. La edición de
+emparejamientos y el editor de rondas posteriores quedan para el siguiente bloque.
+
+Validación: 95 pruebas Vitest, tipos, build, 21 pruebas PHP y Pint. Firefox en ES/EN a
+360, 768 y 1440 px: ganador fijado respetado por el worker, biblioteca en IndexedDB,
+duplicación/eliminación, exportación ES e importación EN, archivo inválido sin perder trabajo,
+persistencia entre pestañas, idioma y ausencia de desbordamientos o errores JavaScript.
 
 ## Internacionalización
 
