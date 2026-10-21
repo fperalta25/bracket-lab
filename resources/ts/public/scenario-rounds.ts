@@ -1,5 +1,5 @@
 import { createKeyedRandom, createPairingSampler, firstRoundSampler, validateConstraints, SimulationError,
-    SWISS_MATCH_COUNTS, type Fixture, type GprSimulationRequest, type Pair, type Team } from '../simulator';
+    SWISS_MATCH_COUNTS, fixtureWinner, type Fixture, type GprSimulationRequest, type Pair, type Team } from '../simulator';
 import { applySwissMatch, createSwissState, isActive, recordOf, swissBestOf } from '../simulator/state';
 
 function customFixtures(request: GprSimulationRequest): readonly Fixture[] {
@@ -12,9 +12,10 @@ export function swissRoundState(request: GprSimulationRequest, round: number) {
     if (!Number.isInteger(round) || round < 1 || round > 5) throw new SimulationError('invalid_request', { field: 'round' });
     const fixtures = customFixtures(request);
     const states = createSwissState(request.snapshot.teams);
-    for (const fixture of fixtures.filter((f) => f.stage === 'swiss' && f.round < round && f.status === 'completed')
+    for (const fixture of fixtures.filter((f) => f.stage === 'swiss' && f.round < round && f.status !== 'scheduled')
         .sort((a, b) => a.round - b.round || a.slot - b.slot)) {
-        if (fixture.status === 'completed') applySwissMatch(states, { ...fixture, winner: fixture.score.a > fixture.score.b ? fixture.teamA : fixture.teamB });
+        const winner = fixtureWinner(fixture);
+        if (winner) applySwissMatch(states, { ...fixture, winner });
     }
     const participants = request.snapshot.teams.filter((team) => {
         const state = states.get(team.id)!;
@@ -85,7 +86,7 @@ export function swapSwissOpponent(request: GprSimulationRequest, round: number, 
     if (!current || current.status !== 'scheduled' || (current.games?.length ?? 0) > 0 || opponent === current.teamA) throw new SimulationError('invalid_fixture', { round, slot });
     if (opponent === current.teamB) return fixtures;
     const other = fixtures.find((f) => f.stage === 'swiss' && f.round === round && (f.teamA === opponent || f.teamB === opponent));
-    if (other?.status === 'completed' || (other?.games?.length ?? 0) > 0) throw new SimulationError('invalid_constraints', { round, reason: 'locked_result' });
+    if ((other && other.status !== 'scheduled') || (other?.games?.length ?? 0) > 0) throw new SimulationError('invalid_constraints', { round, reason: 'locked_result' });
     const result = fixtures.map((f): Fixture => {
         if (f === current) return { ...f, teamB: opponent };
         if (f === other) return { ...f, teamA: f.teamA === opponent ? current.teamB : f.teamA,

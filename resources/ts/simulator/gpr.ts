@@ -82,7 +82,7 @@ export function validateGprRequest(request: GprSimulationRequest): void {
         const fixtures = request.scenario.mode === 'from_scratch' ? [] : request.scenario.mode === 'official_state'
             ? request.snapshot.fixtures : request.scenario.fixtures;
         // No prior-only forecast may masquerade as inference conditioned on observed games.
-        requireCondition(!fixtures.some((fixture) => fixture.status === 'completed' || (fixture.games?.length ?? 0) > 0),
+        requireCondition(!fixtures.some((fixture) => fixture.status !== 'scheduled' || (fixture.games?.length ?? 0) > 0),
             'unsupported_model', { reason: 'contextual_posterior_required' });
     } else {
         requireCondition(request.contextualTerms === undefined, 'incompatible_model', { field: 'contextual_terms' });

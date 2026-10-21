@@ -5,7 +5,7 @@ import { updateSwissScore } from './scenario-rounds';
 export const SCENARIO_FILE_LIMIT = 1024 * 1024;
 export interface SavedScenario {
     kind: 'bracket-lab-scenario';
-    schemaVersion: 1;
+    schemaVersion: 1 | 2;
     id: string;
     name: string;
     createdAt: string;
@@ -17,10 +17,12 @@ export function validateSavedScenario(value: unknown): SavedScenario {
     const doc = value as SavedScenario;
     const text = (value: unknown, max: number): value is string => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
     const date = (value: unknown): boolean => text(value, 50) && Number.isFinite(Date.parse(value));
-    if (!doc || doc.kind !== 'bracket-lab-scenario' || doc.schemaVersion !== 1 || !text(doc.id, 120)
+    if (!doc || doc.kind !== 'bracket-lab-scenario' || ![1, 2].includes(doc.schemaVersion) || !text(doc.id, 120)
         || !text(doc.name, 80) || !date(doc.createdAt) || !date(doc.updatedAt)) throw new SimulationError('invalid_request', { field: 'scenario_file' });
     if (doc.request?.modelVersion !== 'gpr-context-v2') throw new SimulationError('incompatible_model');
     validateRequest(doc.request);
+    const fixtures = doc.request.scenario.mode === 'custom' ? doc.request.scenario.fixtures : doc.request.snapshot.fixtures;
+    if (doc.schemaVersion === 1 && fixtures.some((f) => f.status === 'decided')) throw new SimulationError('incompatible_model');
     return JSON.parse(JSON.stringify(doc)) as SavedScenario;
 }
 

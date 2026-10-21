@@ -16,7 +16,7 @@ export function validateSeries(fixture: Fixture): void {
     requireCondition(typeof fixture.teamA === 'string' && fixture.teamA.length > 0 && typeof fixture.teamB === 'string'
         && fixture.teamB.length > 0 && fixture.teamA !== fixture.teamB, 'invalid_fixture', context);
     requireCondition([1, 3, 5].includes(fixture.bestOf), 'invalid_fixture', context);
-    requireCondition(fixture.status === 'scheduled' || fixture.status === 'completed', 'invalid_fixture', context);
+    requireCondition(fixture.status === 'scheduled' || fixture.status === 'completed' || fixture.status === 'decided', 'invalid_fixture', context);
     const target = (fixture.bestOf + 1) / 2;
     if (fixture.games !== undefined) {
         requireCondition(Array.isArray(fixture.games) && fixture.games.length <= fixture.bestOf, 'invalid_score', context);
@@ -40,7 +40,13 @@ export function validateSeries(fixture: Fixture): void {
             && ((score.a === target && score.b < target) || (score.b === target && score.a < target)), 'invalid_score', context);
     } else {
         requireCondition(fixture.score === undefined, 'invalid_score', context);
+        if (fixture.status === 'decided') requireCondition(fixture.winner === fixture.teamA || fixture.winner === fixture.teamB, 'invalid_score', context);
     }
+}
+
+export function fixtureWinner(fixture: Fixture): string | undefined {
+    return fixture.status === 'decided' ? fixture.winner : fixture.status === 'completed'
+        ? fixture.score.a > fixture.score.b ? fixture.teamA : fixture.teamB : undefined;
 }
 
 export interface SeriesGameState {
@@ -52,6 +58,7 @@ export type SeriesProbability = number | ((state: SeriesGameState) => number);
 
 export function playSeries(fixture: Fixture, probability: SeriesProbability, random: Pick<RandomSource, 'next'>): PlayedMatch {
     validateSeries(fixture);
+    requireCondition(fixture.status !== 'decided', 'unsupported_model', { field: 'winner_constraint' });
     requireCondition(typeof probability === 'function' || (Number.isFinite(probability) && probability >= 0 && probability <= 1), 'invalid_request', { field: 'probability' });
     if (fixture.status === 'completed') {
         return { ...fixture, score: { ...fixture.score }, games: fixture.games && [...fixture.games],

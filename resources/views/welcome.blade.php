@@ -39,10 +39,8 @@
                 <x-public-simulator :simulation-data="$simulationData" />
             @endif
 
-            <section id="cruces" class="section" aria-labelledby="cruces-titulo">
-                <div class="section-heading">
-                    <h2 id="cruces-titulo">{{ __('tournament.round_one') }}</h2>
-                </div>
+            <details id="cruces" class="section starting-fixtures">
+                <summary>{{ __('tournament.starting_fixtures') }}</summary>
                 <ol class="fixture-grid">
                     @foreach ($tournament->fixtures as $fixture)
                         <li class="fixture">
@@ -55,7 +53,7 @@
                         </li>
                     @endforeach
                 </ol>
-            </section>
+            </details>
 
             <section id="equipos" class="section" aria-labelledby="equipos-titulo">
                 <div class="section-heading"><h2 id="equipos-titulo">{{ __('tournament.teams') }}</h2></div>

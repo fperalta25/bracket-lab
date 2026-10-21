@@ -1,7 +1,7 @@
 import { requireCondition } from './errors';
 import { knockoutSampler } from './knockout';
 import { firstRoundSampler, samePair } from './pairing';
-import { validateSeries, VARIANCE_SCALES } from './series';
+import { fixtureWinner, validateSeries, VARIANCE_SCALES } from './series';
 import { validateGprRequest } from './gpr';
 import { applySwissMatch, createSwissState, isActive, recordOf, swissBestOf } from './state';
 import type { Fixture, SimulationRequest, Stage, SwissRecord, TournamentSnapshot } from './types';
@@ -86,8 +86,9 @@ export function validateConstraints(snapshot: TournamentSnapshot, fixtures: read
         }
         // Apply after validating the entire round, always against pre-round records.
         for (const fixture of current) {
-            if (fixture.status === 'completed') {
-                applySwissMatch(states, { ...fixture, winner: fixture.score.a > fixture.score.b ? fixture.teamA : fixture.teamB });
+            const winner = fixtureWinner(fixture);
+            if (winner) {
+                applySwissMatch(states, { ...fixture, winner });
             }
         }
     }
@@ -104,8 +105,8 @@ export function validateConstraints(snapshot: TournamentSnapshot, fixtures: read
         for (const fixture of fixtures.filter((item) => item.stage === stage)) {
             const expected = [fixture.slot * 2 - 1, fixture.slot * 2].map((slot) => {
                 const parent = fixtures.find((item) => item.stage === previous && item.slot === slot);
-                requireCondition(parent?.status === 'completed', 'invalid_constraints', { fixture: fixture.id, reason: 'undetermined_participants' });
-                return parent.score.a > parent.score.b ? parent.teamA : parent.teamB;
+                requireCondition(parent && fixtureWinner(parent), 'invalid_constraints', { fixture: fixture.id, reason: 'undetermined_participants' });
+                return fixtureWinner(parent)!;
             });
             requireCondition(samePair([expected[0]!, expected[1]!], [fixture.teamA, fixture.teamB]),
                 'invalid_constraints', { fixture: fixture.id, reason: 'bracket_conflict' });
@@ -122,6 +123,9 @@ export function validateRequest(request: SimulationRequest): readonly Fixture[] 
     requireCondition(integer(request.iterations, 1, MAX_ITERATIONS), 'invalid_request', { field: 'iterations' });
     requireCondition(integer(request.seed, 0, 0xffff_ffff), 'invalid_request', { field: 'seed' });
     if (request.modelVersion === 'legacy-score-v1') {
+        requireCondition(!request.snapshot.fixtures.some((f) => f.status === 'decided')
+            && !(request.scenario.mode === 'custom' && request.scenario.fixtures.some((f) => f.status === 'decided')),
+        'incompatible_model', { field: 'winner_constraints' });
         requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request) && !('contextualTerms' in request),
             'incompatible_model', { reason: 'gpr_fields' });
         for (const team of request.snapshot.teams) {

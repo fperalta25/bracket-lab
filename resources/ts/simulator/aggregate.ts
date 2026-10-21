@@ -41,7 +41,7 @@ export function accumulate(aggregates: Aggregates, result: TournamentResult): vo
             const team = aggregates.teams[id]!;
             team.matchesPlayed++;
             team.gamesPlayed += match.score.a + match.score.b;
-            team.simulatedMatches += Number(match.origin === 'simulated');
+            team.simulatedMatches += Number(match.origin !== 'fixed');
             team.simulatedGames += match.simulatedGames;
         }
     }

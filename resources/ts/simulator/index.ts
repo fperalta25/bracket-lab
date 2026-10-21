@@ -11,3 +11,4 @@ export * from './gpr';
 export * from './contextual';
 export * from './likelihood';
 export * from './importance';
+export * from './conditional-series';
