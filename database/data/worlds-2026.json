@@ -1,0 +1,255 @@
+{
+    "tournament": {
+        "id": "67480997-4429-5ff2-9ad4-f014e7e5d54a",
+        "year": 2026,
+        "slug": "worlds-2026",
+        "name": "Worlds 2026",
+        "format_version": "worlds-2026-v1",
+        "status": "draft",
+        "published_revision": null
+    },
+    "teams": [
+        {
+            "id": "6780c4ad-8ad2-57cc-98a3-9f0873d941e0",
+            "name": "Gen.G",
+            "acronym": "GEN",
+            "region": "LCK",
+            "regional_seed": 1,
+            "pool": 1,
+            "power_score": 50
+        },
+        {
+            "id": "5c30b367-4be5-5f20-84ab-cf279e50c3fc",
+            "name": "Anyone's Legend",
+            "acronym": "AL",
+            "region": "LPL",
+            "regional_seed": 1,
+            "pool": 1,
+            "power_score": 50
+        },
+        {
+            "id": "06f02a6c-11b0-5d05-bdd2-bdbf06f83b51",
+            "name": "Team Liquid Alienware",
+            "acronym": "TLAW",
+            "region": "LCS",
+            "regional_seed": 1,
+            "pool": 1,
+            "power_score": 50
+        },
+        {
+            "id": "d44353f1-63dc-5fad-839a-de20f6f03602",
+            "name": "G2 Esports",
+            "acronym": "G2",
+            "region": "LEC",
+            "regional_seed": 1,
+            "pool": 1,
+            "power_score": 50
+        },
+        {
+            "id": "194a50d9-c2fd-5321-8c21-eb8caa4716dd",
+            "name": "LOS",
+            "acronym": "LOS",
+            "region": "CBLOL",
+            "regional_seed": 1,
+            "pool": 2,
+            "power_score": 50
+        },
+        {
+            "id": "95093b8d-917a-5f94-95ae-4e777755b6b1",
+            "name": "Team Secret Whales",
+            "acronym": "TSW",
+            "region": "LCP",
+            "regional_seed": 1,
+            "pool": 2,
+            "power_score": 50
+        },
+        {
+            "id": "f604ccbd-6885-5654-82ec-3f4389cd1590",
+            "name": "Hanwha Life Esports",
+            "acronym": "HLE",
+            "region": "LCK",
+            "regional_seed": 2,
+            "pool": 2,
+            "power_score": 50
+        },
+        {
+            "id": "de0ec472-4161-5117-ab0b-ab397f12ff07",
+            "name": "Bilibili Gaming",
+            "acronym": "BLG",
+            "region": "LPL",
+            "regional_seed": 2,
+            "pool": 2,
+            "power_score": 50
+        },
+        {
+            "id": "a324b5fb-d0bd-5d49-a5aa-0e69eeb5c984",
+            "name": "LYON",
+            "acronym": "LYON",
+            "region": "LCS",
+            "regional_seed": 2,
+            "pool": 3,
+            "power_score": 50
+        },
+        {
+            "id": "9d41c0ae-a2fa-56ba-b5d1-b9f6acaeedf3",
+            "name": "Movistar KOI",
+            "acronym": "MKOI",
+            "region": "LEC",
+            "regional_seed": 2,
+            "pool": 3,
+            "power_score": 50
+        },
+        {
+            "id": "d1d30a42-0f82-5f7a-bc95-1141828cc909",
+            "name": "T1",
+            "acronym": "T1",
+            "region": "LCK",
+            "regional_seed": 3,
+            "pool": 3,
+            "power_score": 50
+        },
+        {
+            "id": "53fbb58c-22d9-51ee-99cb-e2cc57c89d3e",
+            "name": "TOP Esports",
+            "acronym": "TES",
+            "region": "LPL",
+            "regional_seed": 3,
+            "pool": 3,
+            "power_score": 50
+        },
+        {
+            "id": "e752de21-6f7e-52d4-99a8-86afc6127791",
+            "name": "CTBC Flying Oyster",
+            "acronym": "CFO",
+            "region": "LCP",
+            "regional_seed": 2,
+            "pool": 4,
+            "power_score": 50
+        },
+        {
+            "id": "6964de86-53c7-5671-89c0-0175e5115278",
+            "name": "Invictus Gaming",
+            "acronym": "IG",
+            "region": "LPL",
+            "regional_seed": 4,
+            "pool": 4,
+            "power_score": 50
+        },
+        {
+            "id": "251fc027-f37d-5ab4-a446-e16828b9cd67",
+            "name": "Dplus Kia",
+            "acronym": "DK",
+            "region": "LCK",
+            "regional_seed": 4,
+            "pool": 4,
+            "power_score": 50
+        },
+        {
+            "id": "15b25f95-81f8-567b-b970-8a40672d0ce8",
+            "name": "Karmine Corp",
+            "acronym": "KC",
+            "region": "LEC",
+            "regional_seed": 3,
+            "pool": 4,
+            "power_score": 50
+        }
+    ],
+    "fixtures": [
+        {
+            "id": "ab41ef42-eec6-57d4-8a0b-e9e3643c5db3",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 1,
+            "team_a_id": "6780c4ad-8ad2-57cc-98a3-9f0873d941e0",
+            "team_b_id": "6964de86-53c7-5671-89c0-0175e5115278",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "eb3e2139-2d4f-5c96-8cd7-b43fc6a60a73",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 2,
+            "team_a_id": "f604ccbd-6885-5654-82ec-3f4389cd1590",
+            "team_b_id": "53fbb58c-22d9-51ee-99cb-e2cc57c89d3e",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "247f9e93-b6e3-5a44-a5cd-5e1ae5713f82",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 3,
+            "team_a_id": "de0ec472-4161-5117-ab0b-ab397f12ff07",
+            "team_b_id": "9d41c0ae-a2fa-56ba-b5d1-b9f6acaeedf3",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "e6fafbe6-4d71-5034-9c42-912d4a0d9d2c",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 4,
+            "team_a_id": "5c30b367-4be5-5f20-84ab-cf279e50c3fc",
+            "team_b_id": "15b25f95-81f8-567b-b970-8a40672d0ce8",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "ee5acd77-9e74-56de-9425-3456c931a3dc",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 5,
+            "team_a_id": "d44353f1-63dc-5fad-839a-de20f6f03602",
+            "team_b_id": "251fc027-f37d-5ab4-a446-e16828b9cd67",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "4827da3e-bf95-5ba3-b547-124d14a52c23",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 6,
+            "team_a_id": "06f02a6c-11b0-5d05-bdd2-bdbf06f83b51",
+            "team_b_id": "e752de21-6f7e-52d4-99a8-86afc6127791",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "376beb78-c358-5ec7-b3c8-7920e1395122",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 7,
+            "team_a_id": "194a50d9-c2fd-5321-8c21-eb8caa4716dd",
+            "team_b_id": "d1d30a42-0f82-5f7a-bc95-1141828cc909",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        },
+        {
+            "id": "237e7bdc-21d1-5fce-8a7a-20c0096cdb8b",
+            "stage": "swiss",
+            "round": 1,
+            "slot": 8,
+            "team_a_id": "95093b8d-917a-5f94-95ae-4e777755b6b1",
+            "team_b_id": "a324b5fb-d0bd-5d49-a5aa-0e69eeb5c984",
+            "best_of": 1,
+            "status": "scheduled",
+            "score_a": null,
+            "score_b": null
+        }
+    ]
+}

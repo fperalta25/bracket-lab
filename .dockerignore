@@ -1,0 +1,10 @@
+.git
+.env
+.agents
+.aws
+.codex
+node_modules
+vendor
+storage
+database/*.sqlite*
+public/build
