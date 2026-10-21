@@ -1,5 +1,7 @@
 # Worlds Simulator — Anexo técnico: modelo estadístico v2
 
+> **Compatibilidad a partir de la revisión 3 (21-10-2026):** los contratos de motor, Monte Carlo, GPR baseline y preset contextual **experimental v2** siguen siendo válidos. Para predicción contextual **entrenada**, pipeline de datos, calibración de atributos y disponibilidad de presets prevalece `WORLDS_2026_ANEXO_MODELO_PREDICTIVO_V3.md`. El antiguo identificador `contextual_v1` equivale solamente al modo experimental v2 y se conserva para leer escenarios previos; nunca significa «entrenado».
+
 > **Fecha de corte:** 21-10-2026 · **Estado:** especificación para implementación incremental, no validación empírica final.  
 > **Ámbito:** fortalezas de los 16 equipos del suizo de Worlds 2026, Monte Carlo, atributos contextuales, calibración, reproducción y mantenimiento de resultados oficiales.  
 > **Precedencia:** este anexo reemplaza el modelo estadístico anterior basado en `power_score` de 0–100 y cualquier fórmula incompatible. **No altera las reglas reglamentarias ni las excepciones de sorteo** de la especificación principal. También siguen vigentes los anexos UX sin metatexto e i18n español/inglés.
@@ -259,7 +261,7 @@ Comparison A/B: estimate delta per team and, if sharing randomness, its **paired
 ### Numeric and game logic
 
 - For both presets, equal effective ratings → 0.5; `p(A,B)+p(B,A)=1`, finite within [0,1], monotone in GPR diff; no forced 5% floor.
-- With `D=400`, a rating difference of 400 → 10/11 (≈90.91%) game win expectation; 0 → 50% (numeric tolerance).
+- With `D=400`, a rating difference of 400 → 90.9% game win expectation; 0 → 50% (numeric tolerance).
 - Contextual with **all modifiers and sigmas zero** is exactly the baseline, bit-for-bit under aligned game RNG streams.
 - Tournament form drawn ONCE/team/tournament; series form ONCE/team/series; no leaking a previous series’ momentum, pressure or roster conditions.
 - Variance sampler: empirical mean near zero and variance near configured value across fixed-seed synthetic samples; no spurious fixed-range uniform.

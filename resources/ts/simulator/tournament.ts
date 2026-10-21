@@ -1,10 +1,10 @@
 import { requireCondition, SimulationError } from './errors';
 import { knockoutSampler } from './knockout';
 import { createPairingSampler, firstRoundSampler, samePair, type PairingSampler } from './pairing';
-import { gameProbability, playSeries } from './series';
-import { createContextualProbabilities } from './contextual';
+import { playSeries, type GameObserver } from './series';
+import { preGameContext, type PredictionModel } from './prediction';
+import { preparePredictionModel } from './prediction-models';
 import { playWinnerConstrainedSeries } from './conditional-series';
-import { gprGameLogProbabilities, gprGameProbability } from './gpr';
 import type { RandomKey, TournamentRandom } from './random';
 import { applySwissMatch, createSwissState, eliminatedBucket, finalSwissRecords, isActive, recordOf, swissBestOf } from './state';
 import { KNOCKOUT_ROUNDS, SWISS_MATCH_COUNTS, validateRequest } from './validation';
@@ -15,6 +15,7 @@ export interface PreparedSimulation {
     readonly request: SimulationRequest;
     readonly fixtures: readonly Fixture[];
     readonly roundOne: PairingSampler;
+    readonly prediction: PredictionModel;
     readonly powers: Readonly<Record<string, number>>;
     readonly probabilities: ReadonlyMap<string, ReadonlyMap<string, number>>;
 }
@@ -31,27 +32,18 @@ export function prepareSimulation(request: SimulationRequest): PreparedSimulatio
             ? request.snapshot.fixtures : request.scenario.fixtures;
     }
     const teams = request.snapshot.teams;
-    const powers = request.modelVersion === 'legacy-score-v1'
-        ? Object.fromEntries(request.snapshot.teams.map((team) => [team.id,
-            request.powerScores && Object.hasOwn(request.powerScores, team.id) ? request.powerScores[team.id]! : team.powerScore]))
-        : Object.fromEntries(request.strengths.profiles.map((profile) => [profile.teamId,
-            request.gprOverrides && Object.hasOwn(request.gprOverrides, profile.teamId) ? request.gprOverrides[profile.teamId]! : profile.gpr]));
-    const probability = (a: string, b: string): number => request.modelVersion === 'legacy-score-v1'
-        ? gameProbability(powers[a]!, powers[b]!, request.variance)
-        : gprGameProbability(powers[a]!, powers[b]!, request.denominator ?? request.strengths.calibration.eloDenominator);
-    const probabilities = new Map(teams.map((a) => [a.id, new Map(teams.map((b) => [b.id, probability(a.id, b.id)]))]));
+    const prediction = preparePredictionModel(request);
     const roundOne = firstRoundSampler(teams, request.snapshot.rules,
         fixtures.filter((fixture) => fixture.stage === 'swiss' && fixture.round === 1).map((fixture) => [fixture.teamA, fixture.teamB]));
-    return { request, fixtures, powers, probabilities, roundOne };
+    return { request, fixtures, powers: prediction.ratings, probabilities: prediction.probabilities, prediction: prediction.model, roundOne };
 }
 
 /** One fresh tournament; the caller owns/injects the advancing PRNG. No UI or locale dependency. */
-export function simulateTournament(prepared: PreparedSimulation, random: RandomSource | TournamentRandom): TournamentResult {
+export function simulateTournament(prepared: PreparedSimulation, random: RandomSource | TournamentRandom, prediction: PredictionModel = prepared.prediction): TournamentResult {
     const { request, fixtures } = prepared;
     requireCondition(request.modelVersion === 'gpr-context-v2' ? 'stream' in random : 'next' in random,
         'incompatible_model', { field: 'random_streams' });
-    const contextual = request.modelVersion === 'gpr-context-v2' && request.preset === 'contextual_v1' && 'stream' in random
-        ? createContextualProbabilities(request, prepared.powers, random) : undefined;
+    const world = prediction.createState(random);
     const pairingRandom = (...keys: RandomKey[]): RandomSource => 'stream' in random ? random.stream('pairing', ...keys) : random;
     const { rules, teams } = request.snapshot;
     const states = createSwissState(teams);
@@ -68,10 +60,19 @@ export function simulateTournament(prepared: PreparedSimulation, random: RandomS
         let gameIndex = fixture.games?.length ?? 0;
         const gameRandom = 'stream' in random ? { next: () => random.stream('game', fixture.stage, fixture.round,
             fixture.slot, fixture.teamA, fixture.teamB, gameIndex++).next() } : random;
-        const result = fixture.status === 'decided' && request.modelVersion === 'gpr-context-v2'
-            ? playWinnerConstrainedSeries(fixture, gprGameLogProbabilities(prepared.powers[fixture.teamA]!, prepared.powers[fixture.teamB]!,
-                request.denominator ?? request.strengths.calibration.eloDenominator), gameRandom)
-            : playSeries(fixture, contextual ? contextual(fixture) : prepared.probabilities.get(fixture.teamA)!.get(fixture.teamB)!, gameRandom);
+        const observe: GameObserver = (before, winner) => prediction.onGameResolved(world, {
+            context: preGameContext(fixture, before), winner, origin: fixture.status === 'decided' ? 'constrained' : 'simulated',
+        });
+        let result: PlayedMatch;
+        if (fixture.status === 'decided') {
+            requireCondition(prediction.stationaryGameLogProbabilities, 'unsupported_model', { field: 'winner_constraint' });
+            const prefix = fixture.games ?? [];
+            const a = prefix.filter((winner) => winner === fixture.teamA).length;
+            const context = preGameContext(fixture, { a, b: prefix.length - a, previousWinner: prefix[prefix.length - 1] });
+            result = playWinnerConstrainedSeries(fixture, prediction.stationaryGameLogProbabilities(context, world), gameRandom, observe);
+        } else {
+            result = playSeries(fixture, (before) => prediction.predictGame(preGameContext(fixture, before), world).pWinA, gameRandom, observe);
+        }
         matches.push(result);
         return result;
     };

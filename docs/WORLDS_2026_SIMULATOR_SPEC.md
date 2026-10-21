@@ -1,6 +1,6 @@
 # Worlds Simulator — Especificación funcional y técnica para Codex
 
-> **Estado:** especificación viva · **Revisión:** 2 (modelo GPR contextual) · **Fecha:** 21-10-2026 · **Idiomas del MVP:** español e inglés · **Rama principal de desarrollo:** `development`
+> **Estado:** especificación viva · **Revisión:** 3 (modelo predictivo contextual validable) · **Fecha:** 21-10-2026 · **Idiomas del MVP:** español e inglés · **Rama principal de desarrollo:** `development`
 >
 > **Objetivo para Codex:** implementar progresivamente una aplicación web pública, rápida e intuitiva para simular Worlds 2026 de League of Legends miles de veces, respetando el formato del torneo, y consultar probabilidades de clasificación y de resultado final. Solo la administración requiere autenticación.
 
@@ -11,7 +11,7 @@
 3. **Uso inmediato sin cuenta.** Entrar, elegir un escenario, configurar las pocas opciones importantes y pulsar «Simular». No solicitar registro, correo ni permisos al público.
 4. **Bajo coste.** Las simulaciones corren en el navegador, sin trabajos de cómputo de invitados en el VPS; el servidor solo publica la configuración oficial y permite administrarla.
 5. **Fiabilidad y transparencia.** Resultados reproducibles con semilla, validaciones estrictas, pruebas automatizadas y aclaración visible de que las probabilidades **son estimaciones del modelo**, no probabilidades oficiales.
-6. **Modelo auditable.** El GPR fechado es fortaleza base; consistencia, presión, racha y cambios de plantilla se versionan y se distinguen claramente de resultados observados. El preset GPR es la referencia neutral.
+6. **Modelo auditable.** El GPR fechado es fortaleza base; las hipótesis manuales v2 nunca se confunden con parámetros aprendidos v3. La forma reciente, plantilla e historial solo se incorporan si mejoran predicciones en evaluación temporal. El preset GPR es la referencia neutral.
 7. **Desarrollo incremental.** Completar y verificar cada etapa antes de abordar la siguiente. Evitar arquitecturas excesivas, abstracciones prematuras y dependencias grandes.
 8. **Portfolio profesional.** Código y commits profesionales, documentación útil, historial limpio y diseño original; sin marcas de asistentes de IA en nombres de ramas o mensajes de commit.
 
@@ -21,7 +21,7 @@
 - Datos oficiales, configuración de equipos y actualización manual de sorteos/resultados desde panel admin.
 - Simulación completa del suizo y las eliminatorias con **partidas individuales** en Bo1, Bo3 y Bo5.
 - Tres formas de empezar: desde cero, desde la situación oficial actual y desde un escenario personalizado.
-- GPR oficial fechado, presets GPR puro/contextual, perfiles individuales, imprevisibilidad exploratoria y número de iteraciones. Las cifras contextuales iniciales son hipótesis no calibradas.
+- GPR oficial fechado, baseline `gpr_baseline` y contextual v2 experimental, perfiles individuales, imprevisibilidad exploratoria y número de iteraciones. El contextual entrenado v3 queda fuera del MVP inicial hasta que supere validación; nunca usar parámetros ficticios como si estuvieran calibrados.
 - Tabla de probabilidad por puesto final; tabla de resultado suizo; estadísticas adicionales útiles.
 - Escenarios del visitante guardados localmente, sin cuentas.
 - Diseño responsive y accesible.
@@ -30,7 +30,7 @@
 
 - Simular la fase de Play-In o los puestos 17.º–19.º.
 - Integraciones en tiempo real, scraping, API obligatoria de Riot, automatización de noticias.
-- Simular draft, campeones, jugadores, lados azul/rojo o efecto del Fearless Draft: se modela una partida completa con una probabilidad simple.
+- Simulación explícita de draft/picks/bans, movimientos, lado azul/rojo y campeones en runtime. La fase predictiva v3 podrá incorporar estadísticas de plantilla/meta/Fearless **calculadas con datos anteriores** y validadas, sin simular el draft.
 - Predicciones basadas en apuestas, monetización, ranking algorítmico de equipos o recomendaciones de juego.
 - Cuentas públicas, compartición en servidor de escenarios, colas, Redis, websockets, microservicios.
 - Reproducción exacta del procedimiento físico secuencial de extracción de bolas de Riot: el método probabilístico del MVP será un **muestreo uniforme entre sorteos completos válidos**, explicado en la UI como una aproximación del sorteo real.
@@ -46,7 +46,7 @@
 - **API pública mínima:** JSON de la **versión publicada**, cacheable con versión/ETag si encaja; ninguna ejecución de simulación se envía al servidor.
 - **Autenticación:** sesiones Laravel, acceso de administrador únicamente, sin registro público.
 - **Despliegue posterior:** Podman/Compose en Fedora; Docker Compose en VPS Ubuntu de Manairu. Mantener en desarrollo un entorno reproducible con PHP-FPM + Nginx y SQLite persistente; no introducir servicios innecesarios.
-- **Pruebas:** Vitest para el motor, pruebas de aplicación Laravel (Pest/PHPUnit) y algunas verificaciones end-to-end de flujos prioritarios.
+- **Pruebas:** Vitest para el motor, pruebas de aplicación Laravel (Pest/PHPUnit) y algunas verificaciones end-to-end de flujos prioritarios. El pipeline estadístico offline (v3) usa Python/pandas/NumPy y tests de ausencia de fuga temporal; no instala Python ni un servicio ML en producción.
 
 Organización orientativa, ajustable si Laravel ofrece una opción más idiomática:
 
@@ -78,7 +78,7 @@ Un torneo tiene `id`, `year`, `slug`, `name`, `format_version`, `status` y `publ
 - El pool **nunca se deriva automáticamente** del seed; el administrador lo asigna. Validar cuatro equipos por pool en el formato 2026.
 - Regiones 2026: `LCK`, `LPL`, `LEC`, `LCS`, `LCP` (Asia-Pacífico; no confundir con un identificador `APAC`) y `CBLOL`.
 - **Cargar GPR de Riot 19-10-2026 en puntos originales**, para los 16 participantes; conservar `rating_snapshot_id`, fecha y enlace de origen. No actualizar silenciosamente mientras avanza Worlds.
-- Cada perfil define GPR, categoría de consistencia (alta/normal/baja), sigmas de torneo/serie, presión, después de ganar/perder, ajuste de contexto, procedencia, confianza y revisión. Los parámetros *distintos del GPR* son experimentales hasta calibración.
+- Cada perfil v2 define GPR, categoría de consistencia (alta/normal/baja), sigmas de torneo/serie, presión, después de ganar/perder, ajuste de contexto, procedencia, confianza y revisión. Estos parámetros v2 son experimentales, NO calibrados. El modelo v3 mantiene otro artefacto versionado con features pregame, coeficientes y validación: no se suman ambos conjuntos de ajustes.
 - El visitante podrá modificar **perfiles localmente**, sin alterar datos oficiales; un GPR no es un porcentaje ni se convierte arbitrariamente desde 0–100.
 - Escenarios creados durante el desarrollo con `power_score` 0–100 requieren versión `legacy-score-v1`, conversión explícita verificada o reset consentido. **Nunca** reinterpretar 50 como rating GPR.
 
@@ -223,46 +223,50 @@ Son siete categorías exclusivas:
 
 La suma de todos los equipos de cada simulación es siempre 16.
 
-## 6. Modelo probabilístico — GPR de Riot + perfiles contextuales
+## 6. Modelo probabilístico — GPR y predicción contextual v3
 
-**Fuente técnica normativa para Codex:** `WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md`. Leerlo íntegramente antes de modificar el algoritmo de simulación. En caso de discrepancia sobre ratings, calibración, consistencia, presión, momentum, posterior, versiones, datos y validaciones, **prevalece el anexo v2** sobre esta sección y cualquier implementación antigua 0–100. Las reglas del torneo de §5 siguen vigentes sin cambios.
+**Documentos normativos:** `WORLDS_2026_ANEXO_MODELO_PREDICTIVO_V3.md` define la nueva arquitectura de estimación, datos y calibración; `WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md` se conserva para el motor Monte Carlo, RNG, caso base GPR, series y reglas de condicionamiento donde no haya contradicción. **El v3 prevalece sobre v2 únicamente en el nuevo enfoque predictivo, presets, entrenamiento, criterios de promoción y efectos aprendidos.** Ningún anexo modifica el torneo descrito en §5.
 
-### 6.1. Ratings y probabilidades por game
+### 6.1. Predictor por partida
 
-- Utilizar los **Global Power Rankings (GPR) de Riot**, con snapshot oficial fechado **19 de octubre de 2026** (16 equipos; ver anexo). No codificar las posiciones ordinales como distancia de fuerza.
-- Por partida, dadas las fortalezas efectivas `R_A*` y `R_B*`:
+- Fortaleza base: puntuaciones **GPR de Riot congeladas a 19-10-2026**, no posiciones ordinales. En baseline:
 
 ```text
-P(A gana) = 1 / (1 + 10 ^ ((R_B* - R_A*) / D))
+P(A gana game) = 1 / (1 + 10 ^ ((GPR_B - GPR_A) / D))
 ```
 
-- `D = 400` inicial es **provisional**, no una calibración garantizada para el GPR de Riot. Ajustarlo solo tras comparar predicciones con resultados históricos previos a la fecha prevista. No aplicar probabilidades mínimas arbitrarias de 5% ni multiplicadores regionales que duplican la información GPR.
-- Sortear **cada game individualmente** con PRNG determinista; las Bo3 y Bo5 se resuelven por acumulación de victorias de games, no por una única tirada de serie.
+- `D=400` **provisional**, no una constante oficial de Riot. Solo calibrarlo con GPR históricos realmente fechados y partidos posteriores a cada snapshot. **Nunca usar el GPR de octubre de 2026 para predecir retrospectivamente partidos de 2025.** Si no se obtiene histórico fiable, construir Elo propio temporal y etiquetarlo de forma distinta.
+- El motor sortea siempre **cada game** con un PRNG determinista y resuelve Bo1/Bo3/Bo5 acumulando games. Un predictor inyectado calcula `p(game)`; **las reglas de enfrentamientos, sorteos y clasificación no dependen del predictor**.
+- La v3 puede agregar residuos de forma reciente, estabilidad de plantilla, historial internacional, meta, estado de la serie y proceso de forma latente **solo si los efectos se estiman con datos anteriores al game y se validan fuera de muestra**. No sumar bonificaciones arbitrarias sobre resultados que GPR ya incorpore.
 
-### 6.2. Presets
+### 6.2. Modelos y estados
 
-| Preset | Fuerza efectiva | Estado |
+| Identificador | Significado | Disponibilidad |
 |---|---|---|
-| `gpr_baseline` | `GPR` solamente | **Predeterminado** hasta validación; referencia neutral |
-| `contextual_v1` | `GPR + ajuste de contexto + forma del torneo + forma de serie + presión + transiciones` | Experimental, configurable, con procedencia visible |
+| `gpr_baseline` | GPR + D provisional/calibrado, sin extras | **Predeterminado** |
+| `contextual_experimental_v2` | GPR + consistencia/bonos manuales existentes, hipótesis declaradas | Opcional y experimental |
+| `contextual_trained_v3` | Predicción contextual entrenada (forma, roster, historia, serie, meta cuando haya evidencia) | **Deshabilitado hasta validación temporal aprobada** |
 
-**Forma estocástica**: `T_i~Normal(0, sigma_t_i²)` sorteado una vez por torneo y `S_i~Normal(0, sigma_s_i²)` una vez por serie. Ambos son por equipo, con media cero. Consistencia alta 20/10; normal 40/20; baja 65/30 puntos de rating (hipótesis sujetas a calibración). No volver a sortearlos en cada game. La clasificación de cada uno de los 16 equipos y todos sus parámetros están en el anexo y en `WORLDS_2026_STRENGTH_PROFILES_V2.json`.
+- Conservar escenarios v2 sin transformarlos automáticamente en v3 ni reinterpretar `contextual_v1` como entrenado. Migrar mediante copia explícita y validar estructura.
+- La antigua consistencia **20/40/65** y presión `+10` son ejemplos de experimentación v2, nunca estadísticas históricas medidas. No combinarlas con los parámetros latentes de v3.
+- Forma reciente/racha ≠ momentum causal; historial internacional ≠ «Worlds buff» probado; presión ≠ etiqueta de choking. Estimar efectos residuales con shrinkage, incertidumbre y continuidad de jugadores.
+- Ajustes por plantilla (p. ej., TES/369) requieren fecha, fuente, condición activa y distinción entre hipótesis manual y coeficiente entrenado. Evitar dobles bonificaciones por la misma evidencia.
+- El selector opcional de imprevisibilidad es un **escenario de sensibilidad**, no un reemplazo de la calibración, y modifica exclusivamente el D hipotético del baseline; los parámetros entrenados no se recalibran por mover ese control.
 
-**Presión:** ajuste Elo temporal proporcional a una intensidad de 0, 0.5 o 1, definida por estado decisivo del encuentro, no por una etiqueta psicológica. **Momentum y recuperación:** ajustes separados después de victoria o derrota *del game anterior de la misma serie*, todos inicialmente a 0. **Contexto:** TES -25 es hipótesis no activa hasta verificar el estado de la plantilla; no sumarlo al preset GPR. No añadir automáticamente «Worlds buff» encima de presión para justificar dos veces las mismas finales de T1.
+### 6.3. Al avanzar el torneo
 
-**Imprevisibilidad:** control opcional para experimentar con `D=320/400/520`, etiquetando la variante como hipotética; **no** modificar al mismo tiempo las sigmas. Nunca presentar parámetros arbitrarios como mediciones oficiales de Riot.
+- Resultados oficiales completados son restricciones fijas, no se resimulan ni se reconstruye el orden de games si solo consta marcador de serie.
+- En modelo con forma latente persistente, las observaciones reales modifican su **distribución posterior**; no repartir un bonus permanente al ganador. Condicionar secuencialmente a información existente a esa fecha, marginalizando el orden de games si es desconocido.
+- Mantener el snapshot GPR **pre-Worlds** si se condiciona con games de Worlds; no contar ese mismo resultado dos veces mediante ranking actualizado.
+- Con posterior no implementado, con ESS degenerado o con artefacto contextual no validado, usar GPR para pronóstico oficial o identificar inequívocamente un escenario contextual prospectivo **no condicionado**. Nunca mostrarlo como predicción contextual completa.
 
-### 6.3. Resultados reales y forma latente
+### 6.4. Pipeline de investigación separado de la web
 
-- Las partidas oficiales completadas son **condiciones inmutables**: no se vuelven a jugar y no se reconstruye el orden de games desde un simple marcador.
-- Con forma de torneo persistente, un resultado real también aporta evidencia sobre dicha forma. El modelo contextual que quiera representar un **pronóstico condicionado a partidas oficiales previas** debe muestrear la forma latente de una distribución **posterior** compatible con los resultados, con diagnóstico de convergencia/ESS y likelihood correcto, como describe el anexo v2. Si ese módulo no está implementado, usar GPR puro para el resultado oficial o identificar inequívocamente la alternativa contextual como *escenario prospectivo sin actualización de forma por el pasado*; no llamarla estimación posterior.
-- Mantener el snapshot **pre-suizo** para evitar incorporar dos veces resultados del Mundial (una vez en el nuevo GPR y otra al condicionarlos en el simulador).
-
-### 6.4. Fiabilidad, iteraciones y evidencia
-
-- Semillas reproducibles y algoritmos versionados, parámetros completos y revisión de perfiles en cada informe. Más iteraciones reducen error Monte Carlo, **no** eliminan incertidumbre de parámetros o del modelo.
-- Comparar siempre baseline frente a contextual mediante log loss/Brier, calibración, separación temporal y torneos posteriores fuera de muestra antes de promover coeficientes experimentales a predeterminados.
-- Presiones, sigmas y ajustes iniciales de equipos son **propuestas con confianza limitada** derivadas de `WORLDS_2026_TEAM_CONTEXT_RESEARCH.md`; no hay un ajuste estadístico completo realizado a 21-10-2026. No vender resultados como probabilidades respaldadas por Riot.
+- Datos game-level y roster-level históricos procedentes de fuentes auditadas (ChainCC y otras solo tras revisar licencia), normalizados por **game/serie y tiempo**; no usar métricas postgame del encuentro objetivo como features pregame.
+- Python offline (`analysis/`): ingesta, calidad, features `as_of`, backtesting temporal, ablaciones, log loss/Brier/calibración, incertidumbre y exportación de un artefacto JSON pequeño, con hash y corte fechados.
+- Entrenamiento progresivo: baseline → forma residual → plantilla → historial internacional → efectos de serie/presión → meta, **añadiendo solo bloques que mejoren resultados fuera de muestra**. No presupone que v3 ganará al GPR.
+- La web no necesita Python, API de ML ni conexión externa para ejecutar: el Web Worker TypeScript carga solo artefactos versionados, comprobados y publicados por el admin.
+- Las probabilidades simuladas contienen errores de Monte Carlo **y** incertidumbre del modelo. Más iteraciones solo reducen los primeros. Registrar `model_id`, `artifact_hash`, snapshot, corte, versión RNG, seed, escenario y N.
 
 ## 7. Flujos públicos y experiencia de usuario
 
@@ -276,7 +280,7 @@ Cabecera concisa: nombre propio de producto, «Worlds 2026», y etiqueta «Simul
 2. **Desde cero** — sortea R1 y el resto del torneo, aunque exista sorteo oficial.
 3. **Mi escenario** — crear una copia y personalizar restricciones, emparejamientos, ganadores y perfiles de fuerza.
 
-Selector de modelo GPR/Contextual, ajustes avanzados opcionales de imprevisibilidad y selector de iteraciones: `1.000`, `10.000` por defecto, `50.000`, más una opción avanzada hasta el máximo seguro que permita el dispositivo. Acción principal **«Simular torneo»**. Mostrar progreso, opción cancelar y datos suficientes para saber qué se está calculando.
+Selector de modelo GPR/Contextual experimental (y v3 entrenado solo tras validación), ajustes avanzados opcionales de imprevisibilidad y selector de iteraciones: `1.000`, `10.000` por defecto, `50.000`, más una opción avanzada hasta el máximo seguro que permita el dispositivo. Acción principal **«Simular torneo»**. Mostrar progreso, opción cancelar y datos suficientes para saber qué se está calculando.
 
 ### 7.2. «Mi escenario» sin complejidad innecesaria
 
@@ -317,7 +321,7 @@ Selector de modelo GPR/Contextual, ajustes avanzados opcionales de imprevisibili
 
 ### 7.5. Comparación (fase posterior opcional)
 
-Comparar **GPR vs Contextual** o escenario **«Desde cero»** vs **«Sorteo oficial»**, o escenarios A/B: diferencia en puntos porcentuales de clasificación y campeonato por equipo. Es una funcionalidad interesante para el producto, pero no debe bloquear el MVP. Mostrar contexto de modelo/semillas e incertidumbre por muestreo; evitar afirmar causalidad fuerte o atribuir toda diferencia al sorteo si también varían GPR o parámetros contextuales.
+Comparar **GPR vs Contextual experimental o entrenado validado** o escenario **«Desde cero»** vs **«Sorteo oficial»**, o escenarios A/B: diferencia en puntos porcentuales de clasificación y campeonato por equipo. Es una funcionalidad interesante para el producto, pero no debe bloquear el MVP. Mostrar contexto de modelo/semillas e incertidumbre por muestreo; evitar afirmar causalidad fuerte o atribuir toda diferencia al sorteo si también varían GPR o parámetros contextuales.
 
 ### 7.6. Estilo visual
 
@@ -345,17 +349,21 @@ El admin debe poder gestionar resultados sin tocar PHP, seeders, JSON de producc
 ### Contrato conceptual
 
 ```ts
+type ModelPreset = 'gpr_baseline' | 'contextual_experimental_v2' | 'contextual_trained_v3';
+
 interface SimulationRequest {
-  modelVersion: 'gpr-context-v2';
-  snapshot: TournamentSnapshot; // versión y reglas
-  scenario: ScenarioConstraints; // resultados/fixtures bloqueados
-  strengths: StrengthProfileSet; // snapshot GPR, perfiles y procedencia congelados
-  preset: 'gpr_baseline' | 'contextual_v1'; // GPR por defecto
-  contextualTerms?: ContextualTerms; // obligatorio y explícito en contextual; ausente en GPR
-  denominator?: number; // sensibilidad explícita; 400 provisional por defecto
-  gprOverrides?: Readonly<Record<TeamId, number>>; // puntos GPR, sin normalizar
+  tournamentSnapshot: TournamentSnapshot; // versión y reglas
+  scenario: ScenarioConstraints;            // resultados/fixtures bloqueados
+  ratingSnapshotId: string;                // GPR fechado, inmutable
+  profileRevision: string;                 // v2 o trained model revision
+  model: { preset: ModelPreset; artifactId?: string; modelVersion: string };
   iterations: number;
   seed: number;
+}
+
+interface PredictionModel {
+  predictGame(context: PreGameContext, state: SimulatedWorldState): Prediction;
+  onGameResolved(state: SimulatedWorldState, result: GameResult): void;
 }
 
 interface TeamAggregates {
@@ -363,9 +371,10 @@ interface TeamAggregates {
   finishCounts: Record<FinalBucket, number>;
   matchesPlayed: number;
   gamesPlayed: number;
-  // Datos de rivales/encuentros solo si resulta barato agregarlos.
 }
 ```
+
+Las fortalezas, la consistencia y la configuración del preset se resuelven desde un perfil/modelo **congelado** antes de ejecutar el Worker; no mezclar en un mismo request los antiguos `powerScores` 0–100 con ratings GPR. El artefacto v3 no se activa si carece de validación. El `PredictionModel` es intercambiable sin alterar el motor de torneo.
 
 Los tipos reales deben ser estrictos y no permitir estados incoherentes. En el núcleo **no usar estado mutable global entre iteraciones**; cada torneo se inicia a partir del snapshot y escenario fijo. La aleatoriedad debe venir del generador inyectado.
 
@@ -420,7 +429,7 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 
 ### Unitarias del motor
 
-- Ratings efectivos iguales => probabilidad de game 50/50; p(A,B)+p(B,A)=1; al subir GPR de A nunca disminuye su probabilidad. Diferencia de 400 con D=400 => 10/11 (≈90,91 %) de game, conforme a la fórmula Elo.
+- Ratings efectivos iguales => probabilidad de game 50/50; p(A,B)+p(B,A)=1; al subir GPR de A nunca disminuye su probabilidad. Diferencia de 400 con D=400 => 90,9% de game.
 - Con mismos inputs/semilla **y versión del motor**, resultados bit a bit equivalentes; distinta semilla habitualmente da recorridos diferentes. GPR baseline ≡ contextual con todos los términos desactivados.
 - Una Bo1/Bo3/Bo5 termina respectivamente al alcanzar 1/2/3 victorias, sin partidas extra; la serie reporta ganador y marcador coherente.
 - Primer sorteo: cada equipo aparece una vez, parejas 1↔4 y 2↔3, sin misma región. Miles de draws para detectar infracciones.
@@ -434,6 +443,9 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 - Si se fijan fixtures y resultados oficiales de todo el torneo: todas las simulaciones dan el mismo resultado final **independientemente de GPR, modelo, consistencia o semilla**.
 - Escenario oficial parcial: nunca sobrescribe un resultado fijo; escenario hipotético cambia solo copia local.
 - Acumuladores agregados suman correctamente después de N simulaciones; suma exacta y sin NaN/Infinity.
+- Pipeline v3: ninguna feature usa partidos futuros, roster anunciado después o estadísticas del game objetivo; no duplica filas al unir equipos/jugadores; validación separa series temporalmente. Si faltan GPR históricos, no los falsifica.
+- Un artefacto `contextual_trained_v3` sin estado `trained_validated` ni reporte no puede cargarse ni anunciarse al público. Un entrenamiento con resultado peor que baseline no sustituye el modelo por defecto.
+- Comparaciones por mismo corte y mismo bracket, con manifest reproducible; si existe forma latente, posteriores condicionados solo con resultados oficiales conocidos.
 
 ### Backend y UX
 
@@ -465,9 +477,16 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 - Aplicar el **anexo estadístico v2**: forma de torneo/serie, presión, después de ganar/perder, ajuste documentado, tests de equivalencia con baseline. Mantener ajustes subjetivos separados, reproducibles y desactivables.
 - Si hay resultados oficiales conocidos y el posterior contextual todavía no está desarrollado, el pronóstico oficial predeterminado permanece en GPR puro y el contextual se etiqueta como escenario prospectivo. Implementar el posterior y calibración offline por pasos, sin bloquear el uso neutral.
 
+### Fase 1C — Predicción contextual basada en históricos (v3, proyecto incremental paralelo)
+
+- Aplicar `WORLDS_2026_ANEXO_MODELO_PREDICTIVO_V3.md`. **Primero** desacoplar la probabilidad por partida del motor de torneo (`PredictionModel`) y auditar el dataset histórico real. No cambiar pantallas ni el baseline si ya funcionan.
+- Python **offline y local** para ingesta/hashes, datos `as_of`, forma residual, roster, backtesting y exportación JSON. No descargar datasets en producción ni exponer API de inferencia.
+- Promover `contextual_trained_v3` solo si el modelo supera validación temporal, auditoría de fuga y el admin publica artefacto íntegro. Si no hay calidad o datos suficientes, continuar con el baseline.
+- El trabajo v3 **no bloquea** las fases públicas, escenarios y administración del MVP; se desarrolla en incrementos y se integra cuando está verificado.
+
 ### Fase 2 — Simulador público funcional
 
-- Selector de origen, modelo GPR/Contextual, ajustes de perfil si corresponde, N, botón ejecutar, worker, progreso y cancelación.
+- Selector de origen, modelo GPR/contextual experimental (v3 solo si está validado), ajustes de perfil si corresponde, N, botón ejecutar, worker, progreso y cancelación.
 - Agregados y dos tablas principales, muestra de un recorrido completo.
 - Diseño oscuro, limpio y responsive. UI realmente utilizable sin admin.
 
@@ -515,12 +534,13 @@ El admin accede a un panel protegido, registra un sorteo real y sus resultados, 
 
 ## 16. Anexos obligatorios y precedencia documental
 
-El modelo y la UX se detallan en los siguientes documentos del repositorio (mantener juntos dentro de `docs/`):
+Mantener estos documentos dentro de `docs/`, sin borrar las referencias v2 de escenarios existentes:
 
-1. `WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md` — fuente normativa del motor probabilístico, perfiles, incertidumbre, condicionamiento por resultados reales y plan de calibración. **Reemplaza enteramente cualquier receta anterior de ratings 0–100.**
-2. `WORLDS_2026_STRENGTH_PROFILES_V2.json` — datos semilla GPR + atributos de los 16 equipos, marcados explícitamente como experimentales; asociar por acrónimo/ID verificando correspondencia, no por orden de filas.
-3. `WORLDS_2026_TEAM_CONTEXT_RESEARCH.md` — antecedentes y enlaces de investigación; referencia cualitativa, **no validación estadística**.
-4. `WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md` — UX sin subtítulos redundantes.
-5. `WORLDS_2026_ANEXO_I18N_EN_ES.md` — internacionalización ES/EN en todas las pantallas.
+1. **`WORLDS_2026_ANEXO_MODELO_PREDICTIVO_V3.md` — normativa nueva para entrenamiento, features pregame, forma dinámica, plantilla, historial, presión, meta, inferencia y activación del predictor contextual entrenado.** No afirma haber entrenado nada aún.
+2. `WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md` — especificación del GPR baseline, Monte Carlo, series, PRNG, condicionamiento y sistema contextual experimental. **Se aplica donde no lo sustituya el anexo v3.**
+3. `WORLDS_2026_STRENGTH_PROFILES_V2.json` — perfiles de los 16 equipos con GPR fechados e hipótesis experimentales, no calibradas. **No es un artefacto de entrenamiento v3.**
+4. `WORLDS_2026_TEAM_CONTEXT_RESEARCH.md` y `WORLDS_2026_TEAM_PROFILES.csv` — antecedentes y fuentes cualitativas, no pruebas de efectos causales.
+5. `WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md` — UX sin metatextos y subtítulos redundantes.
+6. `WORLDS_2026_ANEXO_I18N_EN_ES.md` — i18n ES/EN en todas las pantallas, gráficos, errores y panel admin.
 
-Orden de decisión: **normativa oficial del torneo y reglas §5** para sorteos; **anexo estadístico v2** para ratings y simulaciones; **anexos UX/i18n** para presentación. No rehacer pantallas correctas, no introducir servicios externos solo para calcular probabilidades y no cambiar arbitrariamente decisiones previas sin verificar su impacto en tests y datos locales.
+**Jerarquía:** reglamento Riot/§5 para el formato; v3 para modelo predictivo entrenado y su pipeline; v2 para la base, hipótesis experimentales y motor de simulación salvo contradicción explícita; anexos UX/i18n para la interfaz. Al migrar una instalación iniciada, inspeccionar la implementación actual y preservar el funcionamiento existente antes de cambiar contratos.

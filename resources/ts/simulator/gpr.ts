@@ -1,3 +1,4 @@
+import { isExperimentalPreset, validatePreset } from './presets';
 import { requireCondition } from './errors';
 import type { GameLogProbabilities } from './likelihood';
 import type { GprSimulationRequest, StrengthProfileSet, Team } from './types';
@@ -72,8 +73,8 @@ export function validateStrengthProfiles(set: StrengthProfileSet, teams: readonl
 }
 
 export function validateGprRequest(request: GprSimulationRequest): void {
-    requireCondition(['gpr_baseline', 'contextual_v1'].includes(request.preset), 'unsupported_model', { field: 'preset' });
-    if (request.preset === 'contextual_v1') {
+    validatePreset(request.preset);
+    if (isExperimentalPreset(request.preset)) {
         const terms = request.contextualTerms;
         const keys = ['tournamentForm', 'seriesForm', 'pressure', 'sequence'] as const;
         requireCondition(terms && typeof terms === 'object' && !Array.isArray(terms)

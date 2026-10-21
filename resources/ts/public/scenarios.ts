@@ -1,4 +1,4 @@
-import { validateRequest, SimulationError, type Fixture, type GprSimulationRequest } from '../simulator';
+import { canonicalPreset, validateRequest, SimulationError, type Fixture, type GprSimulationRequest } from '../simulator';
 
 import { updateSwissScore } from './scenario-rounds';
 
@@ -40,4 +40,12 @@ export function updateRoundOne(request: GprSimulationRequest, slot: number, winn
     if (winner !== null && winner !== 'random' && winner !== original.teamA && winner !== original.teamB) throw new SimulationError('invalid_score');
     return updateSwissScore(request, 1, slot, winner === 'random' ? 'random' : winner === null ? null
         : { a: Number(winner === original.teamA), b: Number(winner === original.teamB) });
+}
+
+/** Explicit opt-in copy: canonicalize a preset ID without changing its model or the source document. */
+export function copyScenarioWithCurrentPreset(value: unknown, identity: { id: string; name: string; at: string }): SavedScenario {
+    const source = validateSavedScenario(value);
+    if (identity.id === source.id) throw new SimulationError('invalid_request', { field: 'scenario_copy_id' });
+    return validateSavedScenario({ ...source, id: identity.id, name: identity.name, createdAt: identity.at, updatedAt: identity.at,
+        request: { ...source.request, preset: canonicalPreset(source.request.preset) } });
 }

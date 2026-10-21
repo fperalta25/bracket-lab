@@ -46,7 +46,7 @@
     "simulation.scratch": "Desde cero",
     "simulation.model": "Modelo",
     "simulation.gpr": "GPR",
-    "simulation.contextual": "Contextual · experimental",
+    "simulation.contextual": "Contextual v2 · experimental",
     "simulation.iterations": "Iteraciones",
     "simulation.advanced": "Ajustes",
     "simulation.seed": "Semilla",
@@ -195,5 +195,11 @@
     "draft.check_fields": "Revisa los campos marcados.",
     "draft.conflict": "El borrador ha cambiado en otra pestaña. Abre la versión actual antes de guardar.",
     "draft.outdated": "Los datos oficiales han cambiado. Este borrador necesita revisarse antes de guardarlo.",
-    "draft.reload": "Abrir borrador actualizado"
+    "draft.reload": "Abrir borrador actualizado",
+    "knockout.redraw": "Resortear cuartos",
+    "knockout.redrawn": "Cuartos resorteados.",
+    "simulation.contextual_legacy": "Contextual v2 · escenario anterior",
+    "simulation.trained_unavailable": "Contextual v3 · no disponible",
+    "scenario.copy_current_preset": "Copiar con preset actual",
+    "scenario.preset_copied": "Copia creada con el preset Contextual experimental v2. El original se conserva."
 }

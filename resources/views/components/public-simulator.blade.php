@@ -8,7 +8,7 @@
         <fieldset :disabled="busy || libraryBusy">
             <div class="control-grid">
                 <label>{{ __('simulation.from') }}<select aria-label="{{ __('simulation.from') }}" x-model="mode" @change="changeMode()"><option value="official_state">{{ __('simulation.official') }}</option><option value="from_scratch">{{ __('simulation.scratch') }}</option><option value="custom">{{ __('scenario.custom') }}</option></select></label>
-                <label>{{ __('simulation.model') }}<select aria-label="{{ __('simulation.model') }}" x-model="preset" @change="save()"><option value="gpr_baseline">{{ __('simulation.gpr') }}</option><option value="contextual_v1" :disabled="!contextualAvailable">{{ __('simulation.contextual') }}</option></select></label>
+                <label>{{ __('simulation.model') }}<select aria-label="{{ __('simulation.model') }}" x-model="preset" @change="save()"><option value="gpr_baseline">{{ __('simulation.gpr') }}</option><option value="contextual_experimental_v2" :disabled="!contextualAvailable">{{ __('simulation.contextual') }}</option><template x-if="preset === 'contextual_v1'"><option value="contextual_v1" :disabled="!contextualAvailable">{{ __('simulation.contextual_legacy') }}</option></template><option value="contextual_trained_v3" disabled>{{ __('simulation.trained_unavailable') }}</option></select></label>
                 <label>{{ __('simulation.iterations') }}<select aria-label="{{ __('simulation.iterations') }}" x-model.number="iterations" @change="save()">
                     <template x-if="![1000, 10000, 50000].includes(iterations)"><option :value="iterations" x-text="number(iterations)"></option></template>
                 @foreach ([1000, 10000, 50000] as $count)
@@ -75,6 +75,7 @@
                     <label>{{ __('scenario.name') }}<input type="text" maxlength="80" x-model="scenarioName" @input="save()"></label>
                     <button type="button" :disabled="libraryBusy" @click="saveScenario()">{{ __('scenario.save') }}</button>
                     <button type="button" @click="exportScenario()">{{ __('scenario.export') }}</button>
+                    <button type="button" x-show="preset === 'contextual_v1' && activeScenarioId" :disabled="libraryBusy" @click="copyCurrentPreset()">{{ __('scenario.copy_current_preset') }}</button>
                 </div>
                 <div class="scenario-actions">
                     <label>{{ __('scenario.saved') }}<select aria-label="{{ __('scenario.saved') }}" x-model="selectedScenarioId"><option value="">{{ __('scenario.none') }}</option><template x-for="doc in library" :key="doc.id"><option :value="doc.id" x-text="doc.name"></option></template></select></label>

@@ -11,7 +11,9 @@ El [anexo ES/EN](docs/WORLDS_2026_ANEXO_I18N_EN_ES.md) exige ambos idiomas en to
 vistas, incluidas las futuras pantallas de administración y sus validaciones. Prevalece
 sobre cualquier indicación anterior de un MVP solo en español.
 El [anexo estadístico v2](docs/WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md) rige el modelo
-GPR y prevalece sobre la receta histórica de scores 0–100.
+GPR y prevalece sobre la receta histórica de scores 0–100. La [guía v3](docs/WORLDS_2026_LEEME_CODEX_V3.md)
+y el [anexo predictivo v3](docs/WORLDS_2026_ANEXO_MODELO_PREDICTIVO_V3.md) rigen el contrato
+predictivo y la futura validación entrenada; V3-A está implementada, sin modelo entrenado.
 
 ## Estado
 
@@ -406,8 +408,7 @@ con avance y foco al completar una ronda. Participantes aún desconocidos quedan
 huecos deshabilitados; los marcadores oficiales se muestran sin transformarlos.
 
 Se mantiene el JSON v2 y la compatibilidad de importación v1, sin cambiar modelos,
-parámetros ni datos oficiales. La documentación nueva sobre modelos queda para otro
-bloque.
+parámetros ni datos oficiales. La adopción del contrato v3 se describe en V3-A más abajo.
 
 Validación de esta ampliación: **118 pruebas Vitest, 21 PHP**, TypeScript, build y Pint.
 Incluye sorteo legal reproducible e idempotente, sorteo publicado parcial, avance de
@@ -463,8 +464,8 @@ público continúa sin requerir sesión ni cuenta.
 
 Los datos públicos siguen sin modificarse desde el panel. La edición de equipos usa
 el borrador descrito abajo; quedan pendientes resultados, validación completa del
-torneo, publicación atómica e historial de revisiones. Los documentos nuevos y el
-modelo entrenado siguen aplazados, sin migraciones de escenarios ni cambios de modelo.
+torneo, publicación atómica e historial de revisiones. El modelo entrenado continúa
+inhabilitado; V3-A conserva los escenarios y cálculos existentes.
 
 Validación conjunta: **125 pruebas Vitest y 32 PHP**, tipos, build y Pint. Incluye ceros
 determinados, conservación de casos no observados, resorteos y dependencias; autenticación,
@@ -507,6 +508,71 @@ obsoleto, escape de texto, autorización y CSRF. Firefox en 360/1440 px, ES/EN: 
 recarga, campos sin guardar al cambiar idioma, dos pestañas en conflicto, pools inválidos
 y JSON público idéntico antes/después. Comprobado también el cuadro público con resorteos,
 deshacer y porcentajes en ambos idiomas.
+
+## V3-A · contrato de predicción
+
+La auditoría detectó fórmulas GPR/contextuales directamente dentro de `tournament.ts`,
+dos presets con el contextual identificado mediante el antiguo `contextual_v1`, y
+escenarios JSON v1/v2 que deben seguir siendo reproducibles. No había artefacto entrenado,
+datos históricos auditados ni calibración que permitieran habilitar v3.
+
+`PredictionModel` separa predicción de reglas: crea un estado propio por torneo,
+`predictGame(context, state)` calcula cada probabilidad y `onGameResolved` recibe los
+games simulados. `PreGameContext` solo incluye hechos anteriores a ese game, sin el
+marcador final ni un ganador futuro; su índice es 1-based. Fechas y rosters desconocidos
+se omiten. La frontera de series valida probabilidades finitas en [0,1].
+
+La factoría reutiliza las funciones GPR, la forma y las claves PRNG existentes, incluidos
+los scores legacy 0–100 en su versión explícita. El estado experimental se recrea por
+iteración; no se añaden bonos por ganar. Los resultados fijados no se predicen de nuevo
+ni generan cronologías o callbacks ficticios. Los prefijos conocidos se conservan y los
+callbacks corresponden solo a games nuevos. El condicionamiento a ganadores requiere
+una capacidad estacionaria explícita y conserva el muestreador logarítmico anterior.
+
+| Preset | Estado |
+|---|---|
+| `gpr_baseline` | Predeterminado, D=400 provisional |
+| `contextual_experimental_v2` | Experimental v2 existente, sin nuevos factores |
+| `contextual_trained_v3` | No disponible; se rechaza antes de ejecutar |
+| `contextual_v1` | Alias de lectura del experimental v2, nunca del entrenado |
+
+Se mantienen el envelope `modelVersion: gpr-context-v2`, los archivos de escenario v1/v2
+y los manifiestos de requests anteriores. El número v3 del proyecto no reinterpreta ese
+formato como un artefacto entrenado. Los seis casos de regresión fijan SHA-256 del resultado
+completo anterior, incluido el manifiesto: legacy, GPR oficial, desde cero, resultados
+fijados, ganadores elegidos y contextual antiguo. Los metadatos de un ID canónico nuevo
+lo identifican como experimental, con el mismo engine y las mismas distribuciones.
+
+La importación, IndexedDB y restauración de sesión no migran documentos. Para un escenario
+antiguo guardado aparece **Copiar con preset actual**: crea otro ID, mantiene el original,
+usa `contextual_experimental_v2`, conserva snapshot, perfiles, opciones, semilla y N, e
+informa del preset de la copia. La función de copia admite ambos formatos de fichero sin
+cambiar su versión. Guardar/exportar desde la UI sigue usando el formato v2 existente.
+El entrenado se muestra deshabilitado y tampoco puede activarse mediante JSON o CLI.
+No hay carga de artefactos, fallbacks silenciosos a coeficientes ficticios ni dependencias
+Python/red en runtime. El GPR permanece disponible con todos los datos congelados locales.
+
+**Resortear cuartos** conserva los 33 cruces/resultados suizos y
+sortea los cuatro cuartos con el muestreador legal existente. Retira las siete elecciones
+de eliminatorias si existían. Conserva la semilla y avanza el contador; Deshacer recupera
+todo el cuadro y su contador. El sorteo es reproducible y puede coincidir con el anterior.
+
+Validación: **142 Vitest, 42 PHP**, tipos, build y Pint. Se comprueban inyección del
+predictor, estados aislados, Bo1/3/5, prefijos, callbacks condicionados, probabilidades
+inválidas, bloqueo del entrenado, copias y regresiones completas. Firefox ES/EN, escritorio
+1440 px y viewport móvil 360 px: importación antigua, selección del alias, copia intacta,
+igualdad de resultados experimentales, JSON entrenado rechazado, resorteo de cuartos,
+conservación del suizo, deshacer y recarga sin errores JavaScript.
+
+Medición del harness local con Node 22: 10.000 torneos GPR, semilla 42, en 2.122 ms;
+1.000 experimentales canónicos en 463 ms. Son medidas del entorno de desarrollo,
+no tiempos garantizados en otros dispositivos ni métricas de calidad predictiva.
+Firefox headless: 10.000 torneos GPR en el Web Worker, con entrega del resultado, en
+3.374 ms; cancelación de una ejecución posterior conserva el resultado completo y
+las tablas no muestran NaN.
+
+Siguiente fase: **V3-B**, auditoría de datos históricos reales, fechas, licencias,
+columnas y hashes, antes de construir features o entrenar. No se ha iniciado en V3-A.
 
 ## Internacionalización
 

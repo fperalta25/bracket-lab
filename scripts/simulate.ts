@@ -1,12 +1,12 @@
-import { FINAL_BUCKETS, SWISS_RECORDS, runSimulations, requireCondition, SimulationError } from '../resources/ts/simulator';
+import { FINAL_BUCKETS, SWISS_RECORDS, runSimulations, validatePreset, isExperimentalPreset, SimulationError, type CompatiblePreset } from '../resources/ts/simulator';
 import { gprSeedRequest } from './seed-snapshot';
 
 export function benchmark(iterations: number, seed: number, preset = 'gpr_baseline'): void {
     const started = performance.now();
     try {
-        requireCondition(preset === 'gpr_baseline' || preset === 'contextual_v1', 'unsupported_model', { field: 'preset' });
+        validatePreset(preset);
         const request = gprSeedRequest(iterations, seed);
-        const { aggregates, metadata } = runSimulations(preset === 'contextual_v1' ? { ...request, preset,
+        const { aggregates, metadata } = runSimulations(isExperimentalPreset(preset) ? { ...request, preset: preset as CompatiblePreset,
             contextualTerms: { tournamentForm: true, seriesForm: true, pressure: true, sequence: true } } : request);
         const elapsed = performance.now() - started;
         const teams = Object.values(aggregates.teams);

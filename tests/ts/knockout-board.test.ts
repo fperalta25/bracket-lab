@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { gprSeedRequest } from '../../scripts/seed-snapshot';
 import { fixtureWinner, runSimulations, validateConstraints, type Fixture, type GprSimulationRequest } from '../../resources/ts/simulator';
 import { chooseSwissWinner, swissBoardView } from '../../resources/ts/public/swiss-board';
-import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView } from '../../resources/ts/public/knockout-board';
+import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView, redrawKnockoutQuarters } from '../../resources/ts/public/knockout-board';
 import { parseScenarioFile } from '../../resources/ts/public/scenarios';
 
 function withFixtures(request: GprSimulationRequest, fixtures: readonly Fixture[]): GprSimulationRequest {
@@ -130,6 +130,22 @@ describe('clickable knockout board', () => {
         expect(finalChanged.removedResults).toBe(0);
         expect(knockoutBoardView(finalChanged.request).champion).not.toBe(knockoutBoardView(request).champion);
         expect(JSON.stringify(request)).toBe(original);
+    });
+
+    it('redraws quarters reproducibly while preserving all Swiss results and clearing knockout picks', () => {
+        const { request, index } = completedTournament();
+        const before = JSON.stringify(request);
+        const next = redrawKnockoutQuarters(request, index);
+        expect(redrawKnockoutQuarters(request, index)).toEqual(next);
+        expect(next.nextDrawIndex).toBe(index + 1);
+        expect(next.removedResults).toBe(7);
+        expect(next.fixtures.filter((f) => f.stage === 'swiss')).toEqual(fixturesOf(request).filter((f) => f.stage === 'swiss'));
+        expect(next.fixtures.filter((f) => f.stage !== 'swiss')).toHaveLength(4);
+        expect(next.fixtures.filter((f) => f.stage !== 'swiss').every((f) => f.status === 'scheduled')).toBe(true);
+        validateConstraints(request.snapshot, next.fixtures);
+        expect(JSON.stringify(request)).toBe(before);
+        const initial = gprSeedRequest(1, 42);
+        expect(() => redrawKnockoutQuarters(withFixtures(initial, initial.snapshot.fixtures), 0)).toThrow('invalid_constraints');
     });
 
     it('rejects invalid picks and invalidates knockout after a changed Swiss choice', () => {
