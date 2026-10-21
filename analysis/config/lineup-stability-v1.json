@@ -1,0 +1,35 @@
+{
+  "protocol_version": "lineup-stability-research-v1",
+  "baseline_metrics_sha256": "c9be83eee9299e1bdcea5c307c56e6bed7a8c38e5049656eef6354d8a7ca7f7f",
+  "baseline_protocol_sha256": "da8b10937b5bc557881fa96c6725d354d57574dc0d141f09957d3e3377265a12",
+  "source_canonical_sha256": "07965d750bfa743e82091dfa6f61313b635ebe1e90610f7a7708c0ea9781ecae",
+  "windows_days": [
+    30,
+    60
+  ],
+  "coefficients": [
+    -0.5,
+    0.5,
+    -1.0,
+    1.0
+  ],
+  "shrinkage_days": 3,
+  "prior_stability": 0.5,
+  "aggregation": "team_day_mean_overlap_with_latest_available_lineup_excluding_its_day",
+  "identity_mode": "exact_source_names_within_same_source_team",
+  "require_both_teams_observed": true,
+  "selection_period": "development_2025",
+  "selection_delay_days": 1,
+  "selection_metric": "log_loss",
+  "tie_tolerance": 1e-12,
+  "include_zero_effect_baseline": true,
+  "promotion_allowed": false,
+  "evaluation_interpretation": "2026 diagnostic; these periods have been inspected in preceding experiments",
+  "bootstrap_replicates": 1000,
+  "bootstrap_seed": 42,
+  "cluster_fields": [
+    "league_id",
+    "year",
+    "split"
+  ]
+}

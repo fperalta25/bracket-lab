@@ -637,3 +637,103 @@ El siguiente bloque puede contrastar estabilidad de alineaciones **observadas en
 partidas anteriores**, con proxies explícitos y sin usar la alineación del game
 objetivo como si se conociera pre-game. No necesita descargar otro dataset ni
 incorporar la forma descartada al modelo de referencia.
+
+## Estabilidad de alineaciones observadas — comparación frente al Elo
+
+Protocolo previo a métricas: `analysis/config/lineup-stability-v1.json`.
+Se usa Elo **sin forma residual** y el mismo corpus, sin descargar nuevas fuentes.
+Las alineaciones se enlazan por game ID, equipos, fecha y resultado, comprobando
+los hashes del corpus y las predicciones congeladas. No se usa la alineación del
+game objetivo como predictor ni se exportan sus nombres en las features.
+
+```bash
+python3 analysis/src/stability_backtest.py \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --predictions-dir data/curated/internal-elo-v1 \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --protocol analysis/config/lineup-stability-v1.json \
+  --output data/curated/lineup-stability-v1
+```
+
+### Indicador y límites de identidad
+
+En cada predicción se toma la última alineación de cada equipo cuyo game ya está
+disponible bajo el retraso supuesto de 1/3/7 días. «Última» se refiere a fecha del
+game: una observación antigua que llegue tarde no sustituye a otra más reciente.
+La alineación del objetivo se añade al historial solo después de emitir sus features
+y tras su futura disponibilidad supuesta. Si la última observación no tiene lineup,
+no se recupera una anterior como si fuese la última plantilla conocida.
+
+Se compara esa referencia con alineaciones observadas en **días anteriores al de
+la referencia**, dentro de una ventana de 30 o 60 días. El solapamiento es número
+de nombres compartidos dividido por cinco; se promedia primero por día para reducir
+el peso de varias partidas de una serie. Se excluye todo el día de la referencia,
+para evitar que una misma serie aporte simultáneamente referencia y evidencia de estabilidad.
+
+```text
+stability = (sum(mean_overlap_by_day) + 3 * 0.5) / (comparison_days + 3)
+logit(p_candidate_A) = logit(p_elo_A) + beta * (stability_A - stability_B)
+```
+
+Tres días de prior hacia 0,5 reducen el efecto de muestras pequeñas. Ventana, prior
+y shrinkage son hipótesis predefinidas, no magnitudes calibradas. La identidad usa
+**nombres exactos dentro del mismo ID de equipo**, sin unir jugadores entre equipos,
+normalizar aliases o afirmar IDs estables. No se conoce la plantilla confirmada
+para el objetivo: se mide estabilidad del historial disponible, no calidad individual,
+ausencias, continuidad causal o estado oficial del roster actual.
+
+Sin referencia, sin días previos de comparación, con última alineación ausente o
+con referencias simultáneas contradictorias, se devuelve `missing/null`. Si falta
+el indicador para cualquiera de los dos equipos no hay ajuste: p, log loss y Brier
+se mantienen idénticos al Elo. No se atribuye cero estabilidad a los faltantes.
+Con datos válidos se registra `estimated`, días/games de soporte y game de referencia.
+
+### Selección y resultados
+
+Ocho alternativas: ventanas 30/60 × coeficientes −0,5/+0,5/−1/+1, más Elo sin ajuste.
+La dirección del efecto se investiga; no se presupone que estabilidad implique fuerza.
+Se elige por log loss de **2025 y retraso principal de un día**, prefiriendo Elo en
+empate numérico. Esa selección queda fija para 2026 y los otros retrasos.
+
+Opción seleccionada: **60 días, beta +0,5**. Informe:
+`models/reports/lineup-stability-v1/metrics.json`.
+
+| Periodo | Games | Log loss Elo | Log loss con estabilidad | Brier Elo | Brier con estabilidad |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Desarrollo 2025 | 9.573 | 0,65338 | 0,65292 | 0,23048 | 0,23028 |
+| Evaluación 2026 | 7.839 | 0,64442 | 0,64405 | 0,22578 | 0,22557 |
+| Tramo final 2026 | 1.180 | 0,65654 | 0,65603 | 0,23132 | 0,23111 |
+
+La mejora puntual de log loss en evaluación es 0,00037; su intervalo agrupado
+aproximado es **[−0,00022; 0,00097]**. En el tramo final la mejora es 0,00051,
+con intervalo **[−0,00129; 0,00177]**. Ambos incluyen cero. También incluyen cero
+los intervalos globales de los tres periodos en los retrasos de 1/3/7 días.
+El bootstrap es pareado contra Elo, 1.000 réplicas, semilla 42 y proxy
+`league/year/split`; no acredita independencia real por serie ni causalidad.
+Las métricas de desarrollo se consultan tras seleccionar entre alternativas.
+
+Hay indicador para ambos equipos en 6.600/7.839 games de evaluación y 1.050/1.180
+del tramo final. En el subconjunto internacional de evaluación (348 games), la
+mejora puntual principal es 0,00079; en los 34 games internacionales finales empeora
+unos 0,00584. Son muestras/efectos que no justifican presentar una mejora para Worlds.
+2026 sigue siendo diagnóstico, no un test ciego nuevo tras los experimentos anteriores.
+
+**Decisión:** mantener Elo sin modificadores como referencia. No se activa estabilidad,
+no se acumula con la forma residual y no se declara calibrado el coeficiente elegido.
+La web y los escenarios mantienen su comportamiento. Esto no demuestra que las
+plantillas no importen: esta aproximación concreta no aporta evidencia suficiente.
+
+### Comprobación y siguiente paso
+
+**147 pruebas Python**, 142 Vitest, 42 Laravel (528 aserciones) y typecheck. Los 21
+casos nuevos verifican exclusión de plantilla/resultado objetivo y futuro, retraso
+estricto, ventana, día de referencia excluido, ponderación diaria, referencias
+antiguas tardías, faltantes/ambigüedades, antisimetría, equivalencia exacta sin efecto,
+selección sin 2026, vinculación/integridad y protección de entradas. La ejecución
+real y las predicciones se reprodujeron byte a byte. Solo se versionan protocolo e
+informe agregado; el corpus y las predicciones completos siguen ignorados por Git.
+
+Siguiente bloque: revisar los parámetros provisionales del **Elo propio** con
+selección temporal en desarrollo y evaluación diagnóstica de estabilidad. No se
+trasladarán esos parámetros a la escala GPR, ni se retocarán factores contextuales
+para hacerlos ganar después de observar 2026.
