@@ -68,6 +68,7 @@
                     <section><h4>{{ __('board.eliminated') }}</h4><ul><template x-for="team in board.eliminated" :key="team.id"><li><strong x-text="team.acronym"></strong><span x-text="team.record"></span></li></template></ul></section>
                 </div>
             </section>
+            <x-knockout-board />
             <details class="scenario-library">
                 <summary>{{ __('scenario.title') }}</summary>
                 <div class="scenario-actions">

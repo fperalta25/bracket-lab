@@ -148,5 +148,10 @@
     "board.score_note": "Picking a winner does not fix the score. Example scores are simulated conditional on that pick.",
     "board.series_progress": ":done/:total series",
     "board.teams_progress": ":done/:total teams",
-    "tournament.starting_fixtures": "Starting matchups"
+    "tournament.starting_fixtures": "Starting matchups",
+    "knockout.title": "Knockout",
+    "knockout.champion": "Champion",
+    "knockout.pending_team": "Participant pending",
+    "knockout.advance": ":team advances to :stage.",
+    "knockout.champion_announcement": ":team is the champion."
 }
