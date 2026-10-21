@@ -13,9 +13,10 @@ sobre cualquier indicación anterior de un MVP solo en español.
 
 ## Estado
 
-Fase 0: Laravel 13, PHP 8.4, SQLite, Blade, Alpine, Tailwind 4 y TypeScript con Vite.
-PHPUnit y Vitest preparados. El motor, los escenarios y la administración se implementarán
-en las siguientes fases. Sin despliegue ni CI/CD.
+Fases 0 y 1: base Laravel 13, PHP 8.4, SQLite, Blade, Alpine, Tailwind 4 y TypeScript
+con Vite; motor de torneo probado sin interfaz de simulación. Los controles públicos,
+el worker, los escenarios guardados y la administración se implementarán en las siguientes
+fases. Sin despliegue ni CI/CD.
 
 La portada muestra los 16 equipos por pool y los ocho cruces de R1 pendientes, en español e inglés
 y con diseño oscuro adaptable. Se identifica como vista previa, sin revisión publicada
@@ -88,8 +89,8 @@ los comandos npm en el anfitrión con Node >=22.12 y `npm ci`.
 
 Las pruebas cubren persistencia e idempotencia del seeder, cruces exactos, pools/regiones,
 ausencia de resultados inventados, portada sin sesión, estado vacío y escape de nombres.
-Vitest comprueba la coherencia del conjunto de datos inicial; las pruebas del motor
-se incorporarán al implementarlo en la Fase 1.
+Vitest comprueba los datos iniciales, la internacionalización y las invariantes del motor.
+`npm run typecheck` también compila el motor con solo ES2022, sin tipos DOM ni Node.
 
 Validación manual: abrir la portada, comprobar ocho cruces pendientes y cuatro pools
 con cuatro equipos, navegar con Tab y probar 360 px, tablet y escritorio. El sitio no
@@ -100,8 +101,76 @@ Fase 0 verificada en Fedora/Podman: 7 pruebas PHP (86 aserciones), 3 pruebas Vit
 Pint, TypeScript y build. Comprobación en Firefox a 360, 768 y 1440 px: sin desbordamiento
 horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado.
 
-Siguiente paso: Fase 1, dominio y motor TypeScript puro con semilla, series, sorteos
-completos válidos y pruebas de invariantes. Las probabilidades y el worker llegarán después.
+Siguiente paso: Fase 2, controles públicos bilingües, Web Worker con progreso/cancelación,
+tablas de probabilidades y recorrido de ejemplo. Mantener las reglas de UX sin metatexto.
+
+## Motor de torneo · Fase 1
+
+`resources/ts/simulator/` contiene el motor puro: no depende de Laravel, DOM, idioma,
+almacenamiento, red ni `Math.random()`. No hay equipos ni año codificados en el algoritmo.
+El perfil `SWISS_16_RULES` configura los pools y el formato soportado (16 equipos,
+tres victorias/derrotas, cinco rondas); otras reglas requieren una versión de motor compatible.
+
+El contrato `SimulationRequest` incluye snapshot, escenario, potencias opcionales,
+varianza, iteraciones y semilla entera sin signo de 32 bits. Los IDs y los estados
+son independientes del idioma. Por ahora se admiten de 1 a 50.000 iteraciones por lote;
+el límite de la interfaz se revisará al medir el worker en navegador.
+
+- `from_scratch`: ignora los fixtures oficiales y vuelve a sortear R1 en cada torneo.
+- `official_state`: conserva sorteos, posiciones, marcadores y partidas conocidas.
+- `custom`: recibe una copia completa de las restricciones locales; no mezcla silenciosamente
+  modificaciones con fixtures antiguos del snapshot. No modifica los datos oficiales.
+
+`prepareSimulation` valida antes de ejecutar. Los enfrentamientos de rondas posteriores
+solo pueden fijarse con participantes determinados por resultados anteriores conocidos.
+Los cuartos necesitan los ocho clasificados; semifinales y final, sus ganadores previos.
+Los errores son `SimulationError` con `code` y contexto (fixture, ronda, record o motivo),
+para traducirlos en UI. No se reintentan ni descartan recorridos imposibles en silencio.
+
+`runSimulations` devuelve contadores enteros, metadatos y el primer torneo completo como
+ejemplo reproducible. No conserva los miles de recorridos en memoria. Para el futuro worker
+se exponen `prepareSimulation`, `simulateTournament`, `createAggregates` y `accumulate`;
+el generador se crea una vez por ejecución y se inyecta en cada torneo.
+
+Cada equipo tiene un único record suizo y puesto final. `matchesPlayed`/`gamesPlayed`
+incluyen encuentros oficiales conocidos; `simulatedMatches`/`simulatedGames` separan
+los realmente simulados. Un marcador oficial sin orden de partidas permanece sin ese orden.
+Los prefijos de partidas conocidas se respetan y solo se simulan las partidas restantes.
+
+Decisiones estadísticas:
+
+- PRNG Mulberry32, con secuencia de referencia probada y selección entera sin sesgo por módulo.
+- Probabilidad logística por partida, con escalas 9/15/24 para varianza baja/normal/alta.
+  Sin calibración empírica ni bonificaciones automáticas. No se aplica un recorte adicional
+  de probabilidades: los scores válidos 0–100 ya producen valores estrictamente entre 0 y 1.
+- Sorteo uniforme entre emparejamientos completos válidos, mediante DP por máscara de bits.
+  Con bloqueos, se muestrean las soluciones que los respetan. Solo cuando no queda ninguna
+  sin rematch se minimiza el número total de repeticiones y se muestrean las soluciones óptimas.
+  Nunca se relajan pools/regiones de R1, records ni participantes. No se reproduce la distribución
+  del procedimiento físico de Riot ni se atribuye a Riot la elección de minimizar rematches.
+- Cada recorrido registra las excepciones por ronda/record. Los agregados cuentan torneos
+  afectados y series repetidas, sin excluirlos del denominador.
+- Los cuartos se muestrean entre los 288 cuadros válidos con posiciones específicas;
+  los invictos van a mitades opuestas. Las semifinales y final siguen esas posiciones.
+
+Validación local de desarrollo (sin endpoint ni producto CLI público):
+
+```bash
+npm run simulate -- 1000
+npm run simulate -- 10000 2026
+# Sin Node en el anfitrión:
+podman compose run --rm node npm run simulate -- 10000 2026
+```
+
+El script usa el seeder de demostración mediante un adaptador externo al núcleo. Comprueba
+los totales exactos de records y puestos y muestra tiempo, semilla y excepciones. Medición
+orientativa local en Node 22: 1.000 torneos en 268 ms y 10.000 en 1.388 ms, con potencias
+neutras y semilla 2026. No es una medición del navegador ni un compromiso de latencia.
+
+La batería incluye pruebas estadísticas con semilla fija del muestreo uniforme, backtracking,
+mínimo global de rematches, bloqueos parciales, correcciones incompatibles, replay oficial
+completo, límites, inmutabilidad y sumas exactas. La independencia del idioma se verifica
+también con el mismo escenario y semilla en ES/EN.
 
 ## Internacionalización
 
@@ -136,8 +205,8 @@ en ambos idiomas siguen siendo obligatorias en cada pantalla nueva.
 
 ## Organización
 
-- `app/Domain/Tournament/`: futura validación y publicación del torneo.
-- `resources/ts/simulator/`: futuro motor puro, sin DOM ni Laravel.
+- `app/Domain/Tournament/`: futura validación y publicación del torneo en backend.
+- `resources/ts/simulator/`: motor puro, sin DOM ni Laravel.
 - `resources/ts/scenarios/`: futuros escenarios locales.
 - `resources/ts/ui/`: futura integración de worker y resultados.
 - `tests/Feature/`, `tests/ts/`: pruebas de aplicación y TypeScript.
