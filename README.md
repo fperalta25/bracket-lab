@@ -599,6 +599,25 @@ Los datos enriquecidos se conservan aparte; no se promueven a modelo entrenado.
 actual no acredita disponibilidad temporal ni snapshots pre-game con IDs estables;
 el modelo entrenado sigue deshabilitado. No cambia la web ni el formato de escenarios.
 
+## Referencia histórica Elo · primer backtest
+
+El corpus existente permite investigación retrospectiva con supuestos declarados,
+sin exigir fechas de publicación verificadas para cada game. Elo propio secuencial
+con parámetros fijos provisionales, retrasos supuestos de 1/3/7 días y separación
+temporal. No reutiliza GPR actual para el pasado ni cambia el preset público.
+
+Con retraso de un día, 7.839 games de evaluación de 2026 dan log loss 0,64442 y Brier
+0,22578, frente a 0,69315 / 0,25 del 50/50. El tramo final de 1.180 games da 0,65654 /
+0,23132; el intervalo agrupado aproximado de su mejora incluye cero. Sigue siendo
+una referencia exploratoria, sin promoción de modelo ni afirmación de calibración.
+
+[Protocolo](analysis/config/internal-elo-v1.json),
+[informe real](models/reports/internal-elo-v1/metrics.json) y
+[comandos/supuestos](analysis/README.md). 108 pruebas Python, 142 Vitest,
+42 Laravel (528 aserciones) y typecheck; informe y predicciones reproducibles byte
+a byte. Siguiente bloque: contrastar forma residual contra esta referencia con
+selección de parámetros limitada a desarrollo.
+
 ## Internacionalización
 
 - `lang/es.json` y `lang/en.json` son los únicos catálogos de interfaz. Cada cadena nueva
