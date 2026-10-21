@@ -196,6 +196,8 @@
     "draft.conflict": "El borrador ha cambiado en otra pestaña. Abre la versión actual antes de guardar.",
     "draft.outdated": "Los datos oficiales han cambiado. Este borrador necesita revisarse antes de guardarlo.",
     "draft.reload": "Abrir borrador actualizado",
+    "knockout.redraw": "Resortear cuartos",
+    "knockout.redrawn": "Cuartos resorteados.",
     "simulation.contextual_legacy": "Contextual v2 · escenario anterior",
     "simulation.trained_unavailable": "Contextual v3 · no disponible",
     "scenario.copy_current_preset": "Copiar con preset actual",

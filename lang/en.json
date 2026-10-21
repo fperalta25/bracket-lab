@@ -196,6 +196,8 @@
     "draft.conflict": "The draft changed in another tab. Open the current version before saving.",
     "draft.outdated": "Official data has changed. Review this draft before saving it.",
     "draft.reload": "Open current draft",
+    "knockout.redraw": "Redraw quarterfinals",
+    "knockout.redrawn": "Quarterfinals redrawn.",
     "simulation.contextual_legacy": "Contextual v2 · earlier scenario",
     "simulation.trained_unavailable": "Contextual v3 · unavailable",
     "scenario.copy_current_preset": "Copy with current preset",

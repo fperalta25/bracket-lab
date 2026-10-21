@@ -2,6 +2,7 @@
     <div class="section-heading board-heading">
         <h3 id="knockout-board-title">{{ __('knockout.title') }}</h3>
         <div class="board-actions">
+            <button type="button" x-show="knockout.drawn" @click="redrawQuarters()">{{ __('knockout.redraw') }}</button>
             <button type="button" :disabled="!boardUndo || mode !== 'custom'" @click="undoBoard()">{{ __('board.undo') }}</button>
             <button type="button" x-show="knockout.ready && !knockout.drawn" @click="mode === 'custom' ? (fillBoard(), save()) : startBoard()">{{ __('board.start') }}</button>
         </div>

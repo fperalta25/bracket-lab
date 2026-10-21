@@ -5,7 +5,7 @@ import type { WorkerMessage } from './worker';
 import { copyScenarioWithCurrentPreset, parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
 import { swissRoundState } from './scenario-rounds';
 import { advanceSwissBoard, BOARD_GROUPS, chooseSwissWinner, redrawSwissGroup, swissBoardView } from './swiss-board';
-import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView } from './knockout-board';
+import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView, redrawKnockoutQuarters } from './knockout-board';
 import { listScenarios, storeScenario, removeScenario } from './scenario-storage';
 import { outcomeSupport } from './outcome-support';
 import { probabilityText, qualificationCount } from './presentation';
@@ -166,6 +166,18 @@ export function publicSimulator() {
                 this.boardUndo = previous; this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
                 this.boardReset = next.removedResults > 0; this.boardMessage = t('board.redrawn', { record });
                 this.ensureModel(); this.save();
+            } catch { this.error = t('scenario.error_constraints'); }
+        },
+        redrawQuarters() {
+            if (this.mode !== 'custom') this.startBoard();
+            this.error = ''; this.boardReset = false;
+            try {
+                const previous = { fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[], drawIndex: this.drawIndex,
+                    preset: this.preset, editingRound: this.editingRound, knockoutRound: this.knockoutRound };
+                const next = redrawKnockoutQuarters(this.request(), this.drawIndex);
+                this.boardUndo = previous; this.draftFixtures = next.fixtures; this.drawIndex = next.nextDrawIndex;
+                this.knockoutRound = 1; this.boardReset = next.removedResults > 0;
+                this.boardMessage = t('knockout.redrawn'); this.ensureModel(); this.save();
             } catch { this.error = t('scenario.error_constraints'); }
         },
         pickWinner(fixtureId: string, winner: string) {

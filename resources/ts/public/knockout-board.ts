@@ -91,3 +91,12 @@ export function knockoutBoardView(request: GprSimulationRequest) {
     return { columns, ready: Object.keys(qualifiedRecords(request, fixtures)).length === 8,
         drawn: fixtures.filter((f) => f.stage === 'quarterfinal').length === 4, champion: final && fixtureWinner(final) };
 }
+
+/** A new quarterfinal draw keeps the entire Swiss phase and replaces its knockout descendants. */
+export function redrawKnockoutQuarters(request: GprSimulationRequest, drawIndex: number) {
+    const fixtures = fixturesOf(request);
+    if (Object.keys(qualifiedRecords(request, fixtures)).length !== 8) throw new SimulationError('invalid_constraints');
+    const swiss = fixtures.filter((f) => f.stage === 'swiss');
+    return { ...advanceKnockoutBoard({ ...request, scenario: { mode: 'custom', fixtures: swiss } }, drawIndex),
+        removedResults: fixtures.filter((f) => f.stage !== 'swiss' && fixtureWinner(f)).length };
+}
