@@ -56,7 +56,9 @@ export interface SeriesGameState {
 }
 export type SeriesProbability = number | ((state: SeriesGameState) => number);
 
-export function playSeries(fixture: Fixture, probability: SeriesProbability, random: Pick<RandomSource, 'next'>): PlayedMatch {
+export type GameObserver = (before: SeriesGameState, winner: string) => void;
+
+export function playSeries(fixture: Fixture, probability: SeriesProbability, random: Pick<RandomSource, 'next'>, onGameResolved?: GameObserver): PlayedMatch {
     validateSeries(fixture);
     requireCondition(fixture.status !== 'decided', 'unsupported_model', { field: 'winner_constraint' });
     requireCondition(typeof probability === 'function' || (Number.isFinite(probability) && probability >= 0 && probability <= 1), 'invalid_request', { field: 'probability' });
@@ -70,10 +72,12 @@ export function playSeries(fixture: Fixture, probability: SeriesProbability, ran
     let b = games.length - a;
     const target = (fixture.bestOf + 1) / 2;
     while (a < target && b < target) {
-        const p = typeof probability === 'function' ? probability({ a, b, previousWinner: games[games.length - 1] }) : probability;
+        const before = { a, b, previousWinner: games[games.length - 1] };
+        const p = typeof probability === 'function' ? probability(before) : probability;
         requireCondition(Number.isFinite(p) && p >= 0 && p <= 1, 'invalid_request', { field: 'probability' });
         const winner = random.next() < p ? fixture.teamA : fixture.teamB;
         games.push(winner);
+        onGameResolved?.(before, winner);
         if (winner === fixture.teamA) a++; else b++;
     }
     return { ...fixture, status: 'completed', score: { a, b }, games,

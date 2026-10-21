@@ -12,3 +12,6 @@ export * from './contextual';
 export * from './likelihood';
 export * from './importance';
 export * from './conditional-series';
+export * from './presets';
+export * from './prediction';
+export * from './prediction-models';

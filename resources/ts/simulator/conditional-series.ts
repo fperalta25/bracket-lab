@@ -1,12 +1,12 @@
 import { requireCondition } from './errors';
-import { validateSeries } from './series';
+import { validateSeries, type GameObserver } from './series';
 import type { GameLogProbabilities } from './likelihood';
 import type { Fixture, PlayedMatch, RandomSource } from './types';
 
 export const WINNER_CONSTRAINT_VERSION = 'stationary-log-doob-v1';
 
 /** Exact conditional game paths for a stationary model, given the selected series winner. */
-export function playWinnerConstrainedSeries(fixture: Fixture, logs: GameLogProbabilities, random: Pick<RandomSource, 'next'>): PlayedMatch {
+export function playWinnerConstrainedSeries(fixture: Fixture, logs: GameLogProbabilities, random: Pick<RandomSource, 'next'>, onGameResolved?: GameObserver): PlayedMatch {
     validateSeries(fixture);
     requireCondition(fixture.status === 'decided', 'invalid_fixture');
     requireCondition([logs.a, logs.b].every((p) => p === -Infinity || (Number.isFinite(p) && p <= 0))
@@ -38,6 +38,7 @@ export function playWinnerConstrainedSeries(fixture: Fixture, logs: GameLogProba
         const probability = viaA === -Infinity ? 0 : viaB === -Infinity ? 1
             : Math.exp(viaA - add(viaA, viaB));
         const winner = random.next() < probability ? fixture.teamA : fixture.teamB;
+        onGameResolved?.({ a, b, previousWinner: games[games.length - 1] }, winner);
         games.push(winner); if (winner === fixture.teamA) a++; else b++;
     }
     requireCondition(aMustWin ? a === target : b === target, 'invariant_violation', { field: 'winner_constraint' });

@@ -1,3 +1,5 @@
+import type { CompatiblePreset } from './presets';
+
 export type TeamId = string;
 export type Region = 'LCK' | 'LPL' | 'LEC' | 'LCS' | 'LCP' | 'CBLOL';
 export type Variance = 'low' | 'normal' | 'high';
@@ -120,7 +122,7 @@ export interface ContextualTerms {
 
 export interface GprSimulationRequest extends SimulationRequestBase {
     readonly modelVersion: 'gpr-context-v2';
-    readonly preset: 'gpr_baseline' | 'contextual_v1';
+    readonly preset: CompatiblePreset;
     /** Required explicitly for contextual; absent for baseline. Roster adjustments remain disabled. */
     readonly contextualTerms?: ContextualTerms;
     readonly strengths: StrengthProfileSet;
