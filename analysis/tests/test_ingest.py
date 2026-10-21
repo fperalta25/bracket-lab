@@ -98,7 +98,7 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(len(games), 1)
         self.assertIsNone(games[0]['roster_a'])
         self.assertIsNone(games[0]['roster_b'])
-        self.assertEqual(report['lineup_issues'], {'player_roles': 1})
+        self.assertEqual(report['lineup_issues'], {'duplicate_player_names': 1})
 
     def test_player_side_context_must_match(self):
         self.players[0]['team_name'] = 'wrong'
@@ -160,6 +160,20 @@ class AuditTests(unittest.TestCase):
         self.teams[1]['side'] = 'Red'
         self.teams[1]['team_id'] = self.teams[0]['team_id']
         self.assertEqual(self.run_audit()[2]['excluded_games'], {'same_team_id': 1})
+
+    def test_duplicate_role_with_distinct_names_isolates_lineup(self):
+        self.players[-1]['position'] = self.players[-2]['position']
+        self.assertEqual(self.run_audit()[2]['lineup_issues'], {'player_roles': 1})
+
+    def test_corrupt_cached_raw_file_is_rejected(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / 'input.gz'
+            source.write_bytes(packed(self.teams))
+            path = acquire(root, 2025, 'teams', CUTOFF, source)
+            path.write_bytes(b'corrupted')
+            with self.assertRaisesRegex(ValueError, 'content hash'):
+                acquire(root, 2025, 'teams', CUTOFF, source)
 
     def test_import_hash_and_idempotent_lock(self):
         with tempfile.TemporaryDirectory() as folder:

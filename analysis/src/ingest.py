@@ -49,6 +49,8 @@ def acquire(root, season, kind, as_of, local=None):
     relative = Path('data/raw/chaincc') / str(season) / f'{kind}-{sha}.csv.gz'
     target = root / relative
     target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists() and digest(target.read_bytes()) != sha:
+        raise ValueError('Stored raw file does not match its content hash')
     if not target.exists():
         target.write_bytes(data)
     lock_path = root / 'sources.lock.json'
@@ -91,7 +93,8 @@ def audit(teams_data, players_data, cutoff, source_timezone):
     zone = ZoneInfo(source_timezone)
     tcols, teams = read_csv(teams_data)
     pcols, players = read_csv(players_data)
-    required = {'game_id', 'date', 'league', 'split', 'patch', 'side', 'team_name', 'result'}
+    required = {'game_id', 'date', 'league', 'split', 'patch', 'side',
+                'team_name', 'opponent_team_name', 'result'}
     for columns, extra in [(tcols, {'team_id', 'game_number'}), (pcols, {'position', 'playername'})]:
         if not required.union(extra).issubset(columns):
             raise ValueError('Unsupported source schema: missing required columns')
@@ -148,6 +151,8 @@ def audit(teams_data, players_data, cutoff, source_timezone):
         roster_reason = None
         if len(observed) != 10:
             roster_reason = 'player_count'
+        elif len({row['playername'] for row in observed}) != 10:
+            roster_reason = 'duplicate_player_names'
         elif {row['side'] for row in observed} != {'Blue', 'Red'}:
             roster_reason = 'player_sides'
         else:
