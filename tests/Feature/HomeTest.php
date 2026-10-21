@@ -20,7 +20,7 @@ class HomeTest extends TestCase
             ->assertSee('Bracket Lab')
             ->assertSee('Worlds 2026')
             ->assertSee('Puntuaciones iniciales sin calibrar')
-            ->assertSee('Todavía no hay una revisión pública del torneo.')
+            ->assertSee('Sin revisión publicada.')
             ->assertSee('sin respaldo ni patrocinio de Riot Games')
             ->assertSee('Karmine Corp')
             ->assertSee('CTBC Flying Oyster')

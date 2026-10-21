@@ -2,6 +2,11 @@
 
 Simulador independiente de torneos. Primera edición: Worlds 2026 de League of Legends.
 La [especificación principal](docs/WORLDS_2026_SIMULATOR_SPEC.md) guía el desarrollo por fases.
+El [anexo de UX sin metatexto](docs/WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md) es un requisito
+permanente para todas las pantallas públicas y de administración, existentes y futuras.
+Antes de completar cada pantalla, revisar el texto según sus criterios de aceptación:
+títulos literales, contenido directo y ayuda solo cuando sea necesaria, conservando
+accesibilidad y avisos legales o metodológicos pertinentes.
 
 ## Estado
 
