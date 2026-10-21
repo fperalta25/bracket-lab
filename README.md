@@ -634,6 +634,23 @@ no se añade el factor al predictor público ni se presenta como calibrado.
 Siguiente hipótesis: estabilidad de alineaciones observadas, sin usar datos del
 roster del game objetivo ni incorporar automáticamente la forma al baseline.
 
+## Estabilidad de alineaciones · comparación independiente
+
+Proxy por nombres dentro del equipo, usando exclusivamente lineups de games anteriores
+ya disponibles bajo el retraso supuesto. Se excluye el día de la última referencia;
+sin soporte para ambos equipos, el resultado es exactamente Elo. No se supone conocida
+la alineación del partido objetivo ni se incorpora la forma residual anterior.
+
+La opción elegida en 2025 (60 días, beta +0,5) mejora mínimamente la evaluación de
+0,64442 a 0,64405 y el tramo final de 0,65654 a 0,65603. Los intervalos globales de
+mejora incluyen cero. **Se mantiene Elo sin modificadores como referencia** y no se
+activa el factor en la web. [Protocolo](analysis/config/lineup-stability-v1.json),
+[informe](models/reports/lineup-stability-v1/metrics.json) y
+[definición/comandos](analysis/README.md). 147 pruebas Python, 142 Vitest, 42 Laravel
+(528 aserciones), typecheck y reproducción exacta de predicciones/informe.
+Siguiente bloque: revisar los parámetros provisionales del Elo propio con desarrollo,
+sin trasladarlos a GPR ni seleccionar variantes por su resultado en 2026.
+
 ## Internacionalización
 
 - `lang/es.json` y `lang/en.json` son los únicos catálogos de interfaz. Cada cadena nueva
