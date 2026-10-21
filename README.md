@@ -618,6 +618,22 @@ una referencia exploratoria, sin promoción de modelo ni afirmación de calibrac
 a byte. Siguiente bloque: contrastar forma residual contra esta referencia con
 selección de parámetros limitada a desarrollo.
 
+## Forma residual · ablation sobre la referencia Elo
+
+Ventanas 14/30/60 días y nueve variantes, con selección limitada a 2025. Se agrupan
+innovaciones del Elo por equipo/día y solo tras su disponibilidad supuesta. La
+opción elegida (14 días, beta 1) mejora el log loss global de evaluación 2026 de
+0,64442 a 0,64165, pero empeora el tramo final de 0,65654 a 0,65776 y no mejora el
+subconjunto internacional principal. **Se conserva Elo sin forma como referencia**;
+no se añade el factor al predictor público ni se presenta como calibrado.
+
+[Protocolo](analysis/config/residual-form-v1.json),
+[informe](models/reports/residual-form-v1/metrics.json) y
+[definición, comandos y límites](analysis/README.md). 126 pruebas Python, 142 Vitest,
+42 Laravel (528 aserciones) y typecheck; resultados reproducibles byte a byte.
+Siguiente hipótesis: estabilidad de alineaciones observadas, sin usar datos del
+roster del game objetivo ni incorporar automáticamente la forma al baseline.
+
 ## Internacionalización
 
 - `lang/es.json` y `lang/en.json` son los únicos catálogos de interfaz. Cada cadena nueva
