@@ -22,4 +22,9 @@ class Tournament extends Model
     {
         return $this->hasMany(Fixture::class);
     }
+
+    public function strengthProfileSets(): HasMany
+    {
+        return $this->hasMany(StrengthProfileSet::class);
+    }
 }

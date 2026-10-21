@@ -1,12 +1,10 @@
 import { FINAL_BUCKETS, SWISS_RECORDS, runSimulations, SimulationError } from '../resources/ts/simulator';
-import { seedSnapshot } from './seed-snapshot';
+import { gprSeedRequest } from './seed-snapshot';
 
 export function benchmark(iterations: number, seed: number): void {
-    const snapshot = seedSnapshot();
     const started = performance.now();
     try {
-        const { aggregates, metadata } = runSimulations({ snapshot, scenario: { mode: 'official_state' },
-            variance: 'normal', iterations, seed });
+        const { aggregates, metadata } = runSimulations(gprSeedRequest(iterations, seed));
         const elapsed = performance.now() - started;
         const teams = Object.values(aggregates.teams);
         const finalTotals = FINAL_BUCKETS.map((bucket) => teams.reduce((sum, team) => sum + team.finishCounts[bucket], 0));
@@ -15,7 +13,7 @@ export function benchmark(iterations: number, seed: number): void {
             || JSON.stringify(swissTotals) !== JSON.stringify([2, 3, 3, 3, 3, 2].map((n) => n * iterations))) {
             throw new Error('Aggregate invariant failed');
         }
-        console.log(JSON.stringify({ ...metadata, powerScores: undefined, completedIterations: aggregates.completedIterations,
+        console.log(JSON.stringify({ seed, iterations, model: metadata.model, completedIterations: aggregates.completedIterations,
             elapsedMs: Math.round(elapsed), tournamentsPerSecond: Math.round(iterations * 1000 / elapsed),
             finalTotals, swissTotals, rematches: aggregates.rematches }, null, 2));
     } catch (error) {

@@ -2,6 +2,7 @@ import { requireCondition } from './errors';
 import { knockoutSampler } from './knockout';
 import { firstRoundSampler, samePair } from './pairing';
 import { validateSeries, VARIANCE_SCALES } from './series';
+import { validateGprRequest } from './gpr';
 import { applySwissMatch, createSwissState, isActive, recordOf, swissBestOf } from './state';
 import type { Fixture, SimulationRequest, Stage, SwissRecord, TournamentSnapshot } from './types';
 
@@ -31,8 +32,7 @@ export function validateSnapshot(snapshot: TournamentSnapshot): void {
     for (const team of snapshot.teams) {
         requireCondition(team && nonempty(team.id) && !ids.has(team.id) && nonempty(team.name) && nonempty(team.acronym)
             && !acronyms.has(team.acronym) && ['LCK', 'LPL', 'LEC', 'LCS', 'LCP', 'CBLOL'].includes(team.region)
-            && pools.includes(team.pool) && integer(team.regionalSeed, 1, 16)
-            && Number.isFinite(team.powerScore) && team.powerScore >= 0 && team.powerScore <= 100, 'invalid_snapshot', { field: 'team' });
+            && pools.includes(team.pool) && integer(team.regionalSeed, 1, 16), 'invalid_snapshot', { field: 'team' });
         ids.add(team.id);
         acronyms.add(team.acronym);
     }
@@ -115,16 +115,27 @@ export function validateConstraints(snapshot: TournamentSnapshot, fixtures: read
 
 export function validateRequest(request: SimulationRequest): readonly Fixture[] {
     requireCondition(request && typeof request === 'object', 'invalid_request');
+    requireCondition(request.modelVersion === 'legacy-score-v1' || request.modelVersion === 'gpr-context-v2',
+        'incompatible_model', { field: 'model_version' });
     validateSnapshot(request.snapshot);
     requireCondition(request.scenario && ['from_scratch', 'official_state', 'custom'].includes(request.scenario.mode), 'invalid_request', { field: 'scenario' });
     requireCondition(integer(request.iterations, 1, MAX_ITERATIONS), 'invalid_request', { field: 'iterations' });
     requireCondition(integer(request.seed, 0, 0xffff_ffff), 'invalid_request', { field: 'seed' });
-    requireCondition(Object.hasOwn(VARIANCE_SCALES, request.variance), 'invalid_request', { field: 'variance' });
-    if (request.powerScores !== undefined) {
-        requireCondition(request.powerScores && typeof request.powerScores === 'object' && !isArray(request.powerScores), 'invalid_request', { field: 'power_scores' });
-        const ids = new Set(request.snapshot.teams.map((team) => team.id));
-        for (const [id, power] of Object.entries(request.powerScores)) {
-            requireCondition(ids.has(id) && Number.isFinite(power) && power >= 0 && power <= 100, 'invalid_request', { field: 'power_scores', team: id });
+    if (request.modelVersion === 'gpr-context-v2') validateGprRequest(request);
+    else {
+        requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request),
+            'incompatible_model', { reason: 'gpr_fields' });
+        for (const team of request.snapshot.teams) {
+            requireCondition(Number.isFinite(team.powerScore) && team.powerScore >= 0 && team.powerScore <= 100,
+                'invalid_snapshot', { field: 'legacy_power_score', team: team.id });
+        }
+        requireCondition(Object.hasOwn(VARIANCE_SCALES, request.variance), 'invalid_request', { field: 'variance' });
+        if (request.powerScores !== undefined) {
+            requireCondition(request.powerScores && typeof request.powerScores === 'object' && !isArray(request.powerScores), 'invalid_request', { field: 'power_scores' });
+            const ids = new Set(request.snapshot.teams.map((team) => team.id));
+            for (const [id, power] of Object.entries(request.powerScores)) {
+                requireCondition(ids.has(id) && Number.isFinite(power) && power >= 0 && power <= 100, 'invalid_request', { field: 'power_scores', team: id });
+            }
         }
     }
     const fixtures = request.scenario.mode === 'from_scratch' ? []

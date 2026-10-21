@@ -10,11 +10,13 @@ accesibilidad y avisos legales o metodológicos pertinentes.
 El [anexo ES/EN](docs/WORLDS_2026_ANEXO_I18N_EN_ES.md) exige ambos idiomas en todas las
 vistas, incluidas las futuras pantallas de administración y sus validaciones. Prevalece
 sobre cualquier indicación anterior de un MVP solo en español.
+El [anexo estadístico v2](docs/WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md) rige el modelo
+GPR y prevalece sobre la receta histórica de scores 0–100.
 
 ## Estado
 
 Fases 0 y 1: base Laravel 13, PHP 8.4, SQLite, Blade, Alpine, Tailwind 4 y TypeScript
-con Vite; motor de torneo probado sin interfaz de simulación. Los controles públicos,
+con Vite; motor de torneo y base GPR v2 probados sin interfaz de simulación. Los controles públicos,
 el worker, los escenarios guardados y la administración se implementarán en las siguientes
 fases. Sin despliegue ni CI/CD.
 
@@ -23,9 +25,10 @@ y con diseño oscuro adaptable. Se identifica como vista previa, sin revisión p
 ni resultados calculados. Los datos siguen la especificación, sin consultar fuentes en vivo.
 
 El seeder usa UUID estables y una transacción. Se puede repetir con `php artisan db:seed`:
-crea registros que falten y conserva los existentes, incluidas potencias y marcadores
+crea registros que falten y conserva los existentes, incluidos scores heredados y marcadores
 editados. No crea usuarios ni contraseñas predeterminadas. Los pools se asignan explícitamente,
-sin derivarlos del seed regional; las puntuaciones iniciales son 50 y no están calibradas.
+sin derivarlos del seed regional. Los valores 50 históricos pertenecen exclusivamente a
+`legacy-score-v1`: no se convierten en GPR. Los perfiles GPR se guardan en una revisión separada.
 No ejecutar `migrate:fresh` sobre datos que se quieran conservar.
 
 ## Arranque local con Fedora y Podman
@@ -101,8 +104,65 @@ Fase 0 verificada en Fedora/Podman: 7 pruebas PHP (86 aserciones), 3 pruebas Vit
 Pint, TypeScript y build. Comprobación en Firefox a 360, 768 y 1440 px: sin desbordamiento
 horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado.
 
-Siguiente paso: Fase 2, controles públicos bilingües, Web Worker con progreso/cancelación,
-tablas de probabilidades y recorrido de ejemplo. Mantener las reglas de UX sin metatexto.
+Siguiente paso: Fase 1B, forma contextual con pruebas de equivalencia frente a GPR.
+Después llegarán los controles públicos, el worker y las tablas de la Fase 2.
+
+## Base GPR v2
+
+El preset ejecutable de referencia es **`gpr_baseline`**, con el snapshot proporcionado
+del 19-10-2026. La fórmula es `1 / (1 + 10^((R_B - R_A) / D))`, calculada por su rama
+numéricamente estable, sin suelo arbitrario de 5 %. `D=400` es **provisional**, no una
+calibración del GPR de Riot. Una diferencia de 400 produce **10/11 ≈90,91 %**, no 90 %;
+se ha corregido ese criterio contradictorio de los documentos sin cambiar la fórmula.
+
+Cambios respecto a la base anterior:
+
+| Aspecto | GPR v2 | Compatibilidad heredada |
+|---|---|---|
+| Entrada | `modelVersion: 'gpr-context-v2'`, `preset`, `strengths` | `modelVersion: 'legacy-score-v1'` obligatorio |
+| Fortaleza | GPR original, separado de `Team` | `LegacyTeam.powerScore` 0–100 |
+| Probabilidad | Elo base 10, D provisional 400 | Logística histórica, escalas 9/15/24 |
+| Azar | Subflujos por índice de torneo, familia y evento | Secuencia Mulberry32 anterior intacta |
+| Perfiles | Snapshot fechado y revisión completa | Sin conversión automática de scores |
+
+`database/data/worlds-2026-strengths-v2.json` es el conjunto congelado para ejecución,
+normalizado desde el JSON de `docs/` mediante acrónimo, región e IDs reales del torneo,
+nunca por posición de fila. Una prueba contrasta los 16 ratings y parámetros con el documento
+fuente. No hay consulta al ranking en vivo ni actualización automática durante Worlds.
+`strength_profile_sets` guarda la revisión como JSON separado del equipo. El seeder es
+idempotente y las revisiones no se actualizan en el mismo registro; las futuras correcciones
+necesitarán una nueva revisión/ID, no sobrescribir snapshots usados por escenarios.
+
+Para actualizar una instalación local existente sin eliminar sus datos:
+
+```bash
+podman compose run --rm app php artisan migrate --seed
+```
+
+La entrada GPR exige un perfil por cada participante, IDs únicos y correspondientes,
+procedencia y fecha válidas, valores finitos y rangos técnicos documentados en los tipos y
+validadores. GPR base/overrides: 0–5.000; D: 200–800; sigmas: 0–300; ajustes: ±100 puntos.
+Estos límites son guardas técnicas, no rangos estimados empíricamente. Las modificaciones
+explícitas de GPR o D quedan identificadas como hipótesis sin alterar el snapshot original.
+
+`contextual_v1` todavía **no se ejecuta**: se rechaza explícitamente. Consistencia, sigmas,
+presión, transiciones, evidencia/confianza y el ajuste TES −25 se conservan en los perfiles
+como datos experimentales. En baseline todos esos términos están desactivados y TES usa
+GPR 1364. No se han ajustado coeficientes con históricos, ni implementado posterior/ESS.
+Ese módulo será obligatorio antes de ofrecer inferencia contextual condicionada al pasado.
+
+Cada resultado contiene versión de motor/modelo, snapshot y revisión de perfiles, D,
+estado provisional, términos habilitados, semilla, iteraciones, revisión del torneo y
+receta PRNG/hash. `metadata.request` conserva la configuración completa por valor para
+reproducir el resultado, incluidos fixtures, restricciones y perfiles; no se transmite al servidor.
+Las entradas sin versión o que mezclan GPR con scores antiguos se rechazan con
+`incompatible_model`. No hay aún importador ni escenarios persistidos en la UI; cuando
+se incorporen, deberán conservar el modo legacy o pedir un reset explícito, nunca convertirlos.
+
+El núcleo de sorteos, records, BoX, puestos y rematches se conserva. La regresión legacy
+compara una huella de agregados y recorrido capturada antes del cambio; los nuevos tests
+comprueban Elo, series analíticas, manifiestos, perfiles ausentes/incorrectos e independencia
+de idioma, etiquetas y orden de equipos.
 
 ## Motor de torneo · Fase 1
 
@@ -111,8 +171,8 @@ almacenamiento, red ni `Math.random()`. No hay equipos ni año codificados en el
 El perfil `SWISS_16_RULES` configura los pools y el formato soportado (16 equipos,
 tres victorias/derrotas, cinco rondas); otras reglas requieren una versión de motor compatible.
 
-El contrato `SimulationRequest` incluye snapshot, escenario, potencias opcionales,
-varianza, iteraciones y semilla entera sin signo de 32 bits. Los IDs y los estados
+El contrato `SimulationRequest` distingue GPR y legacy por versión explícita. Incluye
+snapshot, escenario, configuración del modelo, iteraciones y semilla entera sin signo de 32 bits. Los IDs y los estados
 son independientes del idioma. Por ahora se admiten de 1 a 50.000 iteraciones por lote;
 el límite de la interfaz se revisará al medir el worker en navegador.
 
@@ -129,8 +189,12 @@ para traducirlos en UI. No se reintentan ni descartan recorridos imposibles en s
 
 `runSimulations` devuelve contadores enteros, metadatos y el primer torneo completo como
 ejemplo reproducible. No conserva los miles de recorridos en memoria. Para el futuro worker
-se exponen `prepareSimulation`, `simulateTournament`, `createAggregates` y `accumulate`;
-el generador se crea una vez por ejecución y se inyecta en cada torneo.
+se exponen `prepareSimulation`, `simulateTournament`, `createAggregates` y `accumulate`.
+En GPR se inyecta `createTournamentRandom(seed, simulationIndex)` en cada torneo; cualquier
+lote o ejecución en otro orden conserva los resultados por índice. En legacy se mantiene
+un único `createRandom(seed)` avanzando en el orden original.
+Compartir semilla permite compartir azar por evento; si el cuadro diverge no garantiza
+un pareamiento perfecto entre experimentos ni permite atribuir causalidad a sus diferencias.
 
 Cada equipo tiene un único record suizo y puesto final. `matchesPlayed`/`gamesPlayed`
 incluyen encuentros oficiales conocidos; `simulatedMatches`/`simulatedGames` separan
@@ -139,10 +203,12 @@ Los prefijos de partidas conocidas se respetan y solo se simulan las partidas re
 
 Decisiones estadísticas:
 
-- PRNG Mulberry32, con secuencia de referencia probada y selección entera sin sesgo por módulo.
-- Probabilidad logística por partida, con escalas 9/15/24 para varianza baja/normal/alta.
-  Sin calibración empírica ni bonificaciones automáticas. No se aplica un recorte adicional
-  de probabilidades: los scores válidos 0–100 ya producen valores estrictamente entre 0 y 1.
+- PRNG Mulberry32 versionado y selección entera sin sesgo por módulo. En GPR, FNV-1a sobre
+  bytes UTF-16LE de tuplas JSON deriva subflujos por índice y evento. Sorteos y games tienen
+  familias distintas; se reservan familias para forma y posterior sin ejecutarlas todavía.
+  Los vectores incluyen caracteres Unicode y se contrastan con una implementación independiente.
+- GPR usa la transformación Elo provisional descrita arriba. Solo legacy conserva las escalas
+  antiguas 9/15/24. No se aplican bonificaciones regionales ni recortes de probabilidad.
 - Sorteo uniforme entre emparejamientos completos válidos, mediante DP por máscara de bits.
   Con bloqueos, se muestrean las soluciones que los respetan. Solo cuando no queda ninguna
   sin rematch se minimiza el número total de repeticiones y se muestrean las soluciones óptimas.
@@ -162,10 +228,11 @@ npm run simulate -- 10000 2026
 podman compose run --rm node npm run simulate -- 10000 2026
 ```
 
-El script usa el seeder de demostración mediante un adaptador externo al núcleo. Comprueba
-los totales exactos de records y puestos y muestra tiempo, semilla y excepciones. Medición
-orientativa local en Node 22: 1.000 torneos en 268 ms y 10.000 en 1.388 ms, con potencias
-neutras y semilla 2026. No es una medición del navegador ni un compromiso de latencia.
+El script usa ahora GPR baseline y el snapshot congelado mediante un adaptador externo
+al núcleo. Comprueba los totales exactos de records y puestos y muestra modelo, estado de
+calibración, PRNG, tiempo, semilla y excepciones. Medición orientativa local en Node 22:
+1.000 torneos en 313 ms y 10.000 en 1.947 ms, con GPR y semilla 2026. No es una medición
+del navegador ni un compromiso de latencia.
 
 La batería incluye pruebas estadísticas con semilla fija del muestreo uniforme, backtracking,
 mínimo global de rematches, bloqueos parciales, correcciones incompatibles, replay oficial

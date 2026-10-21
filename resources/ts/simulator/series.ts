@@ -43,7 +43,7 @@ export function validateSeries(fixture: Fixture): void {
     }
 }
 
-export function playSeries(fixture: Fixture, probability: number, random: RandomSource): PlayedMatch {
+export function playSeries(fixture: Fixture, probability: number, random: Pick<RandomSource, 'next'>): PlayedMatch {
     validateSeries(fixture);
     requireCondition(Number.isFinite(probability) && probability >= 0 && probability <= 1, 'invalid_request', { field: 'probability' });
     if (fixture.status === 'completed') {
