@@ -7,6 +7,9 @@ permanente para todas las pantallas públicas y de administración, existentes y
 Antes de completar cada pantalla, revisar el texto según sus criterios de aceptación:
 títulos literales, contenido directo y ayuda solo cuando sea necesaria, conservando
 accesibilidad y avisos legales o metodológicos pertinentes.
+El [anexo ES/EN](docs/WORLDS_2026_ANEXO_I18N_EN_ES.md) exige ambos idiomas en todas las
+vistas, incluidas las futuras pantallas de administración y sus validaciones. Prevalece
+sobre cualquier indicación anterior de un MVP solo en español.
 
 ## Estado
 

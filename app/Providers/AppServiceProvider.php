@@ -19,6 +19,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Laravel resolves dotted JSON keys natively, but needs an explicit JSON fallback.
+        $translator = $this->app['translator'];
+        $translator->handleMissingKeysUsing(function (string $key, array $replace) use ($translator): string {
+            if ($translator->hasForLocale($key, 'en')) {
+                return $translator->get($key, $replace, 'en', false);
+            }
+
+            return $translator->get('errors.translation', [], 'en', false);
+        });
     }
 }

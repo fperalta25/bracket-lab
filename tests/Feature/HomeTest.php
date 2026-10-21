@@ -10,6 +10,12 @@ class HomeTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withHeader('Accept-Language', 'es-ES');
+    }
+
     public function test_guests_can_read_the_initial_data_without_a_session(): void
     {
         $this->seed();

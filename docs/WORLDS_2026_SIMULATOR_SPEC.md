@@ -1,15 +1,14 @@
 # Worlds Simulator — Especificación funcional y técnica para Codex
 
-> **Estado:** propuesta de implementación · **Fecha:** 21-10-2026 · **Idioma inicial:** español · **Rama principal de desarrollo:** `development`
+> **Estado:** propuesta de implementación · **Fecha:** 21-10-2026 · **Idiomas del MVP:** español e inglés · **Rama principal de desarrollo:** `development`
 >
 > **Objetivo para Codex:** implementar progresivamente una aplicación web pública, rápida e intuitiva para simular Worlds 2026 de League of Legends miles de veces, respetando el formato del torneo, y consultar probabilidades de clasificación y de resultado final. Solo la administración requiere autenticación.
 
 ## 1. Principios de producto
 
-**Requisito permanente de UX:** aplicar el [anexo de contenido sin metatexto ni sobreexplicaciones](WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md)
-a todas las pantallas existentes y futuras, públicas y de administración. Sus reglas
-concretan los textos orientativos de esta especificación. Revisar el copy antes de dar
-por terminada cada pantalla, conservando la accesibilidad y los avisos necesarios.
+**Requisitos de interfaz permanentes:** aplicar el [anexo de UX sin metatexto](WORLDS_2026_ANEXO_UX_SIN_METATEXTO.md)
+y el [anexo de internacionalización ES/EN](WORLDS_2026_ANEXO_I18N_EN_ES.md) en todas las vistas,
+públicas y de administración. Cada pantalla requiere revisión de copy y verificación en ambos idiomas.
 
 1. **La exactitud de las reglas es prioritaria.** Nunca simplificar un sorteo de forma que produzca enfrentamientos inválidos. Distinguir claramente reglas oficiales, supuestos estadísticos y escenarios hipotéticos.
 2. **UX primero.** Interfaz limpia, compacta, legible, oscura y elegante, con un toque e-sports moderado. Nada de paneles sobrecargados, efectos gratuitos ni textos redundantes.
@@ -322,7 +321,7 @@ Comparar escenario **«Desde cero»** vs **«Sorteo oficial»**, o escenarios A/
 - Paleta de acento original y moderada (p. ej. cian/azul profundo o dorado suave). Evitar efectos de brillo excesivos, neones, degradados intensos y estética genérica de «landing de IA».
 - Logos pequeños si existen y están autorizados, con fallback elegante de iniciales. Nunca depender de imágenes para entender resultados.
 - Animaciones mínimas; buen feedback de loading y progresos, accesible por teclado y respetuoso con reducción de movimiento.
-- Idioma inicial español. Preparar textos para futura internacionalización sin obligar al MVP a dos idiomas.
+- **Internacionalización obligatoria desde el inicio:** español e inglés en toda la interfaz, incluido el panel admin, mediante el anexo `WORLDS_2026_ANEXO_I18N_EN_ES.md`. Sus reglas prevalecen sobre cualquier mención anterior a un único idioma.
 
 ## 8. Panel privado de administración
 
