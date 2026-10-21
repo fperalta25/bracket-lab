@@ -180,3 +180,72 @@ Siguiente bloque: completar el contrato temporal/identidades con evidencia fecha
 antes de habilitar features de forma y continuidad de plantilla de V3-C. Sin series
 verificadas no se entrenarán efectos de secuencia. El predictor público sigue usando
 los presets existentes; no se ha ajustado ni calibrado ningún parámetro.
+
+## Identidades fechadas: tercer bloque V3-B
+
+```bash
+python3 analysis/src/identities.py \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --as-of 2026-10-21T00:00:00Z --output data/curated/chaincc-identities
+```
+
+Antes de producir salidas se comprueban el hash y el número de registros del corpus.
+El corte solicitado puede ser anterior al del corpus, nunca posterior. Se filtran
+los games **antes** de agrupar nombres y jugadores, evitando que un renombre o una
+sustitución futura aparezca en un registro retrospectivo anterior. Este filtro no
+acredita por sí mismo la disponibilidad pública de esas observaciones en aquel momento.
+
+`identities.json`, local e ignorado por Git, agrupa por ID de origen los nombres y
+las alineaciones observadas. Cada grupo incluye primera/última observación, IDs de
+los games de ambos extremos y número de observaciones. No son fechas de vigencia:
+no se rellenan intervalos sin datos ni se declara una alineación como plantilla
+oficial o conocida pre-game. Los nombres de jugadores siguen sin ser identidades
+estables; se comprueba el hash de cada alineación antes de usarla.
+
+El informe pequeño versionado está en
+`models/reports/chaincc-identities-v3b/audit.json`. Conserva hashes del corpus,
+informe de origen y registro de identidades, corte, ambigüedades y bloqueos temporales.
+
+Resultados del corpus real:
+
+- Dos IDs con varios nombres observados: Los Heretics / Team Heretics Academy y
+  Dplus Kia Youth / Dplus Kia Academy. Se conserva cada observación fechada, sin
+  asumir que un cambio de nombre representa continuidad de organización o plantilla.
+- Dos nombres con varios IDs: Los Heretics y ZEN Esports. No se fusionan historiales.
+- Ocho registros presentan a los mismos equipos a la misma hora bajo IDs de game
+  distintos. Se aíslan **todos** los implicados en el registro derivado, sin escoger
+  un duplicado «correcto» ni modificar el corpus congelado del bloque anterior.
+- El registro resultante contiene **28.783 partidas**, 728 IDs y 4.081 alineaciones
+  distintas observadas. `identity_eligible_games` se refiere solo a este registro,
+  no a elegibilidad para entrenamiento o a disponibilidad pre-game.
+
+Los ocho registros son cuatro pares de posibles duplicados, de LDL y LIT en 2024.
+Los IDs y sus coincidencias temporales quedan en el informe. Coinciden también
+rival, resultado y alineaciones en los casos inspeccionados. La causa no está
+verificada: no se declara una deduplicación histórica resuelta. El corpus fuente
+sigue conteniendo 28.791 games canónicos por ID; este hallazgo precisa la garantía
+anterior: la unicidad de ID no demuestra unicidad del encuentro real.
+
+Las 28.791 observaciones carecen de `available_at_utc` y de serie verificada.
+Cuando se aporte una hora de disponibilidad, debe ser posterior al inicio y anterior
+al corte para no quedar bloqueada por disponibilidad. No se sustituye por el inicio
+del game, la fecha del archivo o la fecha de importación.
+
+La revisión del [diccionario histórico de Oracle’s Elixir](https://lol.timsevenhuysen.com/matchdata/match-data-dictionary/)
+y de las páginas de ChainCC no aporta confirmación suficiente de zona horaria y
+publicación para estos CSV modernos. El diccionario describe una estructura antigua;
+no se extrapola automáticamente al esquema actual. Las fuentes consultadas y la
+fecha de revisión se conservan aquí; no se ha importado un segundo dataset.
+
+**47 pruebas Python**: se añaden cortes antes de alias/roster, nombres compartidos
+sin fusión, nuevos jugadores sin modificar el pasado, orden determinista, aislamiento
+de coincidencias temporales, disponibilidad de resultados, integridad y rechazo de
+cortes posteriores al corpus. El registro y su informe reales son reproducibles byte
+a byte. Regresión: 142 Vitest, 42 Laravel (528 aserciones) y typecheck.
+
+La auditoría V3-B deja documentados datos observables y carencias concretas. Para
+V3-C, el contrato temporal debe mantener como faltantes los resultados/alineaciones
+sin evidencia de disponibilidad; no aprender forma o continuidad usando estos
+registros como si todos fueran conocidos antes de jugar. Los efectos de serie se
+mantienen fuera hasta disponer de un vínculo verificado.

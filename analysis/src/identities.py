@@ -140,7 +140,7 @@ def main():
         report = audit_identity_files(args.games, args.audit, args.as_of, args.output)
     except (ValueError, OSError, KeyError) as error:
         parser.exit(1, f'Identity audit failed: {error}\n')
-    print(json.dumps({key: report[key] for key in ['canonical_games', 'source_team_ids', 'observed_team_lineups']}))
+    print(json.dumps({key: report[key] for key in ['canonical_games', 'identity_eligible_games', 'source_team_ids', 'observed_team_lineups']}))
 
 
 if __name__ == '__main__':

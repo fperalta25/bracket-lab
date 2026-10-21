@@ -1,0 +1,152 @@
+{
+  "as_of_utc": "2026-10-21T00:00:00+00:00",
+  "canonical_games": 28791,
+  "cutoff_rule": "event_start_utc < as_of_utc",
+  "identity_audit_version": "chaincc-identities-v1",
+  "identity_eligible_games": 28783,
+  "identity_ledger_sha256": "8bc7465f0762caf0b3688f726c3fb175e97548b8273989f09c9290fec98f733f",
+  "identity_quarantined_game_ids": [
+    "10933-10933_game_1",
+    "10933-10933_game_2",
+    "10933-10933_game_3",
+    "10936-10936_game_1",
+    "10936-10936_game_2",
+    "10936-10936_game_3",
+    "LOLTMNT03_54766",
+    "LOLTMNT03_54771"
+  ],
+  "limitations": [
+    "First/last seen delimit observations, not effective alias or roster validity.",
+    "Source player names do not establish stable player identities.",
+    "No organization merges, renamed teams or series are inferred.",
+    "Postgame lineups are not assumed known before game start.",
+    "Source timezone remains unverified; source result availability may be missing."
+  ],
+  "missing_lineup_observations": 0,
+  "mode": "retrospective_observations",
+  "names_with_multiple_team_ids": {
+    "Los Heretics": [
+      "oe:team:2dfc66b98002c5afad2a98dbf86e350",
+      "oe:team:9cb395c39a75579af94c93876a42e9b"
+    ],
+    "ZEN Esports": [
+      "oe:team:2b8caed4d341367e34ba037b911adb0",
+      "oe:team:bd46d8b1a045d8e632938b985b89dd2"
+    ]
+  },
+  "observed_team_lineups": 4081,
+  "simultaneous_team_observations": [
+    {
+      "at_utc": "2024-03-23T09:02:03+00:00",
+      "game_ids": [
+        "10933-10933_game_1",
+        "10936-10936_game_1"
+      ],
+      "team_id": "oe:team:3fbe14cabc2c91b41d58e14930276fd"
+    },
+    {
+      "at_utc": "2024-03-23T09:52:40+00:00",
+      "game_ids": [
+        "10933-10933_game_2",
+        "10936-10936_game_2"
+      ],
+      "team_id": "oe:team:3fbe14cabc2c91b41d58e14930276fd"
+    },
+    {
+      "at_utc": "2024-03-23T10:37:34+00:00",
+      "game_ids": [
+        "10933-10933_game_3",
+        "10936-10936_game_3"
+      ],
+      "team_id": "oe:team:3fbe14cabc2c91b41d58e14930276fd"
+    },
+    {
+      "at_utc": "2024-03-23T09:02:03+00:00",
+      "game_ids": [
+        "10933-10933_game_1",
+        "10936-10936_game_1"
+      ],
+      "team_id": "oe:team:5e97f293e9986969e0abb397228dd6f"
+    },
+    {
+      "at_utc": "2024-03-23T09:52:40+00:00",
+      "game_ids": [
+        "10933-10933_game_2",
+        "10936-10936_game_2"
+      ],
+      "team_id": "oe:team:5e97f293e9986969e0abb397228dd6f"
+    },
+    {
+      "at_utc": "2024-03-23T10:37:34+00:00",
+      "game_ids": [
+        "10933-10933_game_3",
+        "10936-10936_game_3"
+      ],
+      "team_id": "oe:team:5e97f293e9986969e0abb397228dd6f"
+    },
+    {
+      "at_utc": "2024-03-15T20:54:13+00:00",
+      "game_ids": [
+        "LOLTMNT03_54766",
+        "LOLTMNT03_54771"
+      ],
+      "team_id": "oe:team:a2e63aee03585f0b37ff4cad936e349"
+    },
+    {
+      "at_utc": "2024-03-15T20:54:13+00:00",
+      "game_ids": [
+        "LOLTMNT03_54766",
+        "LOLTMNT03_54771"
+      ],
+      "team_id": "oe:team:cd6b4265231d4ba346274357681c335"
+    }
+  ],
+  "source_audit_sha256": "b55b55c1a1eb2b027d38d7ccc6fbe61e9bf316934edc4e84f6da507bf2fb3631",
+  "source_canonical_sha256": "07965d750bfa743e82091dfa6f61313b635ebe1e90610f7a7708c0ea9781ecae",
+  "source_team_ids": 728,
+  "source_timezone_assumption": "UTC",
+  "team_ids_with_multiple_names": {
+    "oe:team:2dfc66b98002c5afad2a98dbf86e350": [
+      {
+        "first_game_id": "LOLTMNT02_22535",
+        "first_seen_utc": "2024-01-17T19:54:57+00:00",
+        "last_game_id": "LOLTMNT03_134448",
+        "last_seen_utc": "2024-08-03T17:32:30+00:00",
+        "observed_games": 58,
+        "source_name": "Los Heretics"
+      },
+      {
+        "first_game_id": "LOLTMNT02_352956",
+        "first_seen_utc": "2026-02-13T15:01:07+00:00",
+        "last_game_id": "LOLTMNT05_227470",
+        "last_seen_utc": "2026-10-07T19:52:28+00:00",
+        "observed_games": 92,
+        "source_name": "Team Heretics Academy"
+      }
+    ],
+    "oe:team:503cf7645c53c8f084b5cbdec6744a7": [
+      {
+        "first_game_id": "LOLTMNT01_351365",
+        "first_seen_utc": "2026-03-21T05:05:02+00:00",
+        "last_game_id": "LOLTMNT02_480432",
+        "last_seen_utc": "2026-10-18T09:27:35+00:00",
+        "observed_games": 118,
+        "source_name": "Dplus Kia Academy"
+      },
+      {
+        "first_game_id": "LOLTMNT02_88826",
+        "first_seen_utc": "2024-05-18T05:11:11+00:00",
+        "last_game_id": "LOLTMNT02_326112",
+        "last_seen_utc": "2025-11-16T11:34:09+00:00",
+        "observed_games": 207,
+        "source_name": "Dplus Kia Youth"
+      }
+    ]
+  },
+  "temporal_blockers": {
+    "missing_result_availability": 28791,
+    "missing_series_linkage": 28791
+  },
+  "timezone_verified": false,
+  "training_ready": false
+}
