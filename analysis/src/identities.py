@@ -38,8 +38,8 @@ def identity_audit(games, as_of):
             raise ValueError('Require two distinct source team IDs')
         if game['available_at_utc'] is None:
             blockers['missing_result_availability'] += 1
-        elif utc(game['available_at_utc']) < utc(game['event_start_utc']):
-            raise ValueError('Result availability precedes game start')
+        elif utc(game['available_at_utc']) <= utc(game['event_start_utc']):
+            raise ValueError('Result availability must follow game start')
         elif utc(game['available_at_utc']) >= cutoff:
             blockers['result_not_available_before_cutoff'] += 1
         if game['series_id'] is None:

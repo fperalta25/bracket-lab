@@ -100,7 +100,10 @@ class IdentityTests(unittest.TestCase):
         _, report = identity_audit([first], CUTOFF)
         self.assertEqual(report['temporal_blockers']['result_not_available_before_cutoff'], 1)
         first['available_at_utc'] = '2024-12-31T23:00:00Z'
-        with self.assertRaisesRegex(ValueError, 'precedes'):
+        with self.assertRaisesRegex(ValueError, 'must follow'):
+            identity_audit([first], CUTOFF)
+        first['available_at_utc'] = first['event_start_utc']
+        with self.assertRaisesRegex(ValueError, 'must follow'):
             identity_audit([first], CUTOFF)
 
     def test_file_integrity_and_cutoff_validation_precede_outputs(self):
