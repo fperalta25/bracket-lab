@@ -113,3 +113,14 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 .example-grid li > span:nth-of-type(2) { text-align: right; }
 .example-grid small { color: #a6b4bd; font-size: .65rem; }
 @media (max-width: 600px) { .control-grid, .result-filters, .example-grid { grid-template-columns: minmax(0, 1fr); } .simulation-form { padding: 1rem; } }
+
+.scenario-editor, .scenario-library { margin-block: 1rem; border-top: 1px solid #2b343b; padding-top: .75rem; }
+.scenario-summary { color: #b5c0c7; font-size: .8rem; margin-top: .5rem; }
+.scenario-fixtures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-block: .75rem; }
+.scenario-fixture { padding: .75rem; border: 1px solid #2b343b; border-radius: 6px; }
+.scenario-fixture > strong { display: block; margin-bottom: .35rem; font-size: .875rem; }
+.scenario-actions { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem; margin-block: .75rem; }
+.scenario-actions label { flex: 1 1 180px; }
+.scenario-actions button { border: 1px solid #46545e; }
+.scenario-library input[type="file"] { font-size: .8rem; }
+@media (max-width: 600px) { .scenario-fixtures { grid-template-columns: minmax(0, 1fr); } }
