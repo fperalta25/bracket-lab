@@ -1,5 +1,6 @@
 import { createRandom, createTournamentRandom } from './random';
 import { prepareSimulation, simulateTournament } from './tournament';
+import { requireCondition } from './errors';
 import { modelManifest } from './manifest';
 import { FINAL_BUCKETS, SWISS_RECORDS, type FinalBucket, type SimulationRequest, type SwissRecord, type Team, type TournamentResult } from './types';
 
@@ -49,25 +50,41 @@ export function accumulate(aggregates: Aggregates, result: TournamentResult): vo
     aggregates.completedIterations++;
 }
 
-export function runSimulations(request: SimulationRequest): {
-    aggregates: Aggregates;
-    example: TournamentResult;
-    metadata: { seed: number; iterations: number; revision: number | null;
-        sourceMode: SimulationRequest['scenario']['mode']; rulesVersion: string; model: ReturnType<typeof modelManifest>;
-        request: SimulationRequest };
-} {
+export type SimulationOutput = ReturnType<ReturnType<typeof createSimulationRunner>['result']>;
+
+/** One prepared execution, advanced in bounded batches without resetting streams. */
+export function createSimulationRunner(request: SimulationRequest) {
     const prepared = prepareSimulation(request);
     request = prepared.request;
     const random = createRandom(request.seed);
     const aggregates = createAggregates(request.snapshot.teams);
-    const simulate = (index: number): TournamentResult => simulateTournament(prepared, request.modelVersion === 'legacy-score-v1'
-        ? random : createTournamentRandom(request.seed, index));
-    const example = simulate(0);
-    accumulate(aggregates, example);
-    for (let iteration = 1; iteration < request.iterations; iteration++) accumulate(aggregates, simulate(iteration));
-    return { aggregates, example, metadata: {
-        seed: request.seed, iterations: request.iterations, revision: request.snapshot.revision,
-        sourceMode: request.scenario.mode, rulesVersion: request.snapshot.rules.version,
-        model: modelManifest(request, prepared.powers), request: JSON.parse(JSON.stringify(request)) as SimulationRequest,
-    } };
+    let example: TournamentResult | undefined;
+    return {
+        advance(batchSize: number): number {
+            requireCondition(Number.isInteger(batchSize) && batchSize >= 1 && batchSize <= 1000, 'invalid_request', { field: 'batch_size' });
+            const end = Math.min(request.iterations, aggregates.completedIterations + batchSize);
+            while (aggregates.completedIterations < end) {
+                const index = aggregates.completedIterations;
+                const tournament = simulateTournament(prepared, request.modelVersion === 'legacy-score-v1'
+                    ? random : createTournamentRandom(request.seed, index));
+                example ??= tournament;
+                accumulate(aggregates, tournament);
+            }
+            return aggregates.completedIterations;
+        },
+        result() {
+            requireCondition(aggregates.completedIterations === request.iterations && example, 'invalid_request', { field: 'incomplete_run' });
+            return { aggregates, example, metadata: {
+                seed: request.seed, iterations: request.iterations, revision: request.snapshot.revision,
+                sourceMode: request.scenario.mode, rulesVersion: request.snapshot.rules.version,
+                model: modelManifest(request, prepared.powers), request: JSON.parse(JSON.stringify(request)) as SimulationRequest,
+            } };
+        },
+    };
+}
+
+export function runSimulations(request: SimulationRequest): SimulationOutput {
+    const runner = createSimulationRunner(request);
+    for (let completed = 0; completed < request.iterations;) completed = runner.advance(1000);
+    return runner.result();
 }
