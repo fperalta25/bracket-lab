@@ -29,6 +29,7 @@ function checkedProbabilities(probability: SeriesLogProbability, state: SeriesGa
  */
 export function seriesLogLikelihood(fixture: Fixture, probability: SeriesLogProbability): number {
     validateSeries(fixture);
+    requireCondition(fixture.status !== 'decided', 'unsupported_model', { field: 'hypothetical_winner' });
     if (fixture.games !== undefined || fixture.status === 'scheduled') {
         let a = 0; let b = 0;
         let previousWinner: string | undefined;

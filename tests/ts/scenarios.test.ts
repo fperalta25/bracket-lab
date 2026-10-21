@@ -34,7 +34,7 @@ describe('portable frozen scenarios', () => {
 
     it('rejects invalid versions, names, dates, legacy scores and malformed requests without conversion', () => {
         const doc = document();
-        for (const patch of [{ schemaVersion: 2 }, { kind: 'other' }, { name: '' }, { name: 'a'.repeat(81) },
+        for (const patch of [{ schemaVersion: 3 }, { kind: 'other' }, { name: '' }, { name: 'a'.repeat(81) },
             { createdAt: 'invalid' }, { id: null }, { request: { ...doc.request, seed: -1 } }]) {
             expect(() => validateSavedScenario({ ...doc, ...patch })).toThrow('invalid_request');
         }

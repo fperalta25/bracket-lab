@@ -100,7 +100,7 @@ export function publicSimulator() {
                 ...(this.preset === 'contextual_v1' ? { contextualTerms: { ...contextualTerms } } : {}) };
         },
         get contextualAvailable() {
-            return this.mode === 'from_scratch' || !(this.mode === 'custom' ? this.draftFixtures : base.snapshot.fixtures).some((f) => f.status === 'completed' || (f.games?.length ?? 0) > 0);
+            return this.mode === 'from_scratch' || !(this.mode === 'custom' ? this.draftFixtures : base.snapshot.fixtures).some((f) => f.status !== 'scheduled' || (f.games?.length ?? 0) > 0);
         },
         changeMode() {
             if (this.mode === 'custom' && !this.draftInitialized) {
@@ -138,7 +138,7 @@ export function publicSimulator() {
                 const locked = this.draftFixtures.find((f) => f.stage === 'swiss' && f.round === round && f.slot === slot);
                 const referenceFixture = locked ?? reference.find((f) => f.stage === 'swiss' && f.round === round && f.slot === slot)!;
                 return { ...referenceFixture, record: `${states.get(referenceFixture.teamA)!.wins}-${states.get(referenceFixture.teamA)!.losses}`, selection: !locked ? 'random' : locked.status === 'scheduled' ? 'pending'
-                    : locked.bestOf === 1 ? (locked.score.a > locked.score.b ? locked.teamA : locked.teamB) : `score:${locked.score.a}:${locked.score.b}` };
+                    : locked.status === 'decided' ? locked.winner : locked.bestOf === 1 ? (locked.score.a > locked.score.b ? locked.teamA : locked.teamB) : `score:${locked.score.a}:${locked.score.b}` };
             });
         },
         currentTeamName(id: string) { return this.teams.find((team) => team.id === id)?.acronym ?? id; },
@@ -309,7 +309,7 @@ export function publicSimulator() {
         percent(count: number) { return probabilityText(count, this.output!.aggregates.completedIterations, currentLocale()); },
         number(value: number) { return formatNumber(value); },
         translate(key: TranslationKey) { return t(key); },
-        originLabel(origin: string) { return t(origin === 'simulated' ? 'simulation.simulated' : this.output?.metadata.sourceMode === 'custom' ? 'scenario.locked' : 'simulation.fixed'); },
+        originLabel(origin: string) { return t(origin !== 'fixed' ? 'simulation.simulated' : this.output?.metadata.sourceMode === 'custom' ? 'scenario.locked' : 'simulation.fixed'); },
         teamName(id: string) { return this.output?.metadata.request.snapshot.teams.find((team) => team.id === id)?.acronym ?? id; },
         get resultSummary() {
             if (!this.output) return '';

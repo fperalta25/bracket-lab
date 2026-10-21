@@ -3,7 +3,8 @@ import { knockoutSampler } from './knockout';
 import { createPairingSampler, firstRoundSampler, samePair, type PairingSampler } from './pairing';
 import { gameProbability, playSeries } from './series';
 import { createContextualProbabilities } from './contextual';
-import { gprGameProbability } from './gpr';
+import { playWinnerConstrainedSeries } from './conditional-series';
+import { gprGameLogProbabilities, gprGameProbability } from './gpr';
 import type { RandomKey, TournamentRandom } from './random';
 import { applySwissMatch, createSwissState, eliminatedBucket, finalSwissRecords, isActive, recordOf, swissBestOf } from './state';
 import { KNOCKOUT_ROUNDS, SWISS_MATCH_COUNTS, validateRequest } from './validation';
@@ -67,7 +68,10 @@ export function simulateTournament(prepared: PreparedSimulation, random: RandomS
         let gameIndex = fixture.games?.length ?? 0;
         const gameRandom = 'stream' in random ? { next: () => random.stream('game', fixture.stage, fixture.round,
             fixture.slot, fixture.teamA, fixture.teamB, gameIndex++).next() } : random;
-        const result = playSeries(fixture, contextual ? contextual(fixture) : prepared.probabilities.get(fixture.teamA)!.get(fixture.teamB)!, gameRandom);
+        const result = fixture.status === 'decided' && request.modelVersion === 'gpr-context-v2'
+            ? playWinnerConstrainedSeries(fixture, gprGameLogProbabilities(prepared.powers[fixture.teamA]!, prepared.powers[fixture.teamB]!,
+                request.denominator ?? request.strengths.calibration.eloDenominator), gameRandom)
+            : playSeries(fixture, contextual ? contextual(fixture) : prepared.probabilities.get(fixture.teamA)!.get(fixture.teamB)!, gameRandom);
         matches.push(result);
         return result;
     };

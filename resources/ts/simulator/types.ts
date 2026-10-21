@@ -77,6 +77,8 @@ interface FixtureBase {
 export type Fixture = FixtureBase & (
     | { readonly status: 'scheduled'; readonly score?: never }
     | { readonly status: 'completed'; readonly score: Readonly<{ a: number; b: number }> }
+    /** Hypothetical series winner; score and game order remain unknown. */
+    | { readonly status: 'decided'; readonly winner: TeamId; readonly score?: never }
 );
 
 export interface TournamentSnapshot {
@@ -143,7 +145,7 @@ export interface PlayedMatch extends FixtureBase {
     readonly status: 'completed';
     readonly score: Readonly<{ a: number; b: number }>;
     readonly winner: TeamId;
-    readonly origin: 'fixed' | 'simulated';
+    readonly origin: 'fixed' | 'simulated' | 'constrained';
     readonly simulatedGames: number;
 }
 
