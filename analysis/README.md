@@ -1,7 +1,7 @@
 # Auditoría histórica offline — V3-B
 
-Los dos primeros bloques inspeccionan ChainCC 2024, 2025 y 2026. No entrena, no genera features ni
-modifica el simulador. Python 3.11+ con biblioteca estándar; comprobado con
+Los dos primeros bloques inspeccionan ChainCC 2024, 2025 y 2026. La auditoría no entrena ni modifica el simulador; el backtest Elo
+retrospectivo con supuestos explícitos se documenta al final. Python 3.11+ con biblioteca estándar; comprobado con
 Python 3.14.8. No hay dependencias Python en Laravel ni en el navegador.
 
 ## Fuente y procedencia
@@ -422,3 +422,108 @@ CSV inspeccionados. Se conserva la cobertura pendiente: **no se han incorporado
 nuevos hechos históricos acreditados** en este bloque. El siguiente paso de datos
 es obtener y revisar esas evidencias; el siguiente de features las consumirá sin
 imputar una forma residual ni reutilizar GPR de 2026 para ejemplos antiguos.
+
+## Referencia histórica Elo — primer backtest con el corpus existente
+
+La investigación retrospectiva puede avanzar con los datos disponibles. Se mantienen
+dos rutas: el contrato temporal estricto para evidencia acreditada y este experimento
+con **supuestos declarados de disponibilidad**. Este último no rellena `available_at_utc`
+en el corpus, no crea referencias `Evidence` ficticias ni rebaja los controles del
+modelo público. La falta de timestamps de publicación no bloquea este benchmark.
+
+`analysis/config/internal-elo-v1.json` se versionó antes de ejecutar las métricas
+reales. Define `internal_elo_baseline`: rating inicial 1500, K=32 y divisor=400,
+fijos y provisionales. Son unidades propias, sin equivalencia al GPR de Riot.
+Los ratings se aprenden secuencialmente; no se han ajustado hiperparámetros,
+calibradores, bonos o factores contextuales con el test.
+
+```bash
+python3 analysis/src/backtest.py \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --corpus-audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --identity-audit models/reports/chaincc-identities-v3b/audit.json \
+  --protocol analysis/config/internal-elo-v1.json \
+  --output data/curated/internal-elo-v1
+python3 -m unittest discover -s analysis/tests -v
+```
+
+### Protocolo temporal y cálculo
+
+- Calentamiento: 2024. Desarrollo: 08-01-2025 hasta 01-01-2026 (excluido).
+  Evaluación: 08-01-2026 hasta 01-09-2026 (excluido).
+  Tramo final reservado del experimento: 08-09-2026 hasta 21-10-2026 (excluido).
+- Hay siete días de separación antes de cada nuevo periodo puntuado. Los 294 games
+  en huecos se excluyen tanto de métricas como de actualizaciones. Los 9.897 games
+  de 2024 restantes tras la cuarentena solo calientan el estado.
+- Se interpreta la fecha fuente como UTC y se **supone** que cada resultado pasa a
+  estar disponible uno, tres o siete días después del inicio. Un día es el escenario
+  principal predefinido; los otros dos miden sensibilidad y no seleccionan un ganador.
+  Estos retrasos no se presentan como fechas verificadas de publicación.
+- Antes de cada game se procesan solo resultados con disponibilidad supuesta
+  estrictamente anterior. Se guarda la probabilidad pre-game. Al llegar el resultado,
+  `delta = K * (win_a - p_pre_game)` se suma a A y se resta a B. No se recalcula la
+  predicción antigua con ratings que ya contengan resultados posteriores.
+- El estado sigue actualizándose durante los periodos puntuados, después del retraso
+  supuesto: es evaluación secuencial con feedback, no evaluación de ratings congelados.
+  Los hiperparámetros permanecen iguales en todos los periodos.
+- Se usan IDs de equipo de origen, sin fusionar nombres ni proyectar rosters actuales
+  hacia atrás. No se usan kills/gold/draft del objetivo, GPR actual, región inventada
+  ni efectos de serie. Los ocho registros ambiguos siguen excluidos.
+
+`baseline.py` calcula log-probabilidades de forma estable. La actualización conserva
+la suma de ratings. Nuevos equipos parten del mismo prior, y los cold starts se
+cuentan según resultados ya disponibles, sin contar partidas aún pendientes.
+
+### Métricas observadas
+
+Informe: `models/reports/internal-elo-v1/metrics.json`. Escenario principal, retraso
+supuesto de un día; menor log loss/Brier es mejor:
+
+| Periodo | Games | Log loss | Brier | Accuracy |
+| --- | ---: | ---: | ---: | ---: |
+| Desarrollo 2025 | 9.573 | 0,65338 | 0,23048 | 61,14 % |
+| Evaluación 2026 | 7.839 | 0,64442 | 0,22578 | 63,02 % |
+| Tramo final 2026 | 1.180 | 0,65654 | 0,23132 | 61,36 % |
+| Referencia 50/50 | — | 0,69315 | 0,25000 | 50 % esperado |
+
+Accuracy asigna medio acierto a empates exactos de probabilidad, evitando favorecer
+el orden arbitrario A/B. El informe incluye bins de calibración, buckets de favoritos,
+ligas, cold starts, equipos/rivales distintos y métricas internacionales según los
+labels fuente predeclarados `MSI`, `WLDs`, `FST`, `EWC`. Este subconjunto no acredita
+etapas/regiones ni cobertura internacional completa. El tramo final contiene solo
+34 games de ese subconjunto; no se extraen conclusiones fuertes de ellos.
+
+La mejora puntual de log loss frente al 50/50 en el tramo final es 0,03661. Su
+intervalo agrupado aproximado al 95 % es **[-0,01333; 0,06608]**, e incluye cero.
+El bootstrap pareado usa 1.000 réplicas, semilla 42 y grupos `league/year/split`,
+como aproximación amplia a eventos. No se remuestrean games como si fueran
+independientes. Sin IDs verificados no se afirma un bootstrap real por series ni
+que ninguna serie/evento largo cruce las particiones. Con menos de dos grupos no
+se publica intervalo. Las bandas son exploratorias y dependen de esa agrupación.
+
+Sensibilidad en el tramo final: log loss **0,65654 / 0,66081 / 0,66270** para retrasos
+supuestos de 1/3/7 días. Sus intervalos agrupados de mejora incluyen cero en los tres
+casos. No se ha elegido un retraso ni ajustado K después de comparar estas cifras.
+La comparación es frente a 50/50, **no frente a GPR histórico**, del que no se dispone.
+
+### Reproducción y siguiente bloque
+
+Se guardan localmente las predicciones pre-game de cada retraso con ratings previos,
+probabilidad y disponibilidad supuesta. Los hashes de esos JSONL, protocolo, código,
+corpus e informes quedan en el reporte, junto con Python 3.14.8. Las predicciones
+completas siguen ignoradas por Git; solo se versiona el reporte agregado. Dos
+repeticiones reales produjeron exactamente los mismos bytes en todos los archivos.
+
+Validación: **108 pruebas Python**, 142 Vitest, 42 Laravel (528 aserciones) y typecheck.
+Los 16 casos nuevos verifican Elo, log loss extremo, suma constante, feedback
+retrasado con la probabilidad guardada, ausencia de fuga del objetivo/futuro,
+embargo, determinismo, métricas/agrupación e integridad de archivos. Los tests de
+contratos temporales anteriores también siguen pasando.
+
+Esta es una referencia inicial útil, **no un modelo contextual calibrado**. No se
+exportan ratings/coeficientes a la web ni se habilita un preset. El tramo final ya
+ha sido consultado: no deberá reutilizarse como test ciego independiente para
+seleccionar nuevas variantes. El siguiente bloque comparará forma residual frente
+a este Elo mediante un protocolo temporal fijado antes de evaluar la variante,
+con la selección de parámetros limitada a desarrollo y sus límites explicitados.
+No es necesario conseguir más datos para iniciar esa comparación.
