@@ -88,6 +88,7 @@
         <h2 id="acerca-titulo">{{ __('tournament.about') }}</h2>
         <p>{{ __('tournament.disclaimer') }}</p>
         <p>{{ __('tournament.trademarks') }}</p>
+        <a class="home-link" href="{{ route('admin.login') }}">{{ __('admin.title') }}</a>
     </footer>
 </body>
 </html>
