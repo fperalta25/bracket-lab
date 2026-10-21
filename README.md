@@ -104,8 +104,9 @@ Fase 0 verificada en Fedora/Podman: 7 pruebas PHP (86 aserciones), 3 pruebas Vit
 Pint, TypeScript y build. Comprobación en Firefox a 360, 768 y 1440 px: sin desbordamiento
 horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado.
 
-Siguiente paso: Fase 1B, forma contextual con pruebas de equivalencia frente a GPR.
-Después llegarán los controles públicos, el worker y las tablas de la Fase 2.
+Fase 1B: forma contextual prospectiva implementada en el motor; posterior y confirmación
+de ajustes de plantilla pendientes. Los controles públicos, el worker y las tablas siguen
+en la Fase 2; la administración corresponde a la Fase 3.
 
 ## Base GPR v2
 
@@ -145,11 +146,41 @@ validadores. GPR base/overrides: 0–5.000; D: 200–800; sigmas: 0–300; ajust
 Estos límites son guardas técnicas, no rangos estimados empíricamente. Las modificaciones
 explícitas de GPR o D quedan identificadas como hipótesis sin alterar el snapshot original.
 
-`contextual_v1` todavía **no se ejecuta**: se rechaza explícitamente. Consistencia, sigmas,
-presión, transiciones, evidencia/confianza y el ajuste TES −25 se conservan en los perfiles
-como datos experimentales. En baseline todos esos términos están desactivados y TES usa
-GPR 1364. No se han ajustado coeficientes con históricos, ni implementado posterior/ESS.
-Ese módulo será obligatorio antes de ofrecer inferencia contextual condicionada al pasado.
+`contextual_v1` se ejecuta como **experimento previo a los resultados**, con activación
+explícita de las cuatro familias mediante `contextualTerms`:
+
+```ts
+const request = {
+    ...gprRequest,
+    preset: 'contextual_v1',
+    contextualTerms: { tournamentForm: true, seriesForm: true, pressure: true, sequence: true },
+} as const;
+```
+
+- Forma normal con media cero: una extracción por equipo/torneo y una por equipo/serie.
+  Box–Muller coseno versionado usa uniformes de 32 bits centrados en cada celda para
+  evitar `log(0)`. Sin recortes adicionales de colas; la resolución finita del PRNG
+  limita el soporte representable, como en cualquier muestreo computacional.
+- Subflujos separados `tournament_form` y `series_form`, con IDs estables. La misma
+  serie recupera su forma; cambiar idioma o el orden de perfiles no altera el resultado.
+- Presión estructural: suizo Bo1 → 0; suizo Bo3 → 0,5 y 1 en 1–1; knockout Bo5 → 0,5
+  y 1 en 2–2. Transiciones: solo el ganador del game anterior de esa serie determina
+  `afterWinElo`/`afterLossElo`, sin acumular rachas. Los coeficientes iniciales siguen en 0.
+- Con todas las familias desactivadas, o todos los coeficientes/sigmas neutrales,
+  el resultado es exactamente igual a GPR bajo los mismos subflujos.
+- **Cualquier resultado completado o prefijo de games en el escenario contextual se
+  rechaza** con `unsupported_model` y motivo `contextual_posterior_required`. Los fixtures
+  pendientes sí se admiten. `from_scratch` ignora la historia oficial. Todavía no hay
+  posterior ni ESS; usar GPR para simular desde partidas conocidas. No se ofrece una
+  alternativa prospectiva implícita desde ese estado.
+- Los ajustes de plantilla activos continúan rechazándose hasta disponer de confirmación
+  y vigencia verificables. TES conserva GPR 1364 y ajuste −25 inactivo en ambos presets.
+
+GPR sigue siendo el preset predeterminado. El contextual siempre registra `hypothetical: true`,
+`status: experimental`, `conditioning: prior_without_observed_games`, versión de motor,
+muestreador normal, intensidad de presión, transiciones y familias habilitadas. Sus sigmas
+no cambian al variar D. No se han ajustado coeficientes con datos históricos; no son calibrados.
+Los controles públicos y de administración para estas opciones se incorporarán en sus fases.
 
 Cada resultado contiene versión de motor/modelo, snapshot y revisión de perfiles, D,
 estado provisional, términos habilitados, semilla, iteraciones, revisión del torneo y
@@ -205,7 +236,8 @@ Decisiones estadísticas:
 
 - PRNG Mulberry32 versionado y selección entera sin sesgo por módulo. En GPR, FNV-1a sobre
   bytes UTF-16LE de tuplas JSON deriva subflujos por índice y evento. Sorteos y games tienen
-  familias distintas; se reservan familias para forma y posterior sin ejecutarlas todavía.
+  familias distintas; las formas de torneo/serie tienen sus propias familias, y la del
+  posterior queda reservada.
   Los vectores incluyen caracteres Unicode y se contrastan con una implementación independiente.
 - GPR usa la transformación Elo provisional descrita arriba. Solo legacy conserva las escalas
   antiguas 9/15/24. No se aplican bonificaciones regionales ni recortes de probabilidad.
@@ -224,6 +256,7 @@ Validación local de desarrollo (sin endpoint ni producto CLI público):
 ```bash
 npm run simulate -- 1000
 npm run simulate -- 10000 2026
+npm run simulate -- 10000 2026 contextual_v1
 # Sin Node en el anfitrión:
 podman compose run --rm node npm run simulate -- 10000 2026
 ```
@@ -232,7 +265,9 @@ El script usa ahora GPR baseline y el snapshot congelado mediante un adaptador e
 al núcleo. Comprueba los totales exactos de records y puestos y muestra modelo, estado de
 calibración, PRNG, tiempo, semilla y excepciones. Medición orientativa local en Node 22:
 1.000 torneos en 313 ms y 10.000 en 1.947 ms, con GPR y semilla 2026. No es una medición
-del navegador ni un compromiso de latencia.
+del navegador ni un compromiso de latencia. En el bloque contextual, 10.000 torneos con
+las cuatro familias activas y semilla 2026 tardaron 3.326 ms, conservando los totales exactos.
+Validación del bloque: 68 pruebas Vitest, 20 PHP (284 aserciones), tipos, build y Pint.
 
 La batería incluye pruebas estadísticas con semilla fija del muestreo uniforme, backtracking,
 mínimo global de rematches, bloqueos parciales, correcciones incompatibles, replay oficial

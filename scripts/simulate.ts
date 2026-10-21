@@ -1,10 +1,13 @@
-import { FINAL_BUCKETS, SWISS_RECORDS, runSimulations, SimulationError } from '../resources/ts/simulator';
+import { FINAL_BUCKETS, SWISS_RECORDS, runSimulations, requireCondition, SimulationError } from '../resources/ts/simulator';
 import { gprSeedRequest } from './seed-snapshot';
 
-export function benchmark(iterations: number, seed: number): void {
+export function benchmark(iterations: number, seed: number, preset = 'gpr_baseline'): void {
     const started = performance.now();
     try {
-        const { aggregates, metadata } = runSimulations(gprSeedRequest(iterations, seed));
+        requireCondition(preset === 'gpr_baseline' || preset === 'contextual_v1', 'unsupported_model', { field: 'preset' });
+        const request = gprSeedRequest(iterations, seed);
+        const { aggregates, metadata } = runSimulations(preset === 'contextual_v1' ? { ...request, preset,
+            contextualTerms: { tournamentForm: true, seriesForm: true, pressure: true, sequence: true } } : request);
         const elapsed = performance.now() - started;
         const teams = Object.values(aggregates.teams);
         const finalTotals = FINAL_BUCKETS.map((bucket) => teams.reduce((sum, team) => sum + team.finishCounts[bucket], 0));
