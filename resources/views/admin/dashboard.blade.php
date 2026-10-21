@@ -8,7 +8,7 @@
             <span class="calibration">{{ $tournament->published_revision === null ? __('admin.unpublished') : __('admin.revision', ['revision' => $tournament->published_revision]) }}</span>
         </div>
         <section class="section" aria-labelledby="admin-teams">
-            <div class="section-heading"><h2 id="admin-teams">{{ __('tournament.teams') }}</h2></div>
+            <div class="section-heading"><h2 id="admin-teams">{{ __('tournament.teams') }}</h2><a class="draft-link" href="{{ route('admin.teams.edit') }}">{{ __('draft.edit') }}</a></div>
             <div class="table-scroll" tabindex="0" role="region" aria-label="{{ __('tournament.teams') }}">
                 <table>
                     <thead><tr><th scope="col">{{ __('admin.team') }}</th><th scope="col">{{ __('simulation.region') }}</th><th scope="col">{{ __('admin.seed') }}</th><th scope="col">{{ __('admin.pool') }}</th><th scope="col">{{ __('simulation.gpr') }}</th></tr></thead>

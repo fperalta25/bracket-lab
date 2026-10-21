@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SessionController;
+use App\Http\Controllers\Admin\TeamDraftController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\EnsureAdministrator;
 use App\Http\Middleware\PreventAdminCaching;
@@ -21,5 +22,9 @@ Route::prefix('admin')->name('admin.')->middleware(PreventAdminCaching::class)->
         Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:admin-login')->name('login.store');
     });
     Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth')->name('logout');
-    Route::get('/', DashboardController::class)->middleware(['auth', EnsureAdministrator::class])->name('dashboard');
+    Route::middleware(['auth', EnsureAdministrator::class])->group(function () {
+        Route::get('/', DashboardController::class)->name('dashboard');
+        Route::get('/teams', [TeamDraftController::class, 'edit'])->name('teams.edit');
+        Route::put('/teams', [TeamDraftController::class, 'update'])->name('teams.update');
+    });
 });
