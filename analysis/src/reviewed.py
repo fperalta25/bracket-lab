@@ -167,6 +167,11 @@ def main():
         dataset, report = import_reviewed(args.bundle, args.games, args.corpus_audit, args.identity_audit)
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, f'Reviewed evidence import failed: {error}\n')
+    protected = {path.resolve() for path in [args.bundle, args.games, args.corpus_audit, args.identity_audit]}
+    protected.update((args.bundle.parent / item['path']).resolve() for item in report['sources'])
+    targets = {(args.output / name).resolve() for name in ['dataset.json', 'audit.json']}
+    if protected & targets:
+        parser.exit(1, 'Reviewed evidence output would overwrite a source or audit. Choose a separate output directory.\n')
     report = save_import(args.output, dataset, report)
     print(json.dumps({key: report[key] for key in ['imported_results', 'imported_roster_snapshots', 'training_ready']}))
 

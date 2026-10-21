@@ -199,6 +199,17 @@ class ReviewedImportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'version/hash'):
             load_imported_history(output / 'dataset.json', output / 'audit.json')
 
+    def test_cli_output_cannot_overwrite_source_audit(self):
+        self.bundle_path.write_text(json.dumps(self.bundle))
+        before = self.identity.read_bytes()
+        process = subprocess.run([sys.executable, str(Path(__file__).resolve().parents[1] / 'src/reviewed.py'),
+                                  '--bundle', str(self.bundle_path), '--games', str(self.games),
+                                  '--corpus-audit', str(self.corpus), '--identity-audit', str(self.identity),
+                                  '--output', str(self.identity.parent)], capture_output=True, text=True)
+        self.assertEqual(process.returncode, 1)
+        self.assertEqual(before, self.identity.read_bytes())
+        self.assertFalse((self.identity.parent / 'dataset.json').exists())
+
     def test_cli_rejects_invalid_bundle_without_outputs(self):
         self.bundle['sources'][0]['sha256'] = 'b' * 64
         self.bundle_path.write_text(json.dumps(self.bundle))
