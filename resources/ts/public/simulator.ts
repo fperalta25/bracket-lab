@@ -1,8 +1,8 @@
 import { currentLocale, formatDate, formatNumber, t, type TranslationKey } from '../i18n';
-import { SWISS_16_RULES, FINAL_BUCKETS, SWISS_RECORDS, validateRequest, validateConstraints,
+import { SWISS_16_RULES, FINAL_BUCKETS, SWISS_RECORDS, isExperimentalPreset, validateRequest, validateConstraints,
     type GprSimulationRequest, type StrengthProfileSet, type TournamentSnapshot, type SimulationOutput, type Team, type Fixture, fixtureWinner } from '../simulator';
 import type { WorkerMessage } from './worker';
-import { parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
+import { copyScenarioWithCurrentPreset, parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
 import { swissRoundState } from './scenario-rounds';
 import { advanceSwissBoard, BOARD_GROUPS, chooseSwissWinner, redrawSwissGroup, swissBoardView } from './swiss-board';
 import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView } from './knockout-board';
@@ -107,7 +107,7 @@ export function publicSimulator() {
                 snapshot: base.snapshot, strengths: base.strengths,
                 scenario: this.mode === 'custom' ? { mode: 'custom', fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[] } : { mode: this.mode },
                 ...(gprOverrides ? { gprOverrides } : {}), seed: Number(this.seed), iterations: Number(this.iterations), denominator: Number(this.denominator),
-                ...(this.preset === 'contextual_v1' ? { contextualTerms: { ...contextualTerms } } : {}) };
+                ...(isExperimentalPreset(this.preset) ? { contextualTerms: { ...contextualTerms } } : {}) };
         },
         get contextualAvailable() {
             return this.mode === 'from_scratch' || !(this.mode === 'custom' ? this.draftFixtures : base.snapshot.fixtures).some((f) => f.status !== 'scheduled' || (f.games?.length ?? 0) > 0);
@@ -123,7 +123,7 @@ export function publicSimulator() {
             this.save();
         },
         ensureModel() {
-            if (!this.contextualAvailable && this.preset === 'contextual_v1') {
+            if (!this.contextualAvailable && isExperimentalPreset(this.preset)) {
                 this.preset = 'gpr_baseline'; this.scenarioMessage = t('scenario.gpr_selected');
             }
         },
@@ -263,6 +263,18 @@ export function publicSimulator() {
             const doc = this.library.find((item) => item.id === this.selectedScenarioId);
             if (doc) { try { this.applyScenario(doc, duplicate); } catch { this.error = t('scenario.error_file'); } }
         },
+        async copyCurrentPreset() {
+            if (!this.activeScenarioId || this.preset !== 'contextual_v1') return;
+            if (this.library.length >= 50) { this.error = t('scenario.error_limit'); return; }
+            this.libraryBusy = true; this.error = '';
+            try {
+                const doc = copyScenarioWithCurrentPreset(this.document(), { id: crypto.randomUUID(),
+                    name: t('scenario.copy_name', { name: this.scenarioName }).slice(0, 80), at: new Date().toISOString() });
+                await storeScenario(doc); this.applyScenario(doc); await this.refreshLibrary();
+                this.scenarioMessage = t('scenario.preset_copied'); this.save();
+            } catch { this.error = t('scenario.error_storage'); }
+            finally { this.libraryBusy = false; }
+        },
         async deleteScenario() {
             this.libraryBusy = true;
             try { await removeScenario(this.selectedScenarioId); if (this.activeScenarioId === this.selectedScenarioId) this.activeScenarioId = ''; this.selectedScenarioId = ''; await this.refreshLibrary(); this.save(); }
@@ -352,7 +364,7 @@ export function publicSimulator() {
             if (!this.output) return '';
             const r = this.output.metadata;
             return t('simulation.summary', { count: formatNumber(r.iterations), mode: t(r.sourceMode === 'custom' ? 'scenario.custom' : r.sourceMode === 'from_scratch' ? 'simulation.scratch' : 'simulation.official'),
-                model: t(r.request.modelVersion === 'gpr-context-v2' && r.request.preset === 'contextual_v1' ? 'simulation.contextual' : 'simulation.gpr') });
+                model: t(r.request.modelVersion === 'gpr-context-v2' && isExperimentalPreset(r.request.preset) ? 'simulation.contextual' : 'simulation.gpr') });
         },
         get methodSummary() {
             if (!this.output) return '';
