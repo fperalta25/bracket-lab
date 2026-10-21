@@ -2,7 +2,8 @@ import { currentLocale, formatDate, formatNumber, t, type TranslationKey } from 
 import { SWISS_16_RULES, FINAL_BUCKETS, SWISS_RECORDS, validateRequest, validateConstraints,
     type GprSimulationRequest, type StrengthProfileSet, type TournamentSnapshot, type SimulationOutput, type Team, type Fixture } from '../simulator';
 import type { WorkerMessage } from './worker';
-import { parseScenarioFile, SCENARIO_FILE_LIMIT, updateRoundOne, validateSavedScenario, type SavedScenario } from './scenarios';
+import { parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
+import { clearSwissRound, completeSwissDraw, swapSwissOpponent, swissRoundState, updateSwissScore } from './scenario-rounds';
 import { listScenarios, storeScenario, removeScenario } from './scenario-storage';
 import { probabilityText, qualificationCount } from './presentation';
 
@@ -25,6 +26,7 @@ export function publicSimulator() {
         mode: 'official_state' as 'official_state' | 'from_scratch' | 'custom',
         previousMode: 'official_state' as 'official_state' | 'from_scratch' | 'custom',
         draftFixtures: [] as readonly Fixture[], draftInitialized: false,
+        editingRound: 1, drawIndex: 0,
         scenarioName: '', selectedScenarioId: '', activeScenarioId: '', library: [] as SavedScenario[], scenarioMessage: '', libraryBusy: false,
         preset: 'gpr_baseline' as GprSimulationRequest['preset'],
         iterations: 10000, seed: 2026, denominator: 400,
@@ -42,6 +44,8 @@ export function publicSimulator() {
                     const c = saved.controls;
                     if (saved.version === 2) {
                         base = saved.base; gprOverrides = saved.gprOverrides; contextualTerms = saved.contextualTerms;
+                        this.editingRound = Number.isInteger(c.editingRound) && c.editingRound >= 1 && c.editingRound <= 5 ? c.editingRound : 1;
+                        this.drawIndex = Number.isSafeInteger(c.drawIndex) && c.drawIndex >= 0 ? c.drawIndex : 0;
                         this.draftFixtures = c.draftFixtures; this.draftInitialized = Boolean(c.draftInitialized);
                         this.scenarioName = typeof c.scenarioName === 'string' ? c.scenarioName.slice(0, 80) : '';
                         this.selectedScenarioId = typeof c.selectedScenarioId === 'string' ? c.selectedScenarioId : '';
@@ -77,7 +81,7 @@ export function publicSimulator() {
                         this.finishedAt = saved.finishedAt;
                     }
                 }
-            } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; }
+            } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true }; this.teams = payload.snapshot.teams; this.editingRound = 1; this.drawIndex = 0; }
             void this.refreshLibrary();
             window.addEventListener('pagehide', () => this.save());
             // Finish the current run before a language reload, then restore its completed output.
@@ -116,26 +120,73 @@ export function publicSimulator() {
                 sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, base, gprOverrides, contextualTerms, snapshotId: payload.snapshot.id, profileId: payload.strengths.id,
                     controls: { mode: this.mode, preset: this.preset, iterations: this.iterations, seed: this.seed, denominator: this.denominator,
                         search: this.search, region: this.region, sorts: this.sorts,
-                        draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, finishedAt: this.finishedAt }));
+                        editingRound: this.editingRound, drawIndex: this.drawIndex, draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, finishedAt: this.finishedAt }));
             } catch { /* Storage availability must not prevent simulation. */ }
         },
-        get roundOneRows() {
-            const slots = new Set([...base.snapshot.fixtures, ...this.draftFixtures]
-                .filter((f) => f.stage === 'swiss' && f.round === 1).map((f) => f.slot));
+        get roundInfo() {
+            return { ...swissRoundState({ ...this.request(), scenario: { mode: 'custom', fixtures: this.draftFixtures } }, this.editingRound),
+                locked: this.draftFixtures.filter((f) => f.stage === 'swiss' && f.round === this.editingRound).length };
+        },
+        get roundRows() {
+            const round = this.editingRound;
+            const states = this.roundInfo.states;
+            const lockedTeams = new Set(this.draftFixtures.filter((f) => f.stage === 'swiss' && f.round === round).flatMap((f) => [f.teamA, f.teamB]));
+            const reference = round === 1 ? base.snapshot.fixtures.filter((f) => !lockedTeams.has(f.teamA) && !lockedTeams.has(f.teamB)) : [];
+            const slots = new Set([...reference, ...this.draftFixtures]
+                .filter((f) => f.stage === 'swiss' && f.round === round).map((f) => f.slot));
             return [...slots].sort((a, b) => a - b).map((slot) => {
-                const locked = this.draftFixtures.find((f) => f.stage === 'swiss' && f.round === 1 && f.slot === slot);
-                const reference = locked ?? base.snapshot.fixtures.find((f) => f.stage === 'swiss' && f.round === 1 && f.slot === slot)!;
-                return { ...reference, selection: !locked ? 'random' : locked.status === 'scheduled' ? 'pending'
-                    : locked.score.a > locked.score.b ? locked.teamA : locked.teamB };
+                const locked = this.draftFixtures.find((f) => f.stage === 'swiss' && f.round === round && f.slot === slot);
+                const referenceFixture = locked ?? reference.find((f) => f.stage === 'swiss' && f.round === round && f.slot === slot)!;
+                return { ...referenceFixture, record: `${states.get(referenceFixture.teamA)!.wins}-${states.get(referenceFixture.teamA)!.losses}`, selection: !locked ? 'random' : locked.status === 'scheduled' ? 'pending'
+                    : locked.bestOf === 1 ? (locked.score.a > locked.score.b ? locked.teamA : locked.teamB) : `score:${locked.score.a}:${locked.score.b}` };
             });
         },
         currentTeamName(id: string) { return this.teams.find((team) => team.id === id)?.acronym ?? id; },
+        scoreOptions(match: Fixture) {
+            if (match.bestOf === 1) return [{ value: match.teamA, label: this.currentTeamName(match.teamA) }, { value: match.teamB, label: this.currentTeamName(match.teamB) }];
+            const target = (match.bestOf + 1) / 2;
+            return Array.from({ length: target }, (_, loser) => [
+                { value: `score:${target}:${loser}`, label: t('scenario.score_option', { team: this.currentTeamName(match.teamA), score: `${target}–${loser}` }) },
+                { value: `score:${loser}:${target}`, label: t('scenario.score_option', { team: this.currentTeamName(match.teamB), score: `${target}–${loser}` }) },
+            ]).flat();
+        },
+        editError(error: unknown) {
+            const round = error instanceof Error && 'context' in error ? (error.context as Record<string, unknown>).round : undefined;
+            this.error = typeof round === 'number' ? t('scenario.error_round', { round }) : t('scenario.error_constraints');
+        },
         changeFixture(slot: number, value: string) {
             this.error = ''; this.scenarioMessage = '';
-            try { this.draftFixtures = updateRoundOne(this.request(), slot, value === 'pending' ? null : value); this.ensureModel(); this.save(); return true; }
-            catch { this.error = t('scenario.error_constraints'); return false; }
+            try {
+                const match = this.roundRows.find((row) => row.slot === slot)!;
+                const score = value.startsWith('score:') ? { a: Number(value.split(':')[1]), b: Number(value.split(':')[2]) }
+                    : value === 'random' || value === 'pending' ? null : { a: Number(value === match.teamA), b: Number(value === match.teamB) };
+                this.draftFixtures = updateSwissScore(this.request(), this.editingRound, slot, value === 'random' ? 'random' : score);
+                this.ensureModel(); this.save(); return true;
+            } catch (error) { this.editError(error); return false; }
         },
-        resetFixtures() { this.draftFixtures = []; this.scenarioMessage = ''; this.save(); },
+        rivalOptions(match: Fixture) {
+            if (match.status !== 'scheduled' || (match.games?.length ?? 0) > 0) return [];
+            const request = this.request();
+            return this.teams.filter((team) => {
+                try { swapSwissOpponent(request, this.editingRound, match.slot, team.id); return true; } catch { return false; }
+            });
+        },
+        changeRival(slot: number, opponent: string) {
+            this.error = '';
+            try { this.draftFixtures = swapSwissOpponent(this.request(), this.editingRound, slot, opponent); this.save(); return true; }
+            catch (error) { this.editError(error); return false; }
+        },
+        completeRound() {
+            this.error = '';
+            try { this.draftFixtures = completeSwissDraw(this.request(), this.editingRound, this.drawIndex); this.drawIndex++; this.save(); }
+            catch (error) { this.editError(error); }
+        },
+        clearRound() {
+            this.error = '';
+            try { this.draftFixtures = clearSwissRound(this.request(), this.editingRound); this.save(); }
+            catch (error) { this.editError(error); }
+        },
+        resetFixtures() { this.draftFixtures = []; this.editingRound = 1; this.scenarioMessage = ''; this.save(); },
         get constraintSummary() {
             const fixtures = this.mode === 'custom' ? this.draftFixtures : this.mode === 'from_scratch' ? [] : base.snapshot.fixtures;
             return t('scenario.constraints', { fixtures: fixtures.length, results: fixtures.filter((f) => f.status === 'completed').length });
@@ -168,6 +219,7 @@ export function publicSimulator() {
             const r = copy.request;
             base = { snapshot: r.snapshot, strengths: r.strengths }; gprOverrides = r.gprOverrides;
             contextualTerms = r.contextualTerms ? { ...r.contextualTerms } : { tournamentForm: true, seriesForm: true, pressure: true, sequence: true };
+            this.editingRound = 1; this.drawIndex = 0;
             this.teams = r.snapshot.teams; this.mode = r.scenario.mode; this.previousMode = this.mode;
             this.draftFixtures = r.scenario.mode === 'custom' ? r.scenario.fixtures : [];
             this.draftInitialized = r.scenario.mode === 'custom';

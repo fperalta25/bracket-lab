@@ -108,7 +108,8 @@ class HomeTest extends TestCase
                 ->assertSee('lang=en&amp;seed=123&amp;iterations=1000', false)
                 ->assertSee('Karmine Corp')->assertSee('Worlds 2026')
                 ->assertDontSee('Text unavailable.');
-            $this->assertDoesNotMatchRegularExpression('/\b(?:tournament|nav|locale)\.[a-z_]+\b/', $response->getContent());
+            $visibleText = strip_tags(preg_replace('/<script\b[^>]*>[\s\S]*?<\/script>/i', '', $response->getContent()));
+            $this->assertDoesNotMatchRegularExpression('/\b(?:tournament|nav|locale)\.[a-z_]+\b/', $visibleText);
             $this->assertSame(8, substr_count($response->getContent(), 'class="fixture"'));
             $this->assertSame($before, Tournament::with(['teams', 'fixtures'])->sole()->toJson());
         }

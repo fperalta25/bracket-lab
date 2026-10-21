@@ -17,18 +17,35 @@
 </select></label>
             </div>
             <div class="scenario-editor" x-show="mode === 'custom'">
-                <h3>{{ __('tournament.round_one') }}</h3>
+                <div class="scenario-actions">
+                    <label>{{ __('scenario.round') }}<select aria-label="{{ __('scenario.round') }}" x-model.number="editingRound" @change="save()">
+                        @foreach ([1, 2, 3, 4, 5] as $round)
+                            <option value="{{ $round }}">{{ __('simulation.round', ['round' => $round]) }}</option>
+                        @endforeach
+                    </select></label>
+                    <button type="button" :disabled="!roundInfo.ready || roundInfo.locked === roundInfo.expected / 2" @click="completeRound()">{{ __('scenario.complete_draw') }}</button>
+                    <button type="button" :disabled="roundInfo.locked === 0" @click="clearRound()">{{ __('scenario.release_round') }}</button>
+                </div>
+                <p class="scenario-summary" x-text="translate('scenario.known').replace(':known', number(roundInfo.participants.length)).replace(':total', number(roundInfo.expected))"></p>
+                <p class="scenario-summary" x-show="!roundInfo.ready">{{ __('scenario.await_results') }}</p>
                 <p class="scenario-summary" x-text="constraintSummary"></p>
                 <div class="scenario-fixtures">
-                    <template x-for="match in roundOneRows" :key="`${match.slot}-${match.selection}`">
+                    <template x-for="match in roundRows" :key="`${match.round}-${match.slot}-${match.teamA}-${match.teamB}-${match.selection}`">
                         <div class="scenario-fixture">
+                            <div class="scenario-match-meta"><span x-text="translate('tournament.fixture').replace(':slot', number(match.slot)).replace(':best_of', number(match.bestOf))"></span><span x-show="editingRound > 1" x-text="match.record"></span></div>
                             <strong x-text="`${currentTeamName(match.teamA)} — ${currentTeamName(match.teamB)}`"></strong>
                             <select :aria-label="translate('scenario.winner').replace(':match', `${currentTeamName(match.teamA)} — ${currentTeamName(match.teamB)}`)" :value="match.selection" x-init="$nextTick(() => $el.value = match.selection)" @change="changeFixture(match.slot, $event.target.value) || ($el.value = match.selection)">
                                 <option value="random">{{ __('scenario.random') }}</option>
                                 <option value="pending">{{ __('scenario.pending') }}</option>
-                                <option :value="match.teamA" x-text="currentTeamName(match.teamA)"></option>
-                                <option :value="match.teamB" x-text="currentTeamName(match.teamB)"></option>
+                                <template x-for="option in scoreOptions(match)" :key="option.value"><option :value="option.value" x-text="option.label"></option></template>
                             </select>
+                            <p class="scenario-summary" x-show="match.games?.length" x-text="translate('scenario.known_games').replace(':count', number(match.games?.length ?? 0))"></p>
+                            <template x-if="match.selection === 'pending' && !match.games?.length"><details class="pairing-editor">
+                                <summary>{{ __('scenario.change_opponent') }}</summary>
+                                <select :aria-label="translate('scenario.opponent').replace(':team', currentTeamName(match.teamA))" :value="match.teamB" x-init="$nextTick(() => $el.value = match.teamB)" @change="changeRival(match.slot, $event.target.value) || ($el.value = match.teamB)">
+                                    <template x-for="team in rivalOptions(match)" :key="team.id"><option :value="team.id" x-text="team.acronym"></option></template>
+                                </select>
+                            </details></template>
                         </div>
                     </template>
                 </div>

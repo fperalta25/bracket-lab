@@ -1,4 +1,6 @@
-import { validateRequest, validateConstraints, SimulationError, type Fixture, type GprSimulationRequest } from '../simulator';
+import { validateRequest, SimulationError, type Fixture, type GprSimulationRequest } from '../simulator';
+
+import { updateSwissScore } from './scenario-rounds';
 
 export const SCENARIO_FILE_LIMIT = 1024 * 1024;
 export interface SavedScenario {
@@ -34,13 +36,6 @@ export function updateRoundOne(request: GprSimulationRequest, slot: number, winn
     const original = request.scenario.fixtures.find(matchesSlot) ?? request.snapshot.fixtures.find(matchesSlot);
     if (!original) throw new SimulationError('invalid_fixture', { round: 1, slot });
     if (winner !== null && winner !== 'random' && winner !== original.teamA && winner !== original.teamB) throw new SimulationError('invalid_score');
-    const fixtures = request.scenario.fixtures.filter((f) => f !== original);
-    if (winner !== 'random') {
-        const base = { id: original.id, stage: original.stage, round: 1, slot, teamA: original.teamA, teamB: original.teamB, bestOf: 1 as const };
-        fixtures.push(winner === null ? { ...base, status: 'scheduled' } : { ...base, status: 'completed',
-            score: { a: Number(winner === original.teamA), b: Number(winner === original.teamB) } });
-    }
-    fixtures.sort((a, b) => a.round - b.round || a.slot - b.slot);
-    validateConstraints(request.snapshot, fixtures);
-    return fixtures;
+    return updateSwissScore(request, 1, slot, winner === 'random' ? 'random' : winner === null ? null
+        : { a: Number(winner === original.teamA), b: Number(winner === original.teamB) });
 }

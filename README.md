@@ -115,8 +115,8 @@ horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado
 
 Fase 1B: forma contextual prospectiva y base de verosimilitud/ESS implementadas; posterior
 y confirmación de ajustes de plantilla pendientes. Fase 2: controles, worker, tablas y
-ejemplo disponibles. Fase 3: escenarios locales y restricciones de R1 disponibles; siguen
-pendientes la edición de emparejamientos/rondas posteriores y la administración de Fase 4.
+ejemplo disponibles. Fase 3: escenarios locales, edición de emparejamientos y resultados
+del suizo R1–R5 disponibles. Siguen pendientes el editor de knockout y la administración de Fase 4.
 
 ## Base GPR v2
 
@@ -348,15 +348,31 @@ exige el mismo torneo/IDs y pasa por los validadores existentes antes de cambiar
 Se abre como copia y no sobrescribe la biblioteca. Los nombres se renderizan como texto.
 Los archivos legacy, versiones desconocidas y restricciones imposibles se rechazan.
 
-Este editor expone R1. Si un archivo contiene rondas posteriores válidas, se conservan sus
-restricciones; cambiar R1 se rechaza si invalida sus participantes. El botón de quitar todos
-los bloqueos permite empezar de nuevo sin retener restricciones invisibles. La edición de
-emparejamientos y el editor de rondas posteriores quedan para el siguiente bloque.
+El editor cubre **R1–R5 del suizo**. En cada ronda, «Completar sorteo» fija los cruces que
+faltan cuando todos los participantes están determinados por resultados previos. Usa el
+mismo muestreador uniforme de emparejamientos completos del motor, con su minimización de
+rematches; no elige rivales de forma codiciosa. Respeta los cruces y marcadores ya fijados.
+El sorteo interactivo es determinista con semilla, ronda y contador local de sorteos;
+los pares resultantes quedan en el JSON y no necesitan recrear ese contador al importar.
 
-Validación: 95 pruebas Vitest, tipos, build, 21 pruebas PHP y Pint. Firefox en ES/EN a
+En un cruce pendiente, «Cambiar rival» intercambia o sustituye rivales en una única operación
+validada. Solo ofrece cambios compatibles con pools, regiones, records y restricciones
+posteriores. No modifica cruces con resultados o games conocidos: primero hay que retirar
+su resultado explícitamente. Bo1 permite fijar ganador; Bo3 ofrece sus cuatro marcadores
+legales y nunca inventa el orden de partidas.
+
+«Liberar ronda» elimina sus restricciones solo si las rondas posteriores siguen siendo
+válidas. Ante un conflicto se indica la ronda afectada; se puede liberarla desde la última
+hacia atrás o usar «Quitar todos los bloqueos». No se borran dependencias en silencio.
+La ronda seleccionada se conserva al cambiar de idioma. Un archivo puede conservar también
+fixtures válidos de knockout; su editor visual queda para el siguiente bloque.
+
+Validación: 106 pruebas Vitest, tipos, build, 21 pruebas PHP y Pint. Firefox en ES/EN a
 360, 768 y 1440 px: ganador fijado respetado por el worker, biblioteca en IndexedDB,
 duplicación/eliminación, exportación ES e importación EN, archivo inválido sin perder trabajo,
 persistencia entre pestañas, idioma y ausencia de desbordamientos o errores JavaScript.
+Recorrido adicional R1–R5: intercambio atómico de rivales, sorteos prematuros bloqueados,
+33 series suizas fijadas, formatos Bo3 por ronda 0/0/4/6/3 y protección de dependencias.
 
 ## Internacionalización
 

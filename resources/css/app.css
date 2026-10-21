@@ -83,7 +83,7 @@ fieldset:disabled { opacity: .65; }
 .simulator input, .simulator select { width: 100%; min-height: 44px; border: 1px solid #46545e; border-radius: 5px; background: #111518; color: #edf1f3; padding: .5rem .65rem; }
 .simulator button { min-height: 44px; cursor: pointer; border-radius: 5px; padding: .5rem .8rem; }
 .simulator :is(button, input, select, summary, .table-scroll):focus-visible { outline: 2px solid #88d3d0; outline-offset: 3px; }
-.simulator button:disabled { cursor: wait; }
+.simulator button:disabled { cursor: not-allowed; opacity: .5; }
 .primary-button { background: #88d3d0; color: #102326; font-weight: 650; margin-top: 1rem; }
 .simulator summary { cursor: pointer; min-height: 44px; padding-block: .6rem; color: #b5c0c7; font-size: .875rem; }
 .settings { margin-top: .5rem; }
@@ -124,3 +124,6 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 .scenario-actions button { border: 1px solid #46545e; }
 .scenario-library input[type="file"] { font-size: .8rem; }
 @media (max-width: 600px) { .scenario-fixtures { grid-template-columns: minmax(0, 1fr); } }
+
+.scenario-match-meta { display: flex; justify-content: space-between; gap: .5rem; color: #a6b4bd; font-size: .7rem; margin-bottom: .35rem; }
+.pairing-editor summary { font-size: .8rem; }

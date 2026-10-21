@@ -117,5 +117,15 @@
     "scenario.error_storage": "Saved scenarios are unavailable. You can export the current scenario as JSON.",
     "scenario.error_file": "Incompatible or invalid file. Use a Bracket Lab GPR scenario of up to 1 MB for the same tournament.",
     "scenario.storage_note": "Saved in this browser. Export important scenarios: the browser may clear them.",
-    "scenario.locked": "Locked by you"
+    "scenario.locked": "Locked by you",
+    "scenario.round": "Swiss round",
+    "scenario.complete_draw": "Complete draw",
+    "scenario.release_round": "Release round",
+    "scenario.known": "Known participants: :known/:total",
+    "scenario.await_results": "Lock earlier results to complete this draw.",
+    "scenario.opponent": ":team’s opponent",
+    "scenario.change_opponent": "Change opponent",
+    "scenario.score_option": ":team · :score",
+    "scenario.error_round": "Incompatible lock in round :round. Release that round or remove all locks to start again.",
+    "scenario.known_games": "Known games: :count"
 }
