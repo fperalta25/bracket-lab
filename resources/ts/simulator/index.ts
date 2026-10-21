@@ -9,3 +9,4 @@ export * from './tournament';
 export * from './aggregate';
 export * from './gpr';
 export * from './contextual';
+export * from './likelihood';
