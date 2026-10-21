@@ -1,4 +1,5 @@
 import { requireCondition } from './errors';
+import type { GameLogProbabilities } from './likelihood';
 import type { GprSimulationRequest, StrengthProfileSet, Team } from './types';
 
 export const GPR_MODEL_VERSION = 'gpr-context-v2';
@@ -17,6 +18,16 @@ export function gprGameProbability(ratingA: number, ratingB: number, denominator
     const difference = ratingA - ratingB;
     const tail = Math.exp(-Math.abs(difference) * (Math.LN10 / denominator));
     return difference >= 0 ? 1 / (1 + tail) : tail / (1 + tail);
+}
+
+/** Stable log probabilities: never take log(1 - a rounded game probability). */
+export function gprGameLogProbabilities(ratingA: number, ratingB: number, denominator = DEFAULT_ELO_DENOMINATOR): GameLogProbabilities {
+    requireCondition(Number.isFinite(ratingA) && Number.isFinite(ratingB), 'invalid_request', { field: 'gpr_rating' });
+    validateDenominator(denominator);
+    const difference = (ratingA - ratingB) * (Math.LN10 / denominator);
+    const correction = Math.log1p(Math.exp(-Math.abs(difference)));
+    return difference >= 0 ? { a: -correction, b: -difference - correction }
+        : { a: difference - correction, b: -correction };
 }
 
 const nonempty = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 500;
