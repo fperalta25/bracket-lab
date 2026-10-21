@@ -2,6 +2,7 @@ import { requireCondition, SimulationError } from './errors';
 import { knockoutSampler } from './knockout';
 import { createPairingSampler, firstRoundSampler, samePair, type PairingSampler } from './pairing';
 import { gameProbability, playSeries } from './series';
+import { gprGameProbability } from './gpr';
 import { applySwissMatch, createSwissState, eliminatedBucket, finalSwissRecords, isActive, recordOf, swissBestOf } from './state';
 import { KNOCKOUT_ROUNDS, SWISS_MATCH_COUNTS, validateRequest } from './validation';
 import { FINAL_BUCKETS, type FinalBucket, type Fixture, type Pair, type PlayedMatch, type RandomSource,
@@ -18,9 +19,15 @@ export interface PreparedSimulation {
 export function prepareSimulation(request: SimulationRequest): PreparedSimulation {
     const fixtures = validateRequest(request);
     const teams = request.snapshot.teams;
-    const powers = Object.fromEntries(teams.map((team) => [team.id,
-        request.powerScores && Object.hasOwn(request.powerScores, team.id) ? request.powerScores[team.id]! : team.powerScore]));
-    const probabilities = new Map(teams.map((a) => [a.id, new Map(teams.map((b) => [b.id, gameProbability(powers[a.id]!, powers[b.id]!, request.variance)]))]));
+    const powers = request.modelVersion === 'legacy-score-v1'
+        ? Object.fromEntries(request.snapshot.teams.map((team) => [team.id,
+            request.powerScores && Object.hasOwn(request.powerScores, team.id) ? request.powerScores[team.id]! : team.powerScore]))
+        : Object.fromEntries(request.strengths.profiles.map((profile) => [profile.teamId,
+            request.gprOverrides && Object.hasOwn(request.gprOverrides, profile.teamId) ? request.gprOverrides[profile.teamId]! : profile.gpr]));
+    const probability = (a: string, b: string): number => request.modelVersion === 'legacy-score-v1'
+        ? gameProbability(powers[a]!, powers[b]!, request.variance)
+        : gprGameProbability(powers[a]!, powers[b]!, request.denominator ?? request.strengths.calibration.eloDenominator);
+    const probabilities = new Map(teams.map((a) => [a.id, new Map(teams.map((b) => [b.id, probability(a.id, b.id)]))]));
     const roundOne = firstRoundSampler(teams, request.snapshot.rules,
         fixtures.filter((fixture) => fixture.stage === 'swiss' && fixture.round === 1).map((fixture) => [fixture.teamA, fixture.teamB]));
     return { request, fixtures, powers, probabilities, roundOne };

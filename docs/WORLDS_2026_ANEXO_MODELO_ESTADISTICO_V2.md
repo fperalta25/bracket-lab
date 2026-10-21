@@ -259,7 +259,7 @@ Comparison A/B: estimate delta per team and, if sharing randomness, its **paired
 ### Numeric and game logic
 
 - For both presets, equal effective ratings → 0.5; `p(A,B)+p(B,A)=1`, finite within [0,1], monotone in GPR diff; no forced 5% floor.
-- With `D=400`, a rating difference of 400 → 90% game win expectation; 0 → 50% (numeric tolerance).
+- With `D=400`, a rating difference of 400 → 10/11 (≈90.91%) game win expectation; 0 → 50% (numeric tolerance).
 - Contextual with **all modifiers and sigmas zero** is exactly the baseline, bit-for-bit under aligned game RNG streams.
 - Tournament form drawn ONCE/team/tournament; series form ONCE/team/series; no leaking a previous series’ momentum, pressure or roster conditions.
 - Variance sampler: empirical mean near zero and variance near configured value across fixed-seed synthetic samples; no spurious fixed-range uniform.

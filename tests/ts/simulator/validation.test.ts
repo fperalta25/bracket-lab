@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { seedSnapshot } from '../../../scripts/seed-snapshot';
-import { prepareSimulation, runSimulations, type Fixture, type SimulationRequest, type TournamentSnapshot } from '../../../resources/ts/simulator';
+import { prepareSimulation, runSimulations, type Fixture, type LegacySimulationRequest, type LegacyTournamentSnapshot } from '../../../resources/ts/simulator';
 
-const input = (): SimulationRequest => ({ snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, variance: 'normal', iterations: 1, seed: 42 });
-const custom = (fixtures: readonly Fixture[]): SimulationRequest => ({ ...input(), scenario: { mode: 'custom', fixtures } });
+const input = (): LegacySimulationRequest => ({ snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, modelVersion: 'legacy-score-v1', variance: 'normal', iterations: 1, seed: 42 });
+const custom = (fixtures: readonly Fixture[]): LegacySimulationRequest => ({ ...input(), scenario: { mode: 'custom', fixtures } });
 
 describe('strict request and snapshot validation', () => {
     it('rejects unsafe iteration counts, invalid seeds, variance and power overrides', () => {
@@ -17,7 +17,7 @@ describe('strict request and snapshot validation', () => {
 
     it('rejects malformed teams, unsupported rules, duplicate IDs and impossible R1 configurations', () => {
         const snapshot = seedSnapshot();
-        const invalid = (value: TournamentSnapshot): void => { expect(() => prepareSimulation({ ...input(), snapshot: value })).toThrow(); };
+        const invalid = (value: LegacyTournamentSnapshot): void => { expect(() => prepareSimulation({ ...input(), snapshot: value })).toThrow(); };
         invalid({ ...snapshot, teams: snapshot.teams.slice(1) });
         invalid({ ...snapshot, teams: [snapshot.teams[1]!, ...snapshot.teams.slice(1)] });
         invalid({ ...snapshot, teams: snapshot.teams.map((team) => ({ ...team, region: 'APAC' as 'LCP' })) });
@@ -32,7 +32,7 @@ describe('strict request and snapshot validation', () => {
         const snapshot = seedSnapshot();
         const oldId = snapshot.teams[0]!.id;
         const rename = (id: string): string => id === oldId ? '__proto__' : id;
-        const renamed: TournamentSnapshot = { ...snapshot,
+        const renamed: LegacyTournamentSnapshot = { ...snapshot,
             teams: snapshot.teams.map((team) => ({ ...team, id: rename(team.id) })),
             fixtures: snapshot.fixtures.map((fixture) => ({ ...fixture, teamA: rename(fixture.teamA), teamB: rename(fixture.teamB) })),
         };

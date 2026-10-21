@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import { seedSnapshot } from '../../../scripts/seed-snapshot';
 import { runSimulations, createRandom, prepareSimulation, simulateTournament, SimulationError,
-    createPairingSampler, FINAL_BUCKETS, SWISS_RECORDS, type Fixture, type SimulationRequest, type TournamentResult } from '../../../resources/ts/simulator';
+    createPairingSampler, FINAL_BUCKETS, SWISS_RECORDS, type Fixture, type LegacySimulationRequest, type TournamentResult } from '../../../resources/ts/simulator';
 
-function request(overrides: Partial<SimulationRequest> = {}): SimulationRequest {
-    return { snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, variance: 'normal', iterations: 10, seed: 42, ...overrides };
+function request(overrides: Partial<LegacySimulationRequest> = {}): LegacySimulationRequest {
+    return { snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, modelVersion: 'legacy-score-v1', variance: 'normal', iterations: 10, seed: 42, ...overrides };
 }
 
 function assertTournament(result: TournamentResult): void {

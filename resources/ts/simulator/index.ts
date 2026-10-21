@@ -7,3 +7,4 @@ export * from './knockout';
 export * from './validation';
 export * from './tournament';
 export * from './aggregate';
+export * from './gpr';

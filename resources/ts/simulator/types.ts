@@ -12,7 +12,36 @@ export interface Team {
     readonly region: Region;
     readonly regionalSeed: number;
     readonly pool: number;
-    readonly powerScore: number;
+}
+
+/** Historical development scores; never interpreted as GPR. */
+export interface LegacyTeam extends Team { readonly powerScore: number }
+
+export interface StrengthProfile {
+    readonly teamId: TeamId;
+    readonly ratingSnapshotId: string;
+    readonly revision: number;
+    readonly gpr: number;
+    readonly consistency: 'high' | 'normal' | 'low';
+    readonly sigmaTournament: number;
+    readonly sigmaSeries: number;
+    readonly pressureElo: number;
+    readonly afterWinElo: number;
+    readonly afterLossElo: number;
+    readonly contextAdjustment: { readonly elo: number; readonly active: boolean; readonly condition: string | null };
+    readonly calibrationStatus: 'experimental';
+    readonly evidence: { readonly key: string; readonly sourceUrl: string };
+}
+
+export interface StrengthProfileSet {
+    readonly schemaVersion: 2;
+    readonly modelVersion: 'gpr-context-v2';
+    readonly id: string;
+    readonly revision: number;
+    readonly dataCutoffDate: string;
+    readonly ratingSnapshot: { readonly id: string; readonly asOf: string; readonly sourceUrl: string; readonly publisher: string };
+    readonly calibration: { readonly eloDenominator: number; readonly status: 'provisional'; readonly calibrationId: null };
+    readonly profiles: readonly StrengthProfile[];
 }
 
 export interface Rules {
@@ -57,20 +86,38 @@ export interface TournamentSnapshot {
     readonly fixtures: readonly Fixture[];
 }
 
+export type LegacyTournamentSnapshot = Omit<TournamentSnapshot, 'teams'> & { readonly teams: readonly LegacyTeam[] };
+
 export type Scenario =
     | { readonly mode: 'from_scratch' }
     | { readonly mode: 'official_state' }
     // A complete local constraints copy, rather than a patch that could silently retain old locks.
     | { readonly mode: 'custom'; readonly fixtures: readonly Fixture[] };
 
-export interface SimulationRequest {
+interface SimulationRequestBase {
     readonly snapshot: TournamentSnapshot;
     readonly scenario: Scenario;
-    readonly powerScores?: Readonly<Record<TeamId, number>>;
-    readonly variance: Variance;
     readonly iterations: number;
     readonly seed: number;
 }
+
+export interface LegacySimulationRequest extends SimulationRequestBase {
+    readonly modelVersion: 'legacy-score-v1';
+    readonly snapshot: LegacyTournamentSnapshot;
+    readonly powerScores?: Readonly<Record<TeamId, number>>;
+    readonly variance: Variance;
+}
+
+export interface GprSimulationRequest extends SimulationRequestBase {
+    readonly modelVersion: 'gpr-context-v2';
+    readonly preset: 'gpr_baseline';
+    readonly strengths: StrengthProfileSet;
+    /** An explicit sensitivity experiment; does not change calibration or individual sigmas. */
+    readonly denominator?: number;
+    readonly gprOverrides?: Readonly<Record<TeamId, number>>;
+}
+
+export type SimulationRequest = LegacySimulationRequest | GprSimulationRequest;
 
 export interface RandomSource {
     next(): number;

@@ -1,5 +1,6 @@
 export type ErrorCode = 'invalid_request' | 'invalid_snapshot' | 'invalid_fixture' | 'invalid_score'
-    | 'invalid_constraints' | 'impossible_pairing' | 'unsupported_format' | 'invariant_violation';
+    | 'invalid_constraints' | 'impossible_pairing' | 'unsupported_format' | 'invariant_violation'
+    | 'incompatible_model' | 'unsupported_model';
 
 export class SimulationError extends Error {
     constructor(public readonly code: ErrorCode, public readonly context: Readonly<Record<string, string | number>> = {}) {

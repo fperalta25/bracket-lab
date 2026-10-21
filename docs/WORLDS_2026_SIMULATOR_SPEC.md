@@ -416,7 +416,7 @@ mostrar agregados, metadatos y torneo de ejemplo reproducible
 
 ### Unitarias del motor
 
-- Ratings efectivos iguales => probabilidad de game 50/50; p(A,B)+p(B,A)=1; al subir GPR de A nunca disminuye su probabilidad. Diferencia de 400 con D=400 => 90% de game.
+- Ratings efectivos iguales => probabilidad de game 50/50; p(A,B)+p(B,A)=1; al subir GPR de A nunca disminuye su probabilidad. Diferencia de 400 con D=400 => 10/11 (≈90,91 %) de game, conforme a la fórmula Elo.
 - Con mismos inputs/semilla **y versión del motor**, resultados bit a bit equivalentes; distinta semilla habitualmente da recorridos diferentes. GPR baseline ≡ contextual con todos los términos desactivados.
 - Una Bo1/Bo3/Bo5 termina respectivamente al alcanzar 1/2/3 victorias, sin partidas extra; la serie reporta ganador y marcador coherente.
 - Primer sorteo: cada equipo aparece una vez, parejas 1↔4 y 2↔3, sin misma región. Miles de draws para detectar infracciones.

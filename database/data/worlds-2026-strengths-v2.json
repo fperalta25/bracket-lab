@@ -1,0 +1,372 @@
+{
+    "schemaVersion": 2,
+    "modelVersion": "gpr-context-v2",
+    "id": "worlds-2026-pre-swiss-experimental-v2",
+    "revision": 1,
+    "dataCutoffDate": "2026-10-21",
+    "ratingSnapshot": {
+        "id": "riot-gpr-2026-10-19",
+        "asOf": "2026-10-19",
+        "sourceUrl": "https://lolesports.com/es-MX/gpr/2026/current",
+        "publisher": "Riot Games / LoL Esports"
+    },
+    "calibration": {
+        "eloDenominator": 400,
+        "status": "provisional",
+        "calibrationId": null
+    },
+    "profiles": [
+        {
+            "teamId": "06f02a6c-11b0-5d05-bdd2-bdbf06f83b51",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1369,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:TLAW",
+                "sourceUrl": "https://pem.lol/lcs/2026/summer/matches"
+            }
+        },
+        {
+            "teamId": "15b25f95-81f8-567b-b970-8a40672d0ce8",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1409,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 3,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:KC",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/World_Championship/2026/Match_Schedule"
+            }
+        },
+        {
+            "teamId": "194a50d9-c2fd-5321-8c21-eb8caa4716dd",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1183,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:LOS",
+                "sourceUrl": "https://gol.gg/teams/team-matchlist/2895/split-ALL/tournament-/"
+            }
+        },
+        {
+            "teamId": "251fc027-f37d-5ab4-a446-e16828b9cd67",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1409,
+            "consistency": "low",
+            "sigmaTournament": 65,
+            "sigmaSeries": 30,
+            "pressureElo": 8,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:DK",
+                "sourceUrl": "https://ewc-web.prod.esf-systems.com/en/competitions/2026/league-of-legends"
+            }
+        },
+        {
+            "teamId": "53fbb58c-22d9-51ee-99cb-e2cc57c89d3e",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1364,
+            "consistency": "low",
+            "sigmaTournament": 65,
+            "sigmaSeries": 30,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": -25,
+                "active": false,
+                "condition": "roster-change-369-substitute-confirmed"
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:TES",
+                "sourceUrl": "https://www.sheepesports.com/en/articles/zuian-unable-to-start-for-top-esports-at-worlds-due-to-visa-issues-369-returns/en"
+            }
+        },
+        {
+            "teamId": "5c30b367-4be5-5f20-84ab-cf279e50c3fc",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1409,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 5,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:AL",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Anyone%27s_Legend/Results"
+            }
+        },
+        {
+            "teamId": "6780c4ad-8ad2-57cc-98a3-9f0873d941e0",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1519,
+            "consistency": "high",
+            "sigmaTournament": 20,
+            "sigmaSeries": 10,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:GEN",
+                "sourceUrl": "https://gol.gg/tournament/tournament-matchlist/LCK%202026%20Season%20Playoffs/"
+            }
+        },
+        {
+            "teamId": "6964de86-53c7-5671-89c0-0175e5115278",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1348,
+            "consistency": "low",
+            "sigmaTournament": 65,
+            "sigmaSeries": 30,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:IG",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/LPL/2026/Regional_Finals"
+            }
+        },
+        {
+            "teamId": "95093b8d-917a-5f94-95ae-4e777755b6b1",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1368,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:TSW",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Secret_Whales/Results"
+            }
+        },
+        {
+            "teamId": "9d41c0ae-a2fa-56ba-b5d1-b9f6acaeedf3",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1322,
+            "consistency": "low",
+            "sigmaTournament": 65,
+            "sigmaSeries": 30,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:MKOI",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Movistar_KOI/Results"
+            }
+        },
+        {
+            "teamId": "a324b5fb-d0bd-5d49-a5aa-0e69eeb5c984",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1424,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 5,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:LYON",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Mid-Season_Invitational/2026/Bracket_Stage"
+            }
+        },
+        {
+            "teamId": "d1d30a42-0f82-5f7a-bc95-1141828cc909",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1471,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 10,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:T1",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/T1/Results"
+            }
+        },
+        {
+            "teamId": "d44353f1-63dc-5fad-839a-de20f6f03602",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1480,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 8,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:G2",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/G2_Esports/Results"
+            }
+        },
+        {
+            "teamId": "de0ec472-4161-5117-ab0b-ab397f12ff07",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1513,
+            "consistency": "high",
+            "sigmaTournament": 20,
+            "sigmaSeries": 10,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:BLG",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/First_Stand_Tournament/2026"
+            }
+        },
+        {
+            "teamId": "e752de21-6f7e-52d4-99a8-86afc6127791",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1314,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 0,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:CFO",
+                "sourceUrl": "https://www.sheepesports.com/en/all/teams/CTBC%20Flying%20Oyster"
+            }
+        },
+        {
+            "teamId": "f604ccbd-6885-5654-82ec-3f4389cd1590",
+            "ratingSnapshotId": "riot-gpr-2026-10-19",
+            "revision": 1,
+            "gpr": 1540,
+            "consistency": "normal",
+            "sigmaTournament": 40,
+            "sigmaSeries": 20,
+            "pressureElo": 10,
+            "afterWinElo": 0,
+            "afterLossElo": 0,
+            "contextAdjustment": {
+                "elo": 0,
+                "active": false,
+                "condition": null
+            },
+            "calibrationStatus": "experimental",
+            "evidence": {
+                "key": "research:HLE",
+                "sourceUrl": "https://liquipedia.net/leagueoflegends/Mid-Season_Invitational/2026/Bracket_Stage"
+            }
+        }
+    ]
+}
