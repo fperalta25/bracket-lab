@@ -9,6 +9,16 @@ Fase 0: Laravel 13, PHP 8.4, SQLite, Blade, Alpine, Tailwind 4 y TypeScript con 
 PHPUnit y Vitest preparados. El motor, los escenarios y la administración se implementarán
 en las siguientes fases. Sin despliegue ni CI/CD.
 
+La portada muestra los 16 equipos por pool y los ocho cruces de R1 pendientes, en español
+y con diseño oscuro adaptable. Se identifica como vista previa, sin revisión publicada
+ni resultados calculados. Los datos siguen la especificación, sin consultar fuentes en vivo.
+
+El seeder usa UUID estables y una transacción. Se puede repetir con `php artisan db:seed`:
+crea registros que falten y conserva los existentes, incluidas potencias y marcadores
+editados. No crea usuarios ni contraseñas predeterminadas. Los pools se asignan explícitamente,
+sin derivarlos del seed regional; las puntuaciones iniciales son 50 y no están calibradas.
+No ejecutar `migrate:fresh` sobre datos que se quieran conservar.
+
 ## Arranque local con Fedora y Podman
 
 Requiere Podman y un proveedor Compose (`podman-compose`). No requiere PHP, Composer ni Node
@@ -67,6 +77,23 @@ podman compose run --rm node npm run build
 
 PHPUnit usa SQLite en memoria, sin modificar la base local. También se pueden ejecutar
 los comandos npm en el anfitrión con Node >=22.12 y `npm ci`.
+
+Las pruebas cubren persistencia e idempotencia del seeder, cruces exactos, pools/regiones,
+ausencia de resultados inventados, portada sin sesión, estado vacío y escape de nombres.
+Vitest comprueba la coherencia del conjunto de datos inicial; las pruebas del motor
+se incorporarán al implementarlo en la Fase 1.
+
+Validación manual: abrir la portada, comprobar ocho cruces pendientes y cuatro pools
+con cuatro equipos, navegar con Tab y probar 360 px, tablet y escritorio. El sitio no
+debe desplazar horizontalmente toda la página. Antes de ejecutar una simulación en futuras
+fases, el motor deberá superar las invariantes de la especificación.
+
+Fase 0 verificada en Fedora/Podman: 7 pruebas PHP (86 aserciones), 3 pruebas Vitest,
+Pint, TypeScript y build. Comprobación en Firefox a 360, 768 y 1440 px: sin desbordamiento
+horizontal, cookies ni errores JavaScript; enlace de salto accesible con teclado.
+
+Siguiente paso: Fase 1, dominio y motor TypeScript puro con semilla, series, sorteos
+completos válidos y pruebas de invariantes. Las probabilidades y el worker llegarán después.
 
 ## Organización
 
