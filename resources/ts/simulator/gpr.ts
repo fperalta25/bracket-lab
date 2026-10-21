@@ -3,6 +3,7 @@ import type { GprSimulationRequest, StrengthProfileSet, Team } from './types';
 
 export const GPR_MODEL_VERSION = 'gpr-context-v2';
 export const GPR_ENGINE_VERSION = 'swiss16-gpr-baseline-keyed-v2';
+export const CONTEXTUAL_ENGINE_VERSION = 'swiss16-contextual-prior-keyed-v1';
 export const DEFAULT_ELO_DENOMINATOR = 400;
 
 export function validateDenominator(value: number): void {
@@ -54,13 +55,27 @@ export function validateStrengthProfiles(set: StrengthProfileSet, teams: readonl
         const adjustment = profile.contextAdjustment;
         requireCondition(adjustment && bounded(adjustment.elo, -100, 100) && typeof adjustment.active === 'boolean'
             && (adjustment.condition === null || nonempty(adjustment.condition)), 'invalid_request', context);
-        // Context execution and roster confirmation are a separate milestone. Never silently apply them.
-        requireCondition(!adjustment.active, 'unsupported_model', { ...context, reason: 'context_not_implemented' });
+        // Roster confirmation remains a separate milestone. Never silently activate an unverified adjustment.
+        requireCondition(!adjustment.active, 'unsupported_model', { ...context, reason: 'roster_confirmation_required' });
     }
 }
 
 export function validateGprRequest(request: GprSimulationRequest): void {
-    requireCondition(request.preset === 'gpr_baseline', 'unsupported_model', { field: 'preset' });
+    requireCondition(['gpr_baseline', 'contextual_v1'].includes(request.preset), 'unsupported_model', { field: 'preset' });
+    if (request.preset === 'contextual_v1') {
+        const terms = request.contextualTerms;
+        const keys = ['tournamentForm', 'seriesForm', 'pressure', 'sequence'] as const;
+        requireCondition(terms && typeof terms === 'object' && !Array.isArray(terms)
+            && Object.keys(terms).length === keys.length && keys.every((key) => typeof terms[key] === 'boolean'),
+        'invalid_request', { field: 'contextual_terms' });
+        const fixtures = request.scenario.mode === 'from_scratch' ? [] : request.scenario.mode === 'official_state'
+            ? request.snapshot.fixtures : request.scenario.fixtures;
+        // No prior-only forecast may masquerade as inference conditioned on observed games.
+        requireCondition(!fixtures.some((fixture) => fixture.status === 'completed' || (fixture.games?.length ?? 0) > 0),
+            'unsupported_model', { reason: 'contextual_posterior_required' });
+    } else {
+        requireCondition(request.contextualTerms === undefined, 'incompatible_model', { field: 'contextual_terms' });
+    }
     requireCondition(!('variance' in request) && !('powerScores' in request), 'incompatible_model', { reason: 'legacy_fields' });
     requireCondition(request.snapshot.teams.every((team) => !Object.hasOwn(team, 'powerScore') && !Object.hasOwn(team, 'power_score')),
         'incompatible_model', { reason: 'legacy_team_scores' });

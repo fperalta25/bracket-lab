@@ -19,11 +19,11 @@ describe('GPR baseline integration and compatibility', () => {
             .toBe('b5a0987c12e58b01c2c55d1645122afe9f1a0f5f8771dec97880caf76dabf4fc');
     });
 
-    it('rejects unversioned, mixed and unsupported contextual requests without reinterpretation', () => {
+    it('rejects unversioned, mixed and unknown preset requests without reinterpretation', () => {
         const legacy = { snapshot: seedSnapshot(), scenario: { mode: 'official_state' }, variance: 'normal', iterations: 1, seed: 42 };
         expect(() => runSimulations(legacy as SimulationRequest)).toThrow('incompatible_model');
         expect(() => runSimulations({ ...gprSeedRequest(), powerScores: { x: 50 } } as unknown as SimulationRequest)).toThrow('incompatible_model');
-        expect(() => runSimulations({ ...gprSeedRequest(), preset: 'contextual_v1' } as unknown as SimulationRequest)).toThrow('unsupported_model');
+        expect(() => runSimulations({ ...gprSeedRequest(), preset: 'unknown' } as unknown as SimulationRequest)).toThrow('unsupported_model');
         expect(() => runSimulations({ ...gprSeedRequest(), strengths: undefined } as unknown as SimulationRequest)).toThrow('invalid_request');
     });
 

@@ -53,3 +53,13 @@ export function createTournamentRandom(seed: number, simulationIndex: number): T
         && Number.isSafeInteger(simulationIndex) && simulationIndex >= 0, 'invalid_request', { field: 'random_key' });
     return { simulationIndex, stream: (family, ...keys) => createKeyedRandom(seed, simulationIndex, family, ...keys) };
 }
+
+/** Box–Muller cosine transform v1; midpoint uniforms avoid log(0), without clipping tails. */
+export function standardNormal(random: Pick<RandomSource, 'next'>): number {
+    const openUniform = (): number => {
+        const value = random.next();
+        requireCondition(Number.isFinite(value) && value >= 0 && value < 1, 'invalid_request', { field: 'normal_uniform' });
+        return (Math.floor(value * 0x1_0000_0000) + 0.5) / 0x1_0000_0000;
+    };
+    return Math.sqrt(-2 * Math.log(openUniform())) * Math.cos(2 * Math.PI * openUniform());
+}
