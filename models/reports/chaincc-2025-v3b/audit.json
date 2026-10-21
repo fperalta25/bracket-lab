@@ -1,0 +1,1523 @@
+{
+  "audit_version": "chaincc-audit-v1",
+  "canonical_games": 9573,
+  "canonical_sha256": "f5eb528f03485e031c5662ecb4fb04562e9022452ff7ad4a68e82fd97d6cc02e",
+  "coverage_by_league": {
+    "AL": 280,
+    "AL Promotion": 10,
+    "ASI": 42,
+    "Asia Master": 180,
+    "CD": 226,
+    "CD Qualifier": 12,
+    "CT": 50,
+    "DCup": 69,
+    "EBL": 176,
+    "EBL Promotion": 5,
+    "EM": 440,
+    "EWC": 33,
+    "FST": 35,
+    "HC": 200,
+    "HLL": 217,
+    "HM": 190,
+    "HW": 106,
+    "IC": 26,
+    "KeSPA": 53,
+    "LAS": 489,
+    "LCK": 555,
+    "LCKC": 542,
+    "LCP": 273,
+    "LCP Promotion": 18,
+    "LEC": 306,
+    "LFL": 306,
+    "LFL Promotion": 12,
+    "LFL2": 218,
+    "LIT": 139,
+    "LJL": 122,
+    "LPL": 805,
+    "LPLOL": 110,
+    "LRN": 135,
+    "LRS": 134,
+    "LTA": 40,
+    "LTA N": 189,
+    "LTA N Promotion": 24,
+    "LTA S": 194,
+    "LTA S Promotion": 28,
+    "LVP SL": 254,
+    "LVP SL Promotion": 10,
+    "MSI": 80,
+    "NACL": 251,
+    "NACL Promotion": 25,
+    "NEXO": 151,
+    "NLC": 249,
+    "PCS": 287,
+    "PRM": 291,
+    "PRM Promotion": 12,
+    "PRMP": 53,
+    "RL": 240,
+    "ROL": 208,
+    "TCL": 240,
+    "VCS": 137,
+    "WLDs": 96
+  },
+  "cutoff_rule": "event_start_utc < cutoff_utc",
+  "cutoff_utc": "2026-10-21T00:00:00+00:00",
+  "date_range_utc": [
+    "2025-01-11T11:11:24+00:00",
+    "2025-12-29T10:52:27+00:00"
+  ],
+  "excluded_games": {
+    "missing_team_id": 480
+  },
+  "games_with_complete_observed_lineups": 9573,
+  "input_rows": {
+    "players": 100530,
+    "teams": 20106
+  },
+  "limitations": [
+    "Source dates have no timezone; explicit timezone is an assumption.",
+    "No verified series IDs/best-of; all games excluded from momentum corpus.",
+    "Player names are not stable IDs; rosters are observed lineups only.",
+    "Availability times, historical GPR, regions and alias validity are unverified."
+  ],
+  "lineup_issues": {},
+  "missing_cells": {
+    "players": {
+      "assists": 0,
+      "assistsat10": 8170,
+      "assistsat15": 8170,
+      "champion": 0,
+      "controlwardsbought": 0,
+      "csat10": 8170,
+      "csat15": 8170,
+      "csdiffat10": 8170,
+      "csdiffat15": 8170,
+      "cspm": 0,
+      "damagemitigatedperminute": 8170,
+      "damageshare": 0,
+      "damagetakenperminute": 0,
+      "damagetochampions": 0,
+      "damagetotowers": 8170,
+      "date": 0,
+      "deaths": 0,
+      "deathsat10": 8170,
+      "deathsat15": 8170,
+      "doublekills": 8170,
+      "dpm": 0,
+      "earned_gpm": 0,
+      "earnedgold": 0,
+      "earnedgoldshare": 0,
+      "firstblood": 0,
+      "firstbloodkill": 0,
+      "game_id": 0,
+      "gamelength": 0,
+      "goldat10": 8170,
+      "goldat15": 8170,
+      "golddiffat10": 8170,
+      "golddiffat15": 8170,
+      "kills": 0,
+      "killsat10": 8170,
+      "killsat15": 8170,
+      "league": 0,
+      "minionkills": 0,
+      "monsterkills": 0,
+      "opponent_team_name": 0,
+      "patch": 0,
+      "pentakills": 8170,
+      "playername": 0,
+      "playoffs": 0,
+      "position": 0,
+      "quadrakills": 8170,
+      "result": 0,
+      "side": 0,
+      "split": 14390,
+      "team_name": 0,
+      "teamdeaths": 0,
+      "teamkills": 0,
+      "total_cs": 0,
+      "totalgold": 0,
+      "triplekills": 8170,
+      "visionscore": 0,
+      "vspm": 0,
+      "wardskilled": 0,
+      "wardsplaced": 0,
+      "wcpm": 0,
+      "wpm": 0,
+      "xpat10": 8170,
+      "xpat15": 8170,
+      "xpdiffat10": 8170,
+      "xpdiffat15": 8170,
+      "year": 0
+    },
+    "teams": {
+      "ban1": 67,
+      "ban2": 47,
+      "ban3": 61,
+      "ban4": 119,
+      "ban5": 122,
+      "barons": 0,
+      "bo_format": 20106,
+      "ckpm": 0,
+      "csdiffat10": 0,
+      "csdiffat15": 0,
+      "cspm": 0,
+      "date": 0,
+      "deathsat10": 0,
+      "deathsat15": 0,
+      "dpm": 0,
+      "dragons": 0,
+      "earned_gpm": 0,
+      "earnedgold": 0,
+      "elders": 0,
+      "first_pick": 0,
+      "firstbaron": 0,
+      "firstblood": 0,
+      "firstdragon": 0,
+      "firstherald": 0,
+      "firstmidtower": 0,
+      "firsttothreetowers": 0,
+      "firsttower": 0,
+      "game_id": 0,
+      "game_in_match": 20106,
+      "game_number": 0,
+      "gamelength": 0,
+      "goldat10": 0,
+      "goldat15": 0,
+      "golddiffat10": 0,
+      "golddiffat15": 0,
+      "heralds": 0,
+      "inhibitors": 0,
+      "kills": 0,
+      "killsat10": 0,
+      "killsat15": 0,
+      "league": 0,
+      "match_in_series": 20106,
+      "opp_barons": 0,
+      "opp_dragons": 0,
+      "opp_elders": 0,
+      "opp_heralds": 0,
+      "opp_inhibitors": 0,
+      "opp_towers": 0,
+      "opp_turretplates": 0,
+      "opp_void_grubs": 0,
+      "opponent_team_name": 0,
+      "patch": 0,
+      "pick1": 0,
+      "pick2": 0,
+      "pick3": 0,
+      "pick4": 0,
+      "pick5": 0,
+      "playoffs": 0,
+      "result": 0,
+      "side": 0,
+      "split": 2878,
+      "team_id": 604,
+      "team_kpm": 0,
+      "team_name": 0,
+      "teamdeaths": 0,
+      "teamkills": 0,
+      "totalgold": 0,
+      "towers": 0,
+      "turretplates": 0,
+      "void_grubs": 0,
+      "vspm": 0,
+      "xpdiffat10": 0,
+      "xpdiffat15": 0,
+      "year": 0
+    }
+  },
+  "momentum_eligible_games": 0,
+  "observed_team_names": {
+    "oe:team:007a3c4175ca4f86d9dc49e4f2e9cf8": [
+      "GOAL"
+    ],
+    "oe:team:0092987a7da75e9fd0cbf8110d10b76": [
+      "West Point Esports"
+    ],
+    "oe:team:009345cfebfe411229f8fad11210219": [
+      "Blue Otter"
+    ],
+    "oe:team:00ae39840233a9dc8db235166c32ba7": [
+      "DN SOOPers Academy"
+    ],
+    "oe:team:01d50b1de5bdc717131b31c64378a5b": [
+      "Zena Esports"
+    ],
+    "oe:team:038e73f25fcaf350481353bf5879c38": [
+      "Venus Gaming"
+    ],
+    "oe:team:03e2d2e3168da8b4e8f381342cb59cb": [
+      "Team Paradox"
+    ],
+    "oe:team:0410783728358f6e711de31a6f1e8f9": [
+      "Kaufland Hangry Knights"
+    ],
+    "oe:team:048e91c09583c84485494a087471c3f": [
+      "CCG Esports"
+    ],
+    "oe:team:04b0bb961538735de30f92ad6e7cc60": [
+      "Fox Gaming"
+    ],
+    "oe:team:04bb54d81b8d6daaaf0eee289e9eb03": [
+      "Myth Esports"
+    ],
+    "oe:team:056c3140a119e44a03d462e2c832f27": [
+      "EDward Gaming"
+    ],
+    "oe:team:06554c70cfe8a6be14b004b3c18abe6": [
+      "Entropiq"
+    ],
+    "oe:team:068598211100000c050b32c63748313": [
+      "Lotus"
+    ],
+    "oe:team:070a0f7f26241f1269bfa3e8f787920": [
+      "BBL Dark Passage"
+    ],
+    "oe:team:073b31b12492884d29b3fd73a5747f4": [
+      "Corinthians Esports"
+    ],
+    "oe:team:0777dce04475528bdf4062724306b06": [
+      "FlameHard"
+    ],
+    "oe:team:0916b3c324c8577b0c6344f3e067f62": [
+      "CTBC Flying Oyster"
+    ],
+    "oe:team:0957b09f054bf983fcc61228d919bef": [
+      "Leões Porto Salvo Esports"
+    ],
+    "oe:team:0a7053bdd5648d8ffb85d0847224110": [
+      "Divernex"
+    ],
+    "oe:team:0d770dff428cbc855c233b749e4016e": [
+      "Howl Esports"
+    ],
+    "oe:team:0dbb780176ecad18f17292d1f5653af": [
+      "Dignitas"
+    ],
+    "oe:team:0f0f407ca567fc73cc83d541ef45731": [
+      "Fuego"
+    ],
+    "oe:team:0f4b80bdd31dfd1bda297b891e65672": [
+      "Vancouver Impact"
+    ],
+    "oe:team:101f8589e58c724c1dcd5a9c1555277": [
+      "DRX"
+    ],
+    "oe:team:105f13a20172b3dbd963c7738617873": [
+      "Bushido Wildcats"
+    ],
+    "oe:team:10b956b9c5ac7a1d0bf3ded8a12a78a": [
+      "Zeu5 Esports"
+    ],
+    "oe:team:11f71a8417e4fd5046fd34c56e219fa": [
+      "VARREL YOUTH"
+    ],
+    "oe:team:125fc4d6b0dc1b21596f4f06a207d62": [
+      "Zero Tenacity"
+    ],
+    "oe:team:1285e1c04d54de96502f12da4d49458": [
+      "Team Heretics"
+    ],
+    "oe:team:13542a31d4dadc538d24058317fded8": [
+      "CITA Kaizen"
+    ],
+    "oe:team:13697a0e9b7df2bbb787cca7b9fd140": [
+      "Jörmungang"
+    ],
+    "oe:team:13d34a1eae195b0b8cb9f52b2030f32": [
+      "SK Gaming Avarosa"
+    ],
+    "oe:team:147e28c0910250269fbc430f9f42010": [
+      "DMG Esports"
+    ],
+    "oe:team:14ef7370c4cbc9bc08a771e3f7cbb4d": [
+      "KT Rolster Academy"
+    ],
+    "oe:team:196ea640b81c54e20e32b6294ab9769": [
+      "Misa Esports"
+    ],
+    "oe:team:1a8e68df382d846453238948a6f6f2f": [
+      "Sportia Khore"
+    ],
+    "oe:team:1b3d369ddd1fc986db6f3bde56d5131": [
+      "Xibalbá Esports"
+    ],
+    "oe:team:1b4462a50541e063fc148be4082fd0b": [
+      "Lupus Esports"
+    ],
+    "oe:team:1b9ffe897d79c81c5deeca9e3c78f69": [
+      "AaB Esport"
+    ],
+    "oe:team:1c81857b6ce6a3c1cd9220fd97e077f": [
+      "Estral Esports"
+    ],
+    "oe:team:1ea3ba0a6fe2a84009902077124947c": [
+      "CORE 128"
+    ],
+    "oe:team:1ff3f5c94edd806e1fed4105fc48995": [
+      "Geekay Esports"
+    ],
+    "oe:team:20ac802b980b4a0e33e933f3a5f9505": [
+      "Team Mentality"
+    ],
+    "oe:team:20edec57649c30e1ed81e4b42634ac1": [
+      "BNK FEARX Youth"
+    ],
+    "oe:team:21903b00a2d96c19ca87cb0e4b28527": [
+      "SPIKE Syndicate"
+    ],
+    "oe:team:2506f4369f41031c5ae85640da9f749": [
+      "LNG Academy"
+    ],
+    "oe:team:254c1e7c80edaef162a904cdefa435c": [
+      "Never Give Up"
+    ],
+    "oe:team:257377cff6d20cc978872f83d3da049": [
+      "ULF Esports"
+    ],
+    "oe:team:269606077846efea08be23b544de829": [
+      "Lechuga Gaming"
+    ],
+    "oe:team:26ff1a9f7fb8e976fbdcc5d2a8ac397": [
+      "E WIE EINFACH E-SPORTS"
+    ],
+    "oe:team:289284911fb6f41c0ccaecc3a0c2891": [
+      "Disguised"
+    ],
+    "oe:team:2a5e5fceaa40b335ebc6b49359abf62": [
+      "Hanwha Life Esports Challengers"
+    ],
+    "oe:team:2ab090cf81f9367248a25ca61a1568a": [
+      "Seven Dark"
+    ],
+    "oe:team:2acbd6362cc5096e13641bd088a72a6": [
+      "Hanwha Life Esports Academy"
+    ],
+    "oe:team:2ad193e149f9f0f9252490fa3f62a65": [
+      "GenZ Gaming"
+    ],
+    "oe:team:2b20d0fcdb72f7b490eb1dc468136cf": [
+      "Rich Gang"
+    ],
+    "oe:team:2b5d8344f95980c907bc6d7e7e59777": [
+      "Pulse Star"
+    ],
+    "oe:team:2bcca6d95dbad6ed6d3e7479522e19d": [
+      "Green Dolphin Gaming"
+    ],
+    "oe:team:2d02ba0b874367692a25110f0e321f6": [
+      "Universae Instituto FP"
+    ],
+    "oe:team:2d096df29ab7e32950c86e0d72fc986": [
+      "Los Ratones"
+    ],
+    "oe:team:2d1b8a518ba70fe8352fb0fdd8aec1a": [
+      "Barça eSports"
+    ],
+    "oe:team:2d2d70decb08dfb9bd23327e33e4198": [
+      "CTBC Flying Oyster Academy"
+    ],
+    "oe:team:2e66da41dc460dd378e3bcc57042d31": [
+      "FlyQuest"
+    ],
+    "oe:team:2f576c94aad38903992aa950e957d4c": [
+      "AKA HERO"
+    ],
+    "oe:team:2facdac25fac9b0db3b80bf3a089e88": [
+      "Sicar Esports"
+    ],
+    "oe:team:302fced4d92a9b83cb5784fd6f3b548": [
+      "Zerance"
+    ],
+    "oe:team:30df0dfdb026bb1ba035c39546b1763": [
+      "Footprint Gaming"
+    ],
+    "oe:team:30fa9a41992f6d79206892a5af03a43": [
+      "All for One Gaming"
+    ],
+    "oe:team:312ee76ca74cbb5cb984d8b71ef4847": [
+      "GameWard"
+    ],
+    "oe:team:314949f363d8e988f61dccc0cd7a121": [
+      "REDPack Esports"
+    ],
+    "oe:team:316e1fa1536df09f54d4b2885a11855": [
+      "Ethereal Enigmas"
+    ],
+    "oe:team:32cd49a197bd08d99b16fe354e1f758": [
+      "T1 Esports Academy Rookies"
+    ],
+    "oe:team:331c852427c61f82050b618c2b442c4": [
+      "BoostGate Esports"
+    ],
+    "oe:team:333ba9fefa87eda14bd32c5420d7002": [
+      "Winthrop University"
+    ],
+    "oe:team:33d17f3717f58e12a3da80b377221fb": [
+      "FunPlus Phoenix"
+    ],
+    "oe:team:33ef9e523e6474ddd4833d4ad1bc8d7": [
+      "Eternal Fire"
+    ],
+    "oe:team:343268a42863e8fc2767e02e4042de8": [
+      "Karmine Corp Blue Stars"
+    ],
+    "oe:team:34d6d3e3a9181eaf86aa2c8ed613e93": [
+      "DarkZero Dragonsteel"
+    ],
+    "oe:team:35b8b37ab87d44db8717e12c2164e2e": [
+      "Andromeda Gaming"
+    ],
+    "oe:team:35d740411d9f9072f939b1faf33a6e2": [
+      "Colossal Gaming"
+    ],
+    "oe:team:3659b5cb3434354530c31ce71461fc1": [
+      "GTZ Esports"
+    ],
+    "oe:team:374ab80ad8c28c38cd170e188e4aca8": [
+      "LUA Gaming"
+    ],
+    "oe:team:37bd385fc057edaaa06e0aa102f6d74": [
+      "Dorado Gaming"
+    ],
+    "oe:team:38c2ea4d918763cd207dc83af5b1f7f": [
+      "Icon Esports"
+    ],
+    "oe:team:38eebf1d7f1cbc9ee434d8bea9b33cc": [
+      "Hurricane of Feathers"
+    ],
+    "oe:team:391e50581a00cea9f06b2d845b4de05": [
+      "RED Academy"
+    ],
+    "oe:team:39542800e26e148906d1b2ec4cebc75": [
+      "DOCISK"
+    ],
+    "oe:team:3a1d18f46bcb3716ebcfcf4ef068934": [
+      "Hanwha Life Esports"
+    ],
+    "oe:team:3a96025b8db516e2c44dbb3c0b31996": [
+      "Actions Per Minute"
+    ],
+    "oe:team:3ab1da3e7d4f6beb00abafe38746ebd": [
+      "Meavedron"
+    ],
+    "oe:team:3de935df8f40fbb4d0e564d4a20e6cb": [
+      "Berlin International Gaming"
+    ],
+    "oe:team:3e67560e364e73283a651ea020aee10": [
+      "BERZLOY"
+    ],
+    "oe:team:3f8b5fec0ab9c72e3b734922cb5b9d2": [
+      "Spirit Quartz Gaming"
+    ],
+    "oe:team:3faefd9245a4ef6ba347fbcf2a51515": [
+      "eSuba"
+    ],
+    "oe:team:402e5fe9cbc5ebb9548e90fa7ffbf87": [
+      "FN Esports"
+    ],
+    "oe:team:4278e8a32eefe381f75ac6d09218de3": [
+      "Anyone's Legend.Young"
+    ],
+    "oe:team:42bf6c1040db8f2221ff017fa4d34e4": [
+      "Karmine Corp Blue"
+    ],
+    "oe:team:42c61eed1dbfc09e86376ebdf7adaab": [
+      "Mila Gaming"
+    ],
+    "oe:team:42c66b75a01e703aa898e9c22ad6ce1": [
+      "Otter Side"
+    ],
+    "oe:team:4349ed857362135b73b20e8b27c4114": [
+      "GIANTX iTero"
+    ],
+    "oe:team:4357a4653fdbc55e280d270149527c8": [
+      "Epic Avalanche"
+    ],
+    "oe:team:43f25072c76f508a376e1fb312a2da9": [
+      "Fantastic Esports"
+    ],
+    "oe:team:4410ecf1b88f1316b6e6c110120c896": [
+      "Gamespace Mediterranean College Esports"
+    ],
+    "oe:team:45c362a0cfc4b81f597b5ab89250df5": [
+      "Fluxo W7M"
+    ],
+    "oe:team:48199c3e87ac9d14cdf50169f8eaabc": [
+      "Eintracht Frankfurt"
+    ],
+    "oe:team:4880b157399745e82e26e229d8bbf48": [
+      "PSG Talon"
+    ],
+    "oe:team:48d7941ccbd5b89aca46c57b0c2f8fb": [
+      "Ninjas in Pyjamas"
+    ],
+    "oe:team:495b0c22a5bb88860c66182df70ebf2": [
+      "CGN Esports"
+    ],
+    "oe:team:4acc40654379b4da680be1bd3129dfa": [
+      "Movistar KOI"
+    ],
+    "oe:team:4b18f21ecb033ffc21880a9c6c7fef6": [
+      "HUTECH CHICKEN"
+    ],
+    "oe:team:4bd1751425ef6a9bc9d4d8e9385b4a6": [
+      "100 Thieves"
+    ],
+    "oe:team:4c8ce94c32c391c558644af9a3cd884": [
+      "Yang Yang Gaming"
+    ],
+    "oe:team:4c9dd0212552afe76315b616b7891f5": [
+      "Gen.G Global Academy"
+    ],
+    "oe:team:4ccccd4b7c3dba7d799d52c4b78634d": [
+      "Bulldog Esports"
+    ],
+    "oe:team:4d7210b1c06aa728a46dc1aa2544830": [
+      "SN CyberCore Esports"
+    ],
+    "oe:team:4dfc9a0f1a6e1f2fcd8169ad3cdc5da": [
+      "Bilibili Gaming Junior"
+    ],
+    "oe:team:4e0dd298cbb6e92265a616c94a4553a": [
+      "Vietnam (National Team)"
+    ],
+    "oe:team:4f19751f9f051533995772897da2d77": [
+      "Beşiktaş Esports"
+    ],
+    "oe:team:50074114f4e5791ba2bda471c1baa3c": [
+      "Falke Esports"
+    ],
+    "oe:team:502996d9790340c5fd7b86a5b93b1c9": [
+      "Priority"
+    ],
+    "oe:team:503cf7645c53c8f084b5cbdec6744a7": [
+      "Dplus Kia Youth"
+    ],
+    "oe:team:50b9075ca20fb326456aded56aa7937": [
+      "Flamengo MDL"
+    ],
+    "oe:team:50c26816bdd3bb2a02def8e11a5cd5a": [
+      "ZETA"
+    ],
+    "oe:team:50f58982d91a36557ec8aec52ab014f": [
+      "Gen.G"
+    ],
+    "oe:team:5203ff881d5c82c5f720eb3a2f3b44c": [
+      "Papara SuperMassive"
+    ],
+    "oe:team:53631bb6fdda56859eabf842cb2e1d5": [
+      "Hyper Vortex Esports"
+    ],
+    "oe:team:53a258f289c26d94431c0496a54e151": [
+      "Invictus Gaming"
+    ],
+    "oe:team:53ef3d5a3ac5d88bc000eff7d87aeb3": [
+      "Leviatan"
+    ],
+    "oe:team:544b70d08c7df83ccb74d08a677b902": [
+      "Back2TheGame"
+    ],
+    "oe:team:548579194cfbf70ae730c1f1c24a013": [
+      "BeFive"
+    ],
+    "oe:team:557e2d6abd8a8896014e4351756c305": [
+      "Weibo Gaming Youth Team"
+    ],
+    "oe:team:55b3d6b2c940afa4e24978c55dfea27": [
+      "DRX Challengers"
+    ],
+    "oe:team:56c54396683c5dac155193fba1da7a5": [
+      "G2 Hel"
+    ],
+    "oe:team:5737b101780a9835142549164be1ac4": [
+      "Isurus"
+    ],
+    "oe:team:58af275511abd4695afad70410859ef": [
+      "Rise Gaming"
+    ],
+    "oe:team:59b228d9fec9b88833bfe5d812ed8ad": [
+      "REJECT"
+    ],
+    "oe:team:59c2016972da2ab6cb47c28ef46a7ba": [
+      "TeamOrangeGaming Academy"
+    ],
+    "oe:team:5c2e7e9ea8dfcba0150d9a5619baecf": [
+      "BNK FEARX"
+    ],
+    "oe:team:5c83cdc1ed8710fd35b1f344ad10a79": [
+      "Stellae Gaming"
+    ],
+    "oe:team:5cd2cd09ec94296f605dd13a2924d6c": [
+      "Nongshim RedForce"
+    ],
+    "oe:team:5e86e312935ad545ee215e67adcee9c": [
+      "GLORE"
+    ],
+    "oe:team:5f401785b6b78326f9a46b3c6b206ed": [
+      "LGD Gaming"
+    ],
+    "oe:team:606c6ac695907af3823ee6405c58ff1": [
+      "Weibo Gaming"
+    ],
+    "oe:team:6100f2588a65a71921d4f8ee206d94e": [
+      "LGD Gaming Young Team"
+    ],
+    "oe:team:61450737f7b683db4da7b3e0bf0dced": [
+      "paiN Gaming"
+    ],
+    "oe:team:622a2f5dc9620cda6c9155119741546": [
+      "Grow uP eSports"
+    ],
+    "oe:team:62c1cd9465dc63824593ee5046f5aa8": [
+      "Team WE"
+    ],
+    "oe:team:6468029fb605bd6fdf1cf866e890739": [
+      "White Dragons"
+    ],
+    "oe:team:64ea90e46b8491a5fca803051d42463": [
+      "Alpha7 Esports"
+    ],
+    "oe:team:64f78960f955a6b659025e38b4f0a18": [
+      "Dplus Kia Challengers"
+    ],
+    "oe:team:65140c73015d004b0456fb43ba373a4": [
+      "WAP Esports"
+    ],
+    "oe:team:658a021a796aa5501503220adb38cf4": [
+      "LOUD"
+    ],
+    "oe:team:659132057bf3872268ec0676b57862b": [
+      "VININE"
+    ],
+    "oe:team:65c534614cdd76c73cbc50c610694f6": [
+      "XV eSports"
+    ],
+    "oe:team:65e4a14c47136e01eaf51e17c56d34f": [
+      "Fortress Esports"
+    ],
+    "oe:team:67169969ecc058b307edfa9c6b7a3c0": [
+      "RED Canids"
+    ],
+    "oe:team:672aa1aa4e9ac51d56830a3652dbc8b": [
+      "Hungkuang Falcon (弘光獵鷹)"
+    ],
+    "oe:team:6881319a341416b43dbb4bdb0d09e78": [
+      "Connect Arena Esports"
+    ],
+    "oe:team:692bccdba8ec7050f5aeb916815439e": [
+      "Chiefs Esports Club"
+    ],
+    "oe:team:6a04b6d8daa2cb0c623e81db686de40": [
+      "EDG Youth Team"
+    ],
+    "oe:team:6a060bd74c9041bf0aa89adf9d15d12": [
+      "Unicorns of Love Sexy Edition"
+    ],
+    "oe:team:6a68fff9fc521e2fbcab2fc19978d24": [
+      "Zerolag Esports"
+    ],
+    "oe:team:6a7710fb4e287e8ef741ab87b070ad0": [
+      "MGN Vikings Academy"
+    ],
+    "oe:team:6a7a3de886a10bd30d57577290fb45e": [
+      "LYON Academy"
+    ],
+    "oe:team:6cd05f0ac20bfb965a59dc8bcc4f184": [
+      "GiantX"
+    ],
+    "oe:team:6d98739f80c37e5b5c2431950983a05": [
+      "LODIS"
+    ],
+    "oe:team:6de6d8914e71cee7639282d362b3127": [
+      "LEO Esports"
+    ],
+    "oe:team:6e322bda09963acbe90845ce95e76f4": [
+      "Team UNiTY"
+    ],
+    "oe:team:6ec5a2c4ca3b81f6c486a6f0e7fc54d": [
+      "Team Meliora"
+    ],
+    "oe:team:6ef01b22224b92f917d70dd9f33568b": [
+      "NORD Esports"
+    ],
+    "oe:team:70afb41e202f4d1ca2803e34f42898c": [
+      "Apex Predator"
+    ],
+    "oe:team:71bd93fd1eab2c2f4ba60305ecabce2": [
+      "Team Valiant"
+    ],
+    "oe:team:731b7a9fd004cdbe2bcb3da795bce47": [
+      "T1 Esports Academy"
+    ],
+    "oe:team:7338408a0fe0217451d2c9a567db999": [
+      "Team BDS"
+    ],
+    "oe:team:7380b73561abdd86c2391e9481acd4b": [
+      "Joblife"
+    ],
+    "oe:team:73c73a123b43e071470729f74ef2022": [
+      "Burning Core Toyama"
+    ],
+    "oe:team:73f3126d91d35faa5d5ce34abadb865": [
+      "Royal Never Give Up"
+    ],
+    "oe:team:740de582f50775c516c77ed7b923fd5": [
+      "Team Secret Whales"
+    ],
+    "oe:team:746e6715fc4295c54954be5efc385af": [
+      "UCAM Esports"
+    ],
+    "oe:team:748b9d7b874398c8e24425c73659ef6": [
+      "Inferno Esports"
+    ],
+    "oe:team:75760dca486d4682426196b76bd1a54": [
+      "SK Gaming"
+    ],
+    "oe:team:75a4d34e4afac036d164b0f1a580486": [
+      "Team Phantasma"
+    ],
+    "oe:team:785213aebf3ebc4bf4e9aeef665d698": [
+      "Nightbirds"
+    ],
+    "oe:team:788115a84f68bc65fa6d3a4e0f67a3e": [
+      "Ground Zero Gaming"
+    ],
+    "oe:team:78f183fa5a7d8ecb22b9ad272c3abd7": [
+      "Fnatic"
+    ],
+    "oe:team:7937668325b3c4ee54f8e52256479bb": [
+      "Fractious eSports"
+    ],
+    "oe:team:79fc65ce199f2e4fe97e277bdef6695": [
+      "ZennIT"
+    ],
+    "oe:team:7a65b3713141bd998414190ac4c00bc": [
+      "Evil genius"
+    ],
+    "oe:team:7b1122e1f5214e276149b7c5a417861": [
+      "Hanoi Rookies Esports"
+    ],
+    "oe:team:7c1df37eb66c8c498b823787634c4bc": [
+      "PSG Talon Academy"
+    ],
+    "oe:team:7c64febcd5ccff13dcd035dc6867a00": [
+      "Nongshim Esports Academy"
+    ],
+    "oe:team:7d2c778dc03e3fe0db9e45a57895b88": [
+      "Ici Japon Corp. Esport"
+    ],
+    "oe:team:7d6673d3a9d00363c6bebc1a630da6e": [
+      "G2 Esports"
+    ],
+    "oe:team:7e3dd5ff49e1a44784d225d2de40260": [
+      "inf"
+    ],
+    "oe:team:7e406cba1b8a226c8851b874815ebbe": [
+      "Brod n Friends"
+    ],
+    "oe:team:7e56e9367c023df96cc8257ff4e16c0": [
+      "Deep Cross Gaming"
+    ],
+    "oe:team:7e7a493811702587ac939452a0333c3": [
+      "Farenvehn"
+    ],
+    "oe:team:7ec8796996a3f88bc9c94d9214ef13f": [
+      "Nocturne Gale"
+    ],
+    "oe:team:7f7029733ab4c308a8207fb80714b5f": [
+      "Dragons Esports"
+    ],
+    "oe:team:804b7284c54110d826f11a5a521ab69": [
+      "SDM Tigres"
+    ],
+    "oe:team:8065dbb2f6c7eb09df70a55bea52136": [
+      "Diversion Gaming"
+    ],
+    "oe:team:829dfe12e8897e57883e53610867b8e": [
+      "KAOS e-sport"
+    ],
+    "oe:team:82a01ce538c539d0c25e85a336b70c1": [
+      "The Secret Club"
+    ],
+    "oe:team:82e3504486eabe3575dc4b5ff507451": [
+      "BWE Esports"
+    ],
+    "oe:team:845f7165c7cdaad9d2a2d764375d0df": [
+      "DetonatioN FocusMe Academy"
+    ],
+    "oe:team:84bc703e28859788770611d94cf02ac": [
+      "IziDream"
+    ],
+    "oe:team:85bf857a01b615a257739e34d9f0720": [
+      "Team WE Academy"
+    ],
+    "oe:team:86318836d208e1ac7c6cc6ae0d4afbe": [
+      "Gen.G Scholars"
+    ],
+    "oe:team:8694d6c9241ddbc59c68782eb133fc1": [
+      "Dopamina E-Sport"
+    ],
+    "oe:team:86b46a299f5fb0b6af80a07785b2090": [
+      "Fog Esports"
+    ],
+    "oe:team:86dbb7cea91eaf08738bdc93a8442ce": [
+      "Movistar KOI Fénix"
+    ],
+    "oe:team:8776b7033f1bc10634e50d90f861c1d": [
+      "Supernova"
+    ],
+    "oe:team:87e3e1e75839f75a10bbc66e894d806": [
+      "FURIA"
+    ],
+    "oe:team:8b7f6ca4d6c6251072fa4044da4d8b3": [
+      "Magaza Esports"
+    ],
+    "oe:team:8d09428f093dfbf3c488bce350af0b1": [
+      "Ultra Prime"
+    ],
+    "oe:team:8d72ee9185fe0727bf453dd59e38cb2": [
+      "Underworld Esports"
+    ],
+    "oe:team:8e2b0d0cd75672565eb80d7e5beaa92": [
+      "A One Man Army"
+    ],
+    "oe:team:8eb884e168f28402ce685bedebb5250": [
+      "Team Liquid"
+    ],
+    "oe:team:8eb9a212591f919a353abfac0c0a52a": [
+      "Kawaii Kiwis"
+    ],
+    "oe:team:90938c428db11f6e372f5c6833b9743": [
+      "Solary"
+    ],
+    "oe:team:91b412c563fc3316ad48e31547a3143": [
+      "Caldya Esport"
+    ],
+    "oe:team:91c35185025768de7d8aa448933f56c": [
+      "Guasones"
+    ],
+    "oe:team:91e745607dea86d98f6307553e0491d": [
+      "Lundqvist Lightside"
+    ],
+    "oe:team:94223abdc94b7506183935d070fa35d": [
+      "eQuizers"
+    ],
+    "oe:team:957a0b20bb6ce6491d39eb82e5fcb17": [
+      "Frank Esports"
+    ],
+    "oe:team:980ab072663574c2e4fca71f275d302": [
+      "Eintracht Spandau"
+    ],
+    "oe:team:984c3ce601b35d7617ad0bc8570946c": [
+      "QT DIG∞"
+    ],
+    "oe:team:99da90dcff59165c6007c4d57bc47eb": [
+      "Orzeł Barcząca Esports"
+    ],
+    "oe:team:9adc852fe2e027c5e4abd53ae8915ff": [
+      "Team BDS Academy"
+    ],
+    "oe:team:9b09acb83880c52f76efbb9b6d17c2d": [
+      "Senshi eSports"
+    ],
+    "oe:team:9b7f0bef2d0cd003274bb6046b59b98": [
+      "NGU eSports"
+    ],
+    "oe:team:9bcc3882a74d7ec2b66f7067ba31bc3": [
+      "Team Flash"
+    ],
+    "oe:team:9bd7ce113c5d4ff95b1c75205356a3f": [
+      "Team Insidious"
+    ],
+    "oe:team:9c47b9a7c8357263dafdcfb72b1fc11": [
+      "Monta Club"
+    ],
+    "oe:team:9cae7677cd0dbcc1cd86653870b73c2": [
+      "GAM Esports"
+    ],
+    "oe:team:9cb395c39a75579af94c93876a42e9b": [
+      "Los Heretics"
+    ],
+    "oe:team:9d360cb53ceabaf46a078820f7370b5": [
+      "Aurora"
+    ],
+    "oe:team:9e12a15ab90a0a26c7e4e5308d3924c": [
+      "Forsaken"
+    ],
+    "oe:team:a1934e3feca7db728021f9c61a6bc27": [
+      "Austrian Force willhaben"
+    ],
+    "oe:team:a1964e03a2f3d36aecdeccc14a2c89a": [
+      "Zenshi Gaming"
+    ],
+    "oe:team:a1f7a79516b418bae38cd4d5b46903e": [
+      "Tan'i eSports CZ"
+    ],
+    "oe:team:a288f7a515a6cc02f21acdb9b593cf2": [
+      "SINS Esports"
+    ],
+    "oe:team:a2e63aee03585f0b37ff4cad936e349": [
+      "Macko Esports"
+    ],
+    "oe:team:a31fdd71fc715fc1ee4a50fe19e828e": [
+      "HELL PIGS"
+    ],
+    "oe:team:a36eecb3eab2d2a79f411e462878d26": [
+      "KaBuM! Ilha das Lendas"
+    ],
+    "oe:team:a3de49118fc788cc18b33c6db66deb7": [
+      "B2U"
+    ],
+    "oe:team:a599bf4fe20c6be57044f7319b04e3d": [
+      "Guinea Pink"
+    ],
+    "oe:team:a5db7fc71cdcb604a98e6ae9c505b0d": [
+      "Dung Dynasty"
+    ],
+    "oe:team:a66e91a2f91dd5b797328cdebf35039": [
+      "Partizan Sangal"
+    ],
+    "oe:team:a9145b7711873f53e610fbba0493484": [
+      "LNG Esports"
+    ],
+    "oe:team:a97f0277badd5512c40d3f1f8e56909": [
+      "Crusaders"
+    ],
+    "oe:team:a9a549afd3c38f0864a297b85751395": [
+      "Barcząca Esports"
+    ],
+    "oe:team:aa780995928f3f687c5fa7edcf3490e": [
+      "Bastu Five"
+    ],
+    "oe:team:ad003d7f74930eeab29a6029c3b9f52": [
+      "Project Conquerors"
+    ],
+    "oe:team:adcf619d451ca4ce696d1fb0f83bd29": [
+      "NextGeneration Esports"
+    ],
+    "oe:team:aec0318417039b767c3f149d110e44a": [
+      "Clocks"
+    ],
+    "oe:team:af4b23d4634c4e6ecb5659fb1e689e9": [
+      "V3 Esports"
+    ],
+    "oe:team:b19ab22267512e77945cd498106dcf1": [
+      "WLGaming Esports"
+    ],
+    "oe:team:b1a205489742f1e0600c6489b5d15a8": [
+      "BAAM Esports"
+    ],
+    "oe:team:b1db6fe70c0141676d7a2e2660bd869": [
+      "Ruddy Corporation"
+    ],
+    "oe:team:b23a51e14c53108a0de36eb92df2c5a": [
+      "VfB eSports"
+    ],
+    "oe:team:b2834fcfe9befb84ccdf46cb07fd73d": [
+      "StormMedia Fajnie Mieć Skład"
+    ],
+    "oe:team:b33646d7b7b14dd6da17a88f6ddb592": [
+      "Verdant"
+    ],
+    "oe:team:b360f1d729b0a8e0f29a5243c4200fa": [
+      "Shopify Rebellion"
+    ],
+    "oe:team:b3c72a20aa56f5d28022ac04a7dc294": [
+      "DN SOOPers"
+    ],
+    "oe:team:b42d0f31f2727621b963042276817c4": [
+      "JD Gaming"
+    ],
+    "oe:team:b58f7f4a97ead24b49916205613b557": [
+      "Saigon Secret"
+    ],
+    "oe:team:b5e47225b5e13f4d8fc673c8ade41fb": [
+      "Saigon Dino"
+    ],
+    "oe:team:b659295189ec2ddd1a30e39fd3a0bd8": [
+      "Skillcamp"
+    ],
+    "oe:team:b75eada98b0b044c59e748c5a2e59be": [
+      "e-Champ Gaming"
+    ],
+    "oe:team:b77b3f6068e20a2b3edc0ecd3dc70d4": [
+      "HANJIN BRION"
+    ],
+    "oe:team:b9733b8e8aa341319bbaf1035198a28": [
+      "KT Rolster Challengers"
+    ],
+    "oe:team:b9e44c69c1a70fb35df9be96f9eafea": [
+      "Vivo Keyd Stars"
+    ],
+    "oe:team:bae5c5b458ee21472c7f6f270990bfe": [
+      "Veni Vidi Vici"
+    ],
+    "oe:team:bdf46a1aa900f8a91ed9412def4d2f5": [
+      "aNc Legends"
+    ],
+    "oe:team:bf6f1cbd7a25bd88bbfdaf1c20366c1": [
+      "Vivo Keyd Stars Academy"
+    ],
+    "oe:team:bfafe5bf7e0d1e10487b866e11bc421": [
+      "Silent Storm Esports"
+    ],
+    "oe:team:bfd5446b1eba9098e03dfaa63a1c391": [
+      "3BL Esports"
+    ],
+    "oe:team:c2b781ca4585097d9119d3d2f6612be": [
+      "Black Lion"
+    ],
+    "oe:team:c2bd1dd17a070dbbb8df9aefb634a41": [
+      "Inside Games"
+    ],
+    "oe:team:c40f6d0d20a7a718c60342e48c144a2": [
+      "BK ROG Esports"
+    ],
+    "oe:team:c5819326ccf3b14446406bd7ac066c3": [
+      "KIA.eSuba Academy"
+    ],
+    "oe:team:c6aa23f2afcbe6fc281c7bb9b96c843": [
+      "Nigma Galaxy"
+    ],
+    "oe:team:c9d247506c051256fff4babbcfcab82": [
+      "GnG Amazigh"
+    ],
+    "oe:team:ca663b1c89065ae6491db8e9cd5c305": [
+      "One More Esports"
+    ],
+    "oe:team:ca884c91b35e5e37937b19360cf1bbe": [
+      "Los Grandes"
+    ],
+    "oe:team:cb16f95325fffb01e3def68e34480a8": [
+      "Broke"
+    ],
+    "oe:team:ccd089bf173a5fff1063eb0576201a7": [
+      "Vitality.Bee"
+    ],
+    "oe:team:cd62e47544f14f1d239afa659b9d243": [
+      "Rogue"
+    ],
+    "oe:team:ce499dea30cfce118f4fe85da0227e8": [
+      "T1"
+    ],
+    "oe:team:ce75fba240a993403195b79b44636c7": [
+      "The Forbidden Five"
+    ],
+    "oe:team:cea8093762c0842e5bb4a1c2a4f7d66": [
+      "HANJIN BRION Academy"
+    ],
+    "oe:team:d03e93c97146427042dc20fff5de7f1": [
+      "Melilla Titans"
+    ],
+    "oe:team:d17ce7a4192b52f8e1daf94c381c75f": [
+      "Ramboot Club"
+    ],
+    "oe:team:d1b84f96311ecca3c800369ce1e59e4": [
+      "htp eSport Akademie Hannover"
+    ],
+    "oe:team:d2ba9f92d85cff67d60aaad88e61048": [
+      "Natus Vincere"
+    ],
+    "oe:team:d2c27cb51cedbbac1752f1ec81addc4": [
+      "Gentle Mates"
+    ],
+    "oe:team:d356a144644879dabb5f34cd99c886d": [
+      "Bilibili Gaming"
+    ],
+    "oe:team:d455b12f2d0ae8596211073fb17c14d": [
+      "EKO Esports"
+    ],
+    "oe:team:d4c26280fdaf9d5282dd54a0e38056f": [
+      "RATZ"
+    ],
+    "oe:team:d4f8ab0e0740665be5966a24747df61": [
+      "Gaming Barcelona"
+    ],
+    "oe:team:d522e8753c50018adbb82305997c211": [
+      "Cupid Esports"
+    ],
+    "oe:team:d5772fdb1ae7fcc8046fa2e056a8715": [
+      "Malvinas Gaming"
+    ],
+    "oe:team:d58a84867e710510653aaecb2723984": [
+      "PRINCIPALITY"
+    ],
+    "oe:team:d6bba391a1129002440759541df27e0": [
+      "DRX Academy"
+    ],
+    "oe:team:d6c9e669304c9e48286cf0c8c75d7ec": [
+      "Jolly Rogers"
+    ],
+    "oe:team:d6ede6ace357c075af068ccac12ae9f": [
+      "Oh My God Academy"
+    ],
+    "oe:team:d723992568441c6bafa2658129eade7": [
+      "KT Rolster"
+    ],
+    "oe:team:d7b1c568f7a023c10d7ad7778b48cc7": [
+      "Delta Syndicate"
+    ],
+    "oe:team:d8ca3fc1f0827ec76369af7b70d43e3": [
+      "Fukuoka SoftBank HAWKS gaming"
+    ],
+    "oe:team:d932b52fb3a9d5fad174728a969ee14": [
+      "Team Refuse"
+    ],
+    "oe:team:d9f29b4eac8fd2a40f5a117e294316f": [
+      "Keypulse Esports"
+    ],
+    "oe:team:da1143bf9a245b78a8dc86417de85b3": [
+      "LYON"
+    ],
+    "oe:team:db052729079b7bbe03274df413b2d1b": [
+      "Venomcrest Esports"
+    ],
+    "oe:team:db4e98d03fec12b08cb7a80b739c446": [
+      "PÊEK Gaming"
+    ],
+    "oe:team:dba2e551039e079ceae513ba7386109": [
+      "EXILE esports"
+    ],
+    "oe:team:dbe0589e5cff81fa6b163d9f30ffeee": [
+      "Kiedyś Miałem Fun"
+    ],
+    "oe:team:dbea9378f0ff4aec096cd27745d47da": [
+      "Golden Lions"
+    ],
+    "oe:team:dc02a128e3246c9c9819777fca172ef": [
+      "ODD Esports"
+    ],
+    "oe:team:ddb6aa775eebeffd5cc41ba5c35c6a1": [
+      "BRUTE"
+    ],
+    "oe:team:df045d28ec9b0b40ea9eb6ab50693ac": [
+      "Ankora Gaming"
+    ],
+    "oe:team:df682d5adfed257780a68a85004ed27": [
+      "Esprit Shōnen"
+    ],
+    "oe:team:df80f468a3f9a722df056fe9104f052": [
+      "ThunderTalk Gaming"
+    ],
+    "oe:team:e0143514c5de64f62eb418004ca2751": [
+      "Galions"
+    ],
+    "oe:team:e0d615e241b3741ff62ddd5be08c722": [
+      "Team Evermeet"
+    ],
+    "oe:team:e11d88a3cdcd9d6fbb73a26b0f8a300": [
+      "DKB XPERION NXT"
+    ],
+    "oe:team:e1cbefa2c9766f5deaa96d958a31e89": [
+      "Once Upon A Team"
+    ],
+    "oe:team:e3f89acb10ecd65327fa954ff2ec047": [
+      "Dynamo Eclot"
+    ],
+    "oe:team:e42ade212c09777da0f54bffe481f6d": [
+      "Partizan Esports"
+    ],
+    "oe:team:e435aa3ecb82a89e60544f5f5857a81": [
+      "DetonatioN FocusMe"
+    ],
+    "oe:team:e46f2dda10740009ffb0c01498dc5ce": [
+      "ROSSMANN Centaurs"
+    ],
+    "oe:team:e48971339218173510419a40bc80080": [
+      "A One Man Army Prime"
+    ],
+    "oe:team:e6423e34fc74500296fbaa43fac025d": [
+      "TeamOrangeGaming"
+    ],
+    "oe:team:e7121adad88546bce0ff2cc41c2d343": [
+      "Axolotl"
+    ],
+    "oe:team:e7da30846ab7b1224900ea5a0e6d8bb": [
+      "Near Airport"
+    ],
+    "oe:team:e8668e6835ba28cf47446c4451bbfd9": [
+      "LittleSans"
+    ],
+    "oe:team:e87c7d57b92c16e76f7e040342a4bc3": [
+      "Citadel Gaming"
+    ],
+    "oe:team:e8d8ae992fe72acb7adc7bfcee31dbb": [
+      "Team Vitality"
+    ],
+    "oe:team:ea57e93bc73880655acdc795361215b": [
+      "Isurus Estral"
+    ],
+    "oe:team:eade4a74478f5f903aeec82cedcd13d": [
+      "BNK FEARX Academy"
+    ],
+    "oe:team:eaeaad6cbcd022d2b872d4776aae2e6": [
+      "Top Esports Challenger"
+    ],
+    "oe:team:eb2f7366b23f654102ef78cfbd9ab56": [
+      "GMBLERS Esports"
+    ],
+    "oe:team:eb828c490097ea9e3da840ef94b15e2": [
+      "LEO"
+    ],
+    "oe:team:ebc9eb627be881661502ce98e356359": [
+      "Saving OCE"
+    ],
+    "oe:team:ec830d79559b38ffe2dcda535fd2bac": [
+      "ZeroZone Gaming"
+    ],
+    "oe:team:ec984a85fa876a52f448869c93cd93b": [
+      "Maze Gaming"
+    ],
+    "oe:team:ecaf2adae2ff7f9511c9f662f18ffe7": [
+      "For The Win Esports"
+    ],
+    "oe:team:ed026f019f5d0091c44014578ed7a8f": [
+      "Conviction"
+    ],
+    "oe:team:ed28f87f0cfdba0a2a8f183cebae73a": [
+      "Anyone's Legend"
+    ],
+    "oe:team:ee662fa8580ced6fb87aa4ca5b1fe7b": [
+      "mCon esports"
+    ],
+    "oe:team:eeffdb07120d60e9780e6a9e74ebe0f": [
+      "Soul's Heart Esport"
+    ],
+    "oe:team:ef2dd1b1ee2468704103b42eb8af1ac": [
+      "Dynamo Eclot Talents"
+    ],
+    "oe:team:ef69efa6acebe94107f0cf1ba716806": [
+      "Dplus Kia"
+    ],
+    "oe:team:f099ce1a14c9b88426484eea075e093": [
+      "Lenovo Legion Honvéd"
+    ],
+    "oe:team:f2094ae60f9b1f3b6a17ad88ad75fc1": [
+      "Anubis Gaming"
+    ],
+    "oe:team:f27741afb3044c971eeced9d0c2daa1": [
+      "devils.one"
+    ],
+    "oe:team:f33930460c641ba8c7ffe11342c08ef": [
+      "Dream Makers"
+    ],
+    "oe:team:f3aa9bbd924ce3af42ac53f8326bc7c": [
+      "Karmine Corp"
+    ],
+    "oe:team:f4342581cac266ae8ef96736fa371ee": [
+      "Bitfix Gaming"
+    ],
+    "oe:team:f4b807048502e27f01499f06b235a9a": [
+      "Crvena zvezda Esports"
+    ],
+    "oe:team:f4c4528c6981e104a11ea7548630c23": [
+      "Oh My God"
+    ],
+    "oe:team:f4e28ce02dea2124a77a47a70ac961f": [
+      "MY STAR"
+    ],
+    "oe:team:f559203c4bdf14dbfb2e440de75d53e": [
+      "Oxygen Gaming"
+    ],
+    "oe:team:f59945d4b3a3148637047638acb88b7": [
+      "Luminosity Gaming"
+    ],
+    "oe:team:f78d56f289804906a627706f330ee06": [
+      "DN SOOPers Challengers"
+    ],
+    "oe:team:f7dba423d0f9ebdb6c58b97616b9bad": [
+      "Venomcrest Serpents"
+    ],
+    "oe:team:f9d5cf621532c5ac51e0947d7098b7f": [
+      "Lille Esport"
+    ],
+    "oe:team:f9f16e15a84c85d050aa09b4a21c757": [
+      "Orbit Anonymo Esports"
+    ],
+    "oe:team:fa12fb801e77d60b9fde291b93c5d3f": [
+      "Apex Mission Impossible"
+    ],
+    "oe:team:fa3d687a87bcae80362f784a7da571d": [
+      "HANJIN BRION Challengers"
+    ],
+    "oe:team:fc8e90107dabb9a35c490b0d86adea0": [
+      "Cloud9"
+    ],
+    "oe:team:fca935f82fd01de843aa2799eb575ea": [
+      "Odivelas Sports Club"
+    ],
+    "oe:team:fcec508e780bbd1ad493852640f5b36": [
+      "Top Esports"
+    ],
+    "oe:team:fd27f7adaecaeac4f8736159d57c0ce": [
+      "ThunderTalk Gaming Young"
+    ],
+    "oe:team:fe099196385a285d6d6edde504dc1f6": [
+      "MGN Vikings Esports"
+    ],
+    "oe:team:fe39df9671c4c4f0cddf29b8c339f7c": [
+      "CNG Royal"
+    ],
+    "oe:team:ff07fcf769a41fa17ded4746368d6c7": [
+      "Nongshim RedForce Academy"
+    ],
+    "oe:team:ff6d6552ee3ce383d533d88a5901d23": [
+      "wangting"
+    ]
+  },
+  "orphan_player_games": 0,
+  "schema": {
+    "players": [
+      "game_id",
+      "date",
+      "league",
+      "year",
+      "split",
+      "playoffs",
+      "patch",
+      "team_name",
+      "opponent_team_name",
+      "side",
+      "position",
+      "playername",
+      "champion",
+      "result",
+      "gamelength",
+      "kills",
+      "deaths",
+      "assists",
+      "teamkills",
+      "teamdeaths",
+      "firstblood",
+      "firstbloodkill",
+      "damagetochampions",
+      "dpm",
+      "damageshare",
+      "damagetakenperminute",
+      "damagemitigatedperminute",
+      "damagetotowers",
+      "totalgold",
+      "earnedgold",
+      "earned_gpm",
+      "earnedgoldshare",
+      "total_cs",
+      "cspm",
+      "minionkills",
+      "monsterkills",
+      "wardsplaced",
+      "wpm",
+      "wardskilled",
+      "wcpm",
+      "controlwardsbought",
+      "visionscore",
+      "vspm",
+      "doublekills",
+      "triplekills",
+      "quadrakills",
+      "pentakills",
+      "goldat10",
+      "xpat10",
+      "csat10",
+      "golddiffat10",
+      "xpdiffat10",
+      "csdiffat10",
+      "killsat10",
+      "deathsat10",
+      "assistsat10",
+      "goldat15",
+      "xpat15",
+      "csat15",
+      "golddiffat15",
+      "xpdiffat15",
+      "csdiffat15",
+      "killsat15",
+      "deathsat15",
+      "assistsat15"
+    ],
+    "teams": [
+      "game_id",
+      "date",
+      "league",
+      "year",
+      "split",
+      "playoffs",
+      "patch",
+      "game_number",
+      "bo_format",
+      "match_in_series",
+      "game_in_match",
+      "side",
+      "team_name",
+      "team_id",
+      "opponent_team_name",
+      "result",
+      "gamelength",
+      "first_pick",
+      "ban1",
+      "ban2",
+      "ban3",
+      "ban4",
+      "ban5",
+      "pick1",
+      "pick2",
+      "pick3",
+      "pick4",
+      "pick5",
+      "kills",
+      "teamkills",
+      "teamdeaths",
+      "firstblood",
+      "team_kpm",
+      "ckpm",
+      "firstdragon",
+      "dragons",
+      "opp_dragons",
+      "elders",
+      "opp_elders",
+      "firstherald",
+      "heralds",
+      "opp_heralds",
+      "void_grubs",
+      "opp_void_grubs",
+      "firstbaron",
+      "barons",
+      "opp_barons",
+      "firsttower",
+      "towers",
+      "opp_towers",
+      "firstmidtower",
+      "firsttothreetowers",
+      "turretplates",
+      "opp_turretplates",
+      "inhibitors",
+      "opp_inhibitors",
+      "totalgold",
+      "earnedgold",
+      "earned_gpm",
+      "dpm",
+      "cspm",
+      "vspm",
+      "goldat10",
+      "killsat10",
+      "deathsat10",
+      "golddiffat10",
+      "xpdiffat10",
+      "csdiffat10",
+      "goldat15",
+      "killsat15",
+      "deathsat15",
+      "golddiffat15",
+      "xpdiffat15",
+      "csdiffat15"
+    ]
+  },
+  "source_sha256": {
+    "players": "48a47fc574fcbe7295133266d6a3a8c0d04d02b2e96a66972fb283ed14a3437a",
+    "teams": "6cf310b5a6b58ffb8bf0fb00c43b6251ce8227ba9e1dc403967ebe131d87d015"
+  },
+  "source_timezone_assumption": "UTC",
+  "team_game_groups": 10053,
+  "timezone_verified": false,
+  "training_ready": false,
+  "verified_series": 0
+}
