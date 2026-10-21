@@ -127,5 +127,6 @@
     "scenario.change_opponent": "Change opponent",
     "scenario.score_option": ":team · :score",
     "scenario.error_round": "Incompatible lock in round :round. Release that round or remove all locks to start again.",
-    "scenario.known_games": "Known games: :count"
+    "scenario.known_games": "Known games: :count",
+    "scenario.edit": "Edit matchups and results"
 }

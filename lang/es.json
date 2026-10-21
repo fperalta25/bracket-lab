@@ -127,5 +127,6 @@
     "scenario.change_opponent": "Cambiar rival",
     "scenario.score_option": ":team · :score",
     "scenario.error_round": "Bloqueo incompatible en ronda :round. Libera esa ronda o quita todos los bloqueos para empezar de nuevo.",
-    "scenario.known_games": "Partidas conocidas: :count"
+    "scenario.known_games": "Partidas conocidas: :count",
+    "scenario.edit": "Editar cruces y resultados"
 }

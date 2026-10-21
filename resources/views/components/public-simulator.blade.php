@@ -16,9 +16,12 @@
                 @endforeach
 </select></label>
             </div>
+            <div class="scenario-actions" x-show="mode !== 'custom'">
+                <button type="button" @click="mode = 'custom'; changeMode(); $nextTick(() => $refs.roundSelector.focus())">{{ __('scenario.edit') }}</button>
+            </div>
             <div class="scenario-editor" x-show="mode === 'custom'">
                 <div class="scenario-actions">
-                    <label>{{ __('scenario.round') }}<select aria-label="{{ __('scenario.round') }}" x-model.number="editingRound" @change="save()">
+                    <label>{{ __('scenario.round') }}<select aria-label="{{ __('scenario.round') }}" x-ref="roundSelector" x-model.number="editingRound" @change="save()">
                         @foreach ([1, 2, 3, 4, 5] as $round)
                             <option value="{{ $round }}">{{ __('simulation.round', ['round' => $round]) }}</option>
                         @endforeach
