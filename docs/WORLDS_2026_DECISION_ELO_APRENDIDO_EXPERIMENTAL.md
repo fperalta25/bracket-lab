@@ -29,3 +29,13 @@ El predictor es estático durante cada torneo simulado: no vuelve a aprender de 
 fijados o sintéticos ni necesita posterior latente. Las series se resuelven por game,
 con el mismo motor, RNG y reglas. El artefacto viaja íntegro en el escenario; hashes
 incorrectos o versiones desconocidas se rechazan. No requiere Python en runtime.
+
+
+## Variante M1 optativa
+
+El mismo preset puede seleccionar explícitamente un segundo artefacto, M1 de últimas
+partidas disponibles. M0 conserva su artefacto y su condición de versión inicial;
+los escenarios existentes no se actualizan. La selección de coeficiente/historial
+usa 2025; 2026 sigue siendo diagnóstico ya inspeccionado. M1 empeora en el tramo final
+y en internacionales, por lo que se etiqueta como experimento no recomendado. Su
+historial puede ser antiguo: se muestran fechas y recuentos, no «forma de hoy» inventada.

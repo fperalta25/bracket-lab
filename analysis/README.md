@@ -923,3 +923,66 @@ cuarentena/integridad, exclusión del torneo, identidad/prior y no sobrescritura
 nueve Vitest de integridad de build/runtime, cálculo, regresión, controles, fuentes,
 resultados fijados y JSON/comparación. Totales: **176 Python, 170 Vitest, 44 Laravel**,
 typecheck y build correctos; prueba real del worker y ES/EN móvil/escritorio.
+
+## Forma sobre el Elo aprendido (M1 opcional)
+
+Se conserva el corpus y la referencia K=32/pendiente=0,75. Las innovaciones son
+`y − p` de la **salida ajustada**, sin cambiar el feedback K=32 del replay ni sumar
+bonos v2. Dos diseños quedan registrados separadamente:
+
+1. `calibrated-residual-form-v1`: ventanas calendario 14/30/60 días, β=0/0,5/1/2.
+   2025 elige 14 días, β=1. En el snapshot sin WLDs 2026 esa ventana está vacía para
+   los 16 equipos; no se publica un ajuste ficticio como si hubiera forma reciente.
+2. `last-observed-form-v1`: se registra después de comprobar esa falta de cobertura,
+   antes de ajustar la nueva definición. Últimos 3/5/10 **días con partidas conocidas**,
+   medias diarias y prior de tres días hacia cero, mismos coeficientes. Selección
+   solo con 2025: cinco días, β=1. Se conserva y presenta la antigüedad real.
+
+```bash
+PYTHONPATH=analysis/src python3 analysis/src/calibrated_form.py \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --confidence-report models/reports/elo-confidence-v1/metrics.json \
+  --predictions-dir data/curated/internal-elo-v1 \
+  --protocol analysis/config/last-observed-form-v1.json \
+  --output data/curated/last-observed-form-v1
+```
+
+Para reproducir el contraste calendario, cambiar protocolo y salida por
+`calibrated-residual-form-v1`. Ambos informes agregados se versionan en
+`models/reports/`; predicciones por game quedan locales. Se mantienen retrasos 1/3/7,
+bootstrap por liga/año/split, calibración global/internacional y mismo conjunto pareado.
+2026 fue inspeccionado y no se presenta como nuevo holdout ciego.
+
+Resultado principal M1 frente a M0: log loss 0,63881 frente a 0,64170 en ene–ago (7.839
+games); 0,65595 frente a 0,65210 en sep–oct (1.180). En internacionales empeora en ambos
+tramos: ventajas de log loss −0,00348 y −0,01158 (348/34 games). Se permite una variante
+experimental optativa según la decisión del proyecto, **no una promoción recomendada**.
+
+```bash
+PYTHONPATH=analysis/src python3 analysis/src/export_form.py \
+  --base-artifact models/artifacts/internal-elo-trained-2026-10-21-v1.json \
+  --form-report models/reports/last-observed-form-v1/metrics.json \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --corpus-audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --identity-audit models/reports/chaincc-identities-v3b/audit.json \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --output models/artifacts/internal-elo-last-observed-form-2026-10-21-v1.json
+```
+
+El exportador vuelve a verificar el replay M0 completo (ratings/recuentos/último dato),
+cutoff y fuente, excluye WLDs 2026 y congela la covariable. No modifica el artefacto M0.
+Con `x = α ln(10)(R_A−R_B)/D + β(F_A−F_B)`, almacenar
+`ΔR_i = β F_i D/(α ln(10))` permite usar el predictor estacionario existente con
+`R_i+ΔR_i`. Los ratings base y la forma se conservan por separado; el ajuste no es
+una estimación causal ni una actualización generada por games hipotéticos.
+
+Ocho pruebas Python nuevas verifican disponibilidad estricta, fechas antiguas,
+agrupación diaria, corte/selección sin resultados futuros, empate, reproducción,
+inmutabilidad M0 y fuentes incompatibles. Cinco Vitest adicionales cubren registro,
+M0 exacto, log-odds, antigüedad, tampering y escenarios/comparación con ganador fijado.
+
+Comprobación final: **184 Python, 175 Vitest, 44 Laravel (586 aserciones)**; typecheck,
+build y validación de ambos artefactos. Dos exportaciones del snapshot real son
+idénticas byte a byte. Firefox ES/EN a 1440/360 px comprueba ejecución de 1.000
+torneos, selección voluntaria, fechas, comparación con resultados fijados, archivo
+JSON y recarga, conservando exactamente el resultado M0 de un escenario anterior.

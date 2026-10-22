@@ -36,6 +36,12 @@ Para usar el aprendido, seleccionar **Elo histórico · entrenado experimental**
 pero LOS solo dispone de 89 partidas hasta septiembre de 2025. Metodología muestra
 recuento, último dato, cutoff y hash. GPR permanece predeterminado.
 
+En **Versión aprendida** se puede elegir **Elo + últimas partidas**, variante opcional
+con un ajuste residual seleccionado con 2025. Usa los últimos cinco días con partidas
+disponibles, aunque sean antiguos, y muestra su fecha y cantidad. Los resultados de
+2026 son mixtos y empeoran en internacionales: no se recomienda ni sustituye al Elo
+histórico inicial. Los escenarios anteriores conservan íntegra su versión.
+
 **Comparar modelos** contrasta GPR con el Elo aprendido cuando está seleccionado; en
 los demás casos conserva la comparación con contextual v2 manual. Usa el mismo escenario,
 semilla e iteraciones. El Elo aprendido admite ganadores y scores fijados sin posterior
@@ -839,3 +845,41 @@ recarga y cambio de idioma sin pérdida de resultados ni NaN/errores JS.
 Siguiente bloque: contrastar e incorporar factores aprendidos de uno en uno con este
 mismo corpus, manteniendo opción experimental, procedencia y comparación con GPR.
 No se exigen nuevas descargas ni se presenta v3 contextual como validado.
+
+## Variante aprendida de últimas partidas
+
+El preset aprendido admite dos artefactos registrados: M0 original y M1 opcional.
+El selector **Versión aprendida** permite cambiar explícitamente; M0 sigue siendo la
+versión inicial. Un escenario guardado/importado restaura su artefacto exacto, incluida
+la selección visible; no se migra M0 a M1. GPR y el contextual manual no cambian.
+
+Primero se contrastó forma residual sobre la salida ya ajustada con pendiente 0,75:
+2025 eligió una ventana de 14 días y coeficiente 1. Esa ventana no aporta observaciones
+a ninguno de los 16 equipos en el corte público, tras excluir WLDs 2026. Se registró
+antes de ajustar otra definición: últimos 3/5/10 días con partidas disponibles, cada
+día con igual peso y shrinkage de tres días. Se eligieron **cinco días y coeficiente 1**
+solo con 2025, conservando el candidato sin ajuste. No se vuelve a elegir con 2026.
+
+| Diagnóstico | Partidas | Log loss M0 | Log loss M1 |
+| --- | ---: | ---: | ---: |
+| Ene–ago 2026 | 7.839 | 0,64170 | 0,63881 |
+| Sep–oct 2026 | 1.180 | 0,65210 | 0,65595 |
+
+El subconjunto internacional empeora en ambos tramos de 2026. Esta variante se permite
+como experimento optativo con los datos existentes; no se recomienda ni se afirma
+superioridad robusta. La UI muestra este resultado mixto y la antigüedad del historial.
+El ajuste es una covariable del snapshot: no se actualiza con victorias sintéticas,
+no añade sigmas/bonos manuales ni un posterior latente. La conversión a rating Elo
+preserva exactamente el efecto aprendido en log-odds. Si falta historial, mantiene
+el valor ausente y un ajuste neutro, sin inventar una observación de forma cero.
+
+Informes y protocolo: `models/reports/calibrated-residual-form-v1`,
+`models/reports/last-observed-form-v1` y `analysis/config/*form-v1.json`.
+El artefacto M0 original permanece sin cambios. El build verifica ambos hashes,
+proveniencia y correspondencia del ajuste con el coeficiente y los residuos.
+
+Verificado en este bloque: **184 pruebas Python, 175 Vitest y 44 Laravel (586
+aserciones)**, typecheck y build. Firefox ES/EN, escritorio y 360 px: M1 con 1.000
+torneos, fechas visibles, comparación con ganador fijado, JSON/recarga/cambio de
+idioma y reproducción exacta de un escenario M0 anterior. Sin NaN, desbordamiento
+general ni errores JavaScript. Dos exportaciones reales produjeron el mismo artefacto.
