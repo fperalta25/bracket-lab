@@ -27,6 +27,12 @@ permiten ordenar por cifras, buscar equipos y filtrar por región; el detalle mu
 de ejemplo completo, metodología, semilla y ratings usados. No requiere cuenta y no envía
 las simulaciones al servidor.
 
+**Comparar modelos** ejecuta GPR y contextual v2 experimental con el mismo escenario,
+semilla, snapshot, divisor e iteraciones. Muestra clasificación y campeonato por equipo,
+diferencias en puntos porcentuales y una cota de error Monte Carlo. Requiere un escenario
+sin ganadores ni games fijados; no elimina restricciones para permitir la comparación.
+Cancelar conserva la comparación anterior y la simulación individual no se sustituye.
+
 El desplegable **Validación histórica** muestra la comparación del Elo propio con un
 ajuste global de confianza: métricas e intervalos globales/internacionales en ES/EN.
 Es investigación; no calibra el GPR ni habilita el preset entrenado.
@@ -723,3 +729,33 @@ Proyecto gratuito, independiente y no oficial, sin respaldo ni patrocinio de Rio
 Worlds y League of Legends se mencionan como referencias informativas. No se incluyen
 logos de Riot, escudos de clubes, fuentes externas ni seguimiento. Las futuras
 probabilidades serán estimaciones del modelo y las simulaciones se ejecutarán en el navegador.
+
+## Comparación pública GPR/contextual
+
+El botón **Comparar modelos** ejecuta dos solicitudes consecutivas en el worker existente:
+`gpr_baseline` y `contextual_experimental_v2`. Conserva los switches contextuales de los
+escenarios importados, incluidos los heredados; no cambia el preset seleccionado ni
+reescribe documentos de IndexedDB o exportaciones JSON. No habilita v3 entrenado.
+
+Las dos salidas se publican juntas al completarse. Progreso sobre `2 × N`, cancelación
+en cualquiera de las fases y errores conservan la comparación completa anterior y
+el resultado individual. La comparación persiste como campo opcional de la sesión v2;
+las sesiones anteriores sin ese campo se siguen restaurando. Una comparación inválida
+se descarta sin eliminar el resultado individual válido. Cargar otro escenario limpia
+ambos resultados. Cambiar idioma conserva los cálculos; durante una ejecución espera
+al resultado o cancelación antes de navegar.
+
+La tabla usa los recuentos originales, filtra por equipo/región y ordena por campeonato
+GPR. Diferencias = contextual − GPR, en puntos porcentuales, sin interpretación causal.
+El margen conservador por diferencia es `min(1, 2√(ln(80)/(2N)))`: desigualdad de Hoeffding
+para cada una de las dos proporciones y unión con error total 0,05. Admite dependencia
+entre ambos resultados por usar la misma semilla. No es un intervalo simultáneo para
+todos los equipos/métricas ni incertidumbre sobre calibración o validez predictiva.
+La metodología distingue esos conceptos y conserva la etiqueta experimental.
+
+Validación: **151 Vitest y 44 Laravel (586 aserciones)**; typecheck y build correctos.
+Firefox ES/EN a 1440/360 px: comparación de 1.000 torneos por modelo, paridad exacta con
+GPR individual, sin NaN/desbordamiento/errores JS, filtros, cancelación antes y después
+de completar el primer modelo, recarga, sesión anterior y comparación deshabilitada
+al fijar un ganador. También se verifica comparar antes de una ejecución individual
+y cambiar de idioma durante el cálculo. No cambian el motor, RNG ni worker.
