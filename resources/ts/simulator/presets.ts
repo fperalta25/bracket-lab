@@ -1,11 +1,12 @@
 import { requireCondition } from './errors';
 
-export type ModelPreset = 'gpr_baseline' | 'contextual_experimental_v2' | 'contextual_trained_v3';
+export type ModelPreset = 'gpr_baseline' | 'contextual_experimental_v2' | 'contextual_trained_v3' | 'historical_elo_trained_v1';
 /** Read compatibility only; this alias always means the experimental v2 model. */
 export type CompatiblePreset = ModelPreset | 'contextual_v1';
 export const MODEL_PRESETS = Object.freeze({
     gpr_baseline: { available: true, status: 'provisional' },
     contextual_experimental_v2: { available: true, status: 'experimental' },
+    historical_elo_trained_v1: { available: true, status: 'trained_experimental' },
     contextual_trained_v3: { available: false, status: 'unavailable' },
 } as const);
 

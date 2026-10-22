@@ -6,23 +6,25 @@ export interface ModelComparison { baseline: SimulationOutput; contextual: Simul
 export type ComparisonMetric = 'qualify' | 'champion';
 
 export function comparisonRequests(request: GprSimulationRequest, terms: ContextualTerms) {
-    const { contextualTerms: _terms, ...common } = request;
+    const { contextualTerms: _terms, learnedModel: _learned, ...common } = request;
     const baseline: GprSimulationRequest = { ...common, preset: 'gpr_baseline' };
-    const contextual: GprSimulationRequest = { ...common, preset: 'contextual_experimental_v2', contextualTerms: { ...terms } };
+    const contextual: GprSimulationRequest = request.preset === 'historical_elo_trained_v1'
+        ? { ...common, preset: 'historical_elo_trained_v1', learnedModel: request.learnedModel }
+        : { ...common, preset: 'contextual_experimental_v2', contextualTerms: { ...terms } };
     validateRequest(baseline); validateRequest(contextual);
     return [baseline, contextual] as const;
 }
 
 function conditions(request: GprSimulationRequest): string {
-    const { preset: _preset, contextualTerms: _terms, ...common } = request;
+    const { preset: _preset, contextualTerms: _terms, learnedModel: _learned, ...common } = request;
     return JSON.stringify(common, (_key, value) => value && typeof value === 'object' && !Array.isArray(value)
         ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]])) : value);
 }
 
 export function validateComparison(comparison: ModelComparison): void {
-    for (const [output, preset] of [[comparison.baseline, 'gpr_baseline'], [comparison.contextual, 'contextual_experimental_v2']] as const) {
+    for (const [output, preset] of [[comparison.baseline, 'gpr_baseline'], [comparison.contextual, null]] as const) {
         const request = output.metadata.request;
-        if (request.modelVersion !== 'gpr-context-v2' || request.preset !== preset) throw new Error('comparison_model');
+        if (request.modelVersion !== 'gpr-context-v2' || (preset ? request.preset !== preset : !['contextual_experimental_v2', 'historical_elo_trained_v1'].includes(request.preset))) throw new Error('comparison_model');
         validateRequest(request);
         validateConstraints(request.snapshot, output.example.matches);
         const total = request.iterations;

@@ -126,7 +126,7 @@ export function validateRequest(request: SimulationRequest): readonly Fixture[] 
         requireCondition(!request.snapshot.fixtures.some((f) => f.status === 'decided')
             && !(request.scenario.mode === 'custom' && request.scenario.fixtures.some((f) => f.status === 'decided')),
         'incompatible_model', { field: 'winner_constraints' });
-        requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request) && !('contextualTerms' in request),
+        requireCondition(!('strengths' in request) && !('gprOverrides' in request) && !('denominator' in request) && !('preset' in request) && !('contextualTerms' in request) && !('learnedModel' in request),
             'incompatible_model', { reason: 'gpr_fields' });
         for (const team of request.snapshot.teams) {
             requireCondition(Number.isFinite(team.powerScore) && team.powerScore >= 0 && team.powerScore <= 100,
