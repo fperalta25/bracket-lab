@@ -16,6 +16,7 @@
                 @endforeach
 </select></label>
             </div>
+            <p class="calibration" x-show="preset === 'contextual_experimental_v2' || preset === 'contextual_v1'">{{ __('simulation.manual_profiles') }}</p>
             <section class="scenario-editor" aria-labelledby="swiss-board-title">
                 <div class="section-heading board-heading">
                     <h3 id="swiss-board-title">{{ __('board.title') }}</h3>
