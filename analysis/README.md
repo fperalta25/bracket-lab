@@ -878,3 +878,48 @@ aserciones)**; typecheck, build y Pint correctos. Firefox a 1440/360 px en ES/EN
 sin desbordamiento general ni errores JavaScript, seis filas de métricas, preset
 entrenado deshabilitado y simulación real de 1.000 torneos sin NaN; los resultados
 se conservan al cambiar de idioma. Los assets locales están reconstruidos.
+
+## Exportación del M0 aprendido para uso experimental
+
+La decisión `docs/WORLDS_2026_DECISION_ELO_APRENDIDO_EXPERIMENTAL.md` permite probar el
+modelo aprendido con las muestras disponibles sin exigir una mejora significativa
+para esa opción. No convierte la evaluación exploratoria en validación aprobada ni
+cambia el modelo recomendado. El contextual v3 permanece separado.
+
+```bash
+PYTHONPATH=analysis/src python3 analysis/src/export_elo.py \
+  --games data/curated/chaincc-2024-2026/games.jsonl \
+  --corpus-audit models/reports/chaincc-2024-2026-v3b/audit.json \
+  --identity-audit models/reports/chaincc-identities-v3b/audit.json \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --confidence-report models/reports/elo-confidence-v1/metrics.json \
+  --tuning-report models/reports/internal-elo-tuning-v1/metrics.json \
+  --mapping analysis/config/worlds-2026-elo-mapping-v1.json \
+  --cutoff 2026-10-21T00:00:00Z \
+  --output models/artifacts/internal-elo-trained-2026-10-21-v1.json
+```
+
+Exportación determinista sin nueva selección de parámetros: K=32 y pendiente 0,75
+proceden de los informes seleccionados con 2025. Se reconstruyen ratings con el
+feedback estimado y las innovaciones pre-game guardadas, solo disponibles antes del
+cutoff. Los 34 registros WLDs de 2026 se excluyen antes del replay, además de la
+cuarentena y embargos originales. No se entrena con GPR actual ni con jugadores
+inferidos. Las métricas adjuntas se etiquetan como backtest histórico previamente
+inspeccionado, no validación nueva de este snapshot final.
+
+Se enlazan los 16 equipos; LOS/Los Grandes usa 89 partidas y su último registro es
+2025-09-02. La identidad aparece explícita en los perfiles del proyecto: no se
+completa su temporada 2026 con LOUD ni otra entidad. La interfaz muestra recuentos y
+última fecha. El exporter conserva el prior para identidades sin enlace, con cero
+partidas en lugar de ratings GPR convertidos; esta salida se prueba con fixtures.
+
+El payload serializado viaja con su SHA-256. El build Node verifica el hash, cobertura,
+fuentes versionadas y parámetros sin acceder a CSV ni ejecutar Python. El runtime
+solo permite la versión registrada exacta. La actualización de un artefacto debe
+crear otra versión y mantener disponible la anterior para escenarios guardados.
+
+Se añaden seis pruebas Python de replay final, cutoff estricto, reproducción,
+cuarentena/integridad, exclusión del torneo, identidad/prior y no sobrescritura;
+nueve Vitest de integridad de build/runtime, cálculo, regresión, controles, fuentes,
+resultados fijados y JSON/comparación. Totales: **176 Python, 170 Vitest, 44 Laravel**,
+typecheck y build correctos; prueba real del worker y ES/EN móvil/escritorio.
