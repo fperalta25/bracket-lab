@@ -1,0 +1,84 @@
+{
+  "baseline_sha256": "c9be83eee9299e1bdcea5c307c56e6bed7a8c38e5049656eef6354d8a7ca7f7f",
+  "delay_days": 1,
+  "promotion_allowed": false,
+  "report_sha256": "2c4747c16e4bcc2e9e434b2389c609cfecec2fcb0222c0c91396488125a9e2dd",
+  "rows": [
+    {
+      "adjusted_brier": 0.22932850478786962,
+      "adjusted_log_loss": 0.6499954122937153,
+      "games": 9573,
+      "log_loss_advantage_95": [
+        0.0009905268218735155,
+        0.005890716769941589
+      ],
+      "period": "development_2025",
+      "reference_brier": 0.23047559304281628,
+      "reference_log_loss": 0.6533776640418116,
+      "scope": "global"
+    },
+    {
+      "adjusted_brier": 0.24055641938454325,
+      "adjusted_log_loss": 0.673825713336421,
+      "games": 244,
+      "log_loss_advantage_95": [
+        -0.001992236266521767,
+        0.0035961892768279075
+      ],
+      "period": "development_2025",
+      "reference_brier": 0.2415430776451981,
+      "reference_log_loss": 0.6758354847124596,
+      "scope": "international"
+    },
+    {
+      "adjusted_brier": 0.22516190538464442,
+      "adjusted_log_loss": 0.6417011350988883,
+      "games": 7839,
+      "log_loss_advantage_95": [
+        -0.0009486594389016877,
+        0.0062612055620740814
+      ],
+      "period": "evaluation_2026",
+      "reference_brier": 0.22577885354556168,
+      "reference_log_loss": 0.6444217432095323,
+      "scope": "global"
+    },
+    {
+      "adjusted_brier": 0.23033875727425535,
+      "adjusted_log_loss": 0.6516639805281166,
+      "games": 348,
+      "log_loss_advantage_95": [
+        -0.0018680422425603875,
+        0.0071157288573554895
+      ],
+      "period": "evaluation_2026",
+      "reference_brier": 0.23220960029488696,
+      "reference_log_loss": 0.6558411075120529,
+      "scope": "international"
+    },
+    {
+      "adjusted_brier": 0.2300447500351781,
+      "adjusted_log_loss": 0.6520965077052412,
+      "games": 1180,
+      "log_loss_advantage_95": [
+        -0.0022045652528514597,
+        0.01411234273430828
+      ],
+      "period": "holdout_2026",
+      "reference_brier": 0.2313225252109123,
+      "reference_log_loss": 0.6565387213518229,
+      "scope": "global"
+    },
+    {
+      "adjusted_brier": 0.23977888503836234,
+      "adjusted_log_loss": 0.6713931738912846,
+      "games": 34,
+      "log_loss_advantage_95": null,
+      "period": "holdout_2026",
+      "reference_brier": 0.24120300200952288,
+      "reference_log_loss": 0.6733919716737996,
+      "scope": "international"
+    }
+  ],
+  "slope": 0.75
+}

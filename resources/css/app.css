@@ -95,14 +95,14 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 .results-table-section { margin-top: 1.5rem; }
 .results-table-section h3 { margin-bottom: .75rem; font-size: 1rem; }
 .table-scroll { overflow-x: auto; border: 1px solid #2b343b; border-radius: 6px; }
-.simulator table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .875rem; white-space: nowrap; }
-.simulator th, .simulator td { padding: .5rem .65rem; text-align: right; border-bottom: 1px solid #2b343b; }
-.simulator thead th { background: #192126; }
-.simulator th:first-child { position: sticky; left: 0; background: #181e22; text-align: left; z-index: 1; min-width: 90px; }
-.simulator thead th:first-child { background: #192126; }
+:is(.simulator, .predictive-research) table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .875rem; white-space: nowrap; }
+:is(.simulator, .predictive-research) th, :is(.simulator, .predictive-research) td { padding: .5rem .65rem; text-align: right; border-bottom: 1px solid #2b343b; }
+:is(.simulator, .predictive-research) thead th { background: #192126; }
+:is(.simulator, .predictive-research) th:first-child { position: sticky; left: 0; background: #181e22; text-align: left; z-index: 1; min-width: 90px; }
+:is(.simulator, .predictive-research) thead th:first-child { background: #192126; }
 .simulator th small { color: #a6b4bd; display: block; font-size: .65rem; font-weight: 400; }
 .simulator abbr { text-decoration: none; }
-.simulator tbody tr:hover :is(th, td) { background: #223036; }
+:is(.simulator, .predictive-research) tbody tr:hover :is(th, td) { background: #223036; }
 .simulator thead button { padding-inline: .15rem; }
 .method, .example { margin-top: 1rem; border-top: 1px solid #2b343b; }
 .method p { color: #a6b4bd; font-size: .8rem; margin-top: .5rem; }
@@ -215,3 +215,6 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 .admin .draft-field select:focus-visible { outline: 2px solid #88d3d0; outline-offset: 3px; }
 .draft-field [aria-invalid="true"] { border-color: #f0bbb1; }
 @media (max-width: 760px) { .team-draft-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.predictive-research h3 { margin: 1rem 0 .5rem; font-size: .95rem; }
+.predictive-research .table-scroll:focus-visible { outline: 2px solid #88d3d0; outline-offset: 3px; }

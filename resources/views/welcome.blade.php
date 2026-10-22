@@ -39,6 +39,10 @@
                 <x-public-simulator :simulation-data="$simulationData" />
             @endif
 
+            @if ($predictiveResearch)
+                <x-predictive-research :research="$predictiveResearch" />
+            @endif
+
             <details id="cruces" class="section starting-fixtures">
                 <summary>{{ __('tournament.starting_fixtures') }}</summary>
                 <ol class="fixture-grid">
