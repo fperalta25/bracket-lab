@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StrengthProfileSet;
 use App\Models\Tournament;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -39,6 +40,8 @@ class HomeController extends Controller
         return view('welcome', [
             'tournament' => $tournament,
             'simulationData' => $simulationData,
+            'predictiveResearch' => File::exists(resource_path('data/predictive-research.json'))
+                ? File::json(resource_path('data/predictive-research.json')) : null,
             'initialDataDate' => CarbonImmutable::parse('2026-10-21', 'UTC')->locale(app()->getLocale())->isoFormat('LL'),
             'strengthProfiles' => collect($profileSet?->payload['profiles'] ?? [])->keyBy('teamId'),
             'ratingSource' => $profileSet?->payload['ratingSnapshot']['sourceUrl'],

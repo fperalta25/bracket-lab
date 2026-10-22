@@ -27,6 +27,10 @@ permiten ordenar por cifras, buscar equipos y filtrar por región; el detalle mu
 de ejemplo completo, metodología, semilla y ratings usados. No requiere cuenta y no envía
 las simulaciones al servidor.
 
+El desplegable **Validación histórica** muestra la comparación del Elo propio con un
+ajuste global de confianza: métricas e intervalos globales/internacionales en ES/EN.
+Es investigación; no calibra el GPR ni habilita el preset entrenado.
+
 La configuración y el último resultado completo se conservan en `sessionStorage` durante
 la pestaña, incluido al cambiar de idioma. Si se solicita otro idioma durante una ejecución,
 primero termina el cálculo y después se cambia de idioma con los mismos resultados.

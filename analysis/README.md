@@ -814,3 +814,67 @@ Se mantiene Elo K=32 como referencia de investigación y GPR como modelo públic
 predeterminado. No se habilita un artefacto entrenado ni se transfieren estas unidades
 al GPR. El siguiente bloque puede contrastar calibración global de confianza de las
 predicciones, con selección en desarrollo, sin retocar estos parámetros por 2026.
+
+## Confianza global del Elo histórico
+
+`analysis/config/elo-confidence-v1.json` se congeló antes de ejecutar el contraste.
+Compara pendientes de log-odds `[1, 0.5, 0.75, 1.25, 1.5]`; selecciona únicamente
+con log loss de 2025 y retraso primario de un día. Los empates conservan 1.
+No añade intercepto ni modifica los ratings, K=32 o su feedback: transforma solo
+la salida del replay congelado. Intercambiar equipos complementa la probabilidad;
+ratings iguales siguen en 50 %. La pendiente 1 conserva exactamente los bytes.
+
+```bash
+PYTHONPATH=analysis/src python3 analysis/src/confidence_backtest.py \
+  --baseline-report models/reports/internal-elo-v1/metrics.json \
+  --predictions-dir data/curated/internal-elo-v1 \
+  --protocol analysis/config/elo-confidence-v1.json \
+  --output data/curated/elo-confidence-v1
+```
+
+Se elige **0,75** en 2025. Comparación principal (menor es mejor):
+
+| Periodo | Games | Log loss referencia | Log loss ajustado | Brier referencia | Brier ajustado |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Desarrollo 2025 | 9.573 | 0,65338 | 0,65000 | 0,23048 | 0,22933 |
+| Ene–ago 2026 | 7.839 | 0,64442 | 0,64170 | 0,22578 | 0,22516 |
+| Sep–oct 2026 | 1.180 | 0,65654 | 0,65210 | 0,23132 | 0,23004 |
+
+Los intervalos pareados de ventaja en log loss de 2026 son
+`[-0,00095; 0,00626]` y `[-0,00220; 0,01411]`: incluyen cero. En el subconjunto
+internacional de 348 games el intervalo también incluye cero; los 34 games finales
+pertenecen a un único cluster y no permiten estimar ese intervalo. Se conservan
+las sensibilidades de 3/7 días sin volver a seleccionar. 2026 sigue siendo diagnóstico,
+no un nuevo holdout ciego. No hay validación suficiente para activar el preset entrenado;
+la pendiente del Elo propio **no calibra el divisor GPR**.
+
+Informe agregado: `models/reports/elo-confidence-v1/metrics.json`. Predicciones locales
+ignoradas; no se requiere ninguna descarga adicional. Once pruebas nuevas verifican
+simetría, neutralidad, saturación, independencia de outcomes/feedback, selección solo
+con desarrollo, empates, protocolos inválidos, hashes, no sobrescritura y reproducción.
+
+La portada añade **Validación histórica**, desplegable ES/EN con log loss, Brier,
+recuentos e intervalos globales/internacionales. Consume únicamente el resumen local
+`resources/data/predictive-research.json`; no requiere Python ni datasets en ejecución.
+Los tests PHP contrastan todas sus cifras y hashes con los informes congelados.
+Para regenerarlo después de reproducir y versionar el informe:
+
+```bash
+PYTHONPATH=analysis/src python3 - <<'PY'
+from pathlib import Path
+from confidence_backtest import web_summary
+from ingest import write_json
+write_json(Path('resources/data/predictive-research.json'), web_summary(
+    Path('models/reports/elo-confidence-v1/metrics.json'),
+    Path('models/reports/internal-elo-v1/metrics.json')))
+PY
+```
+
+Se mantiene GPR público predeterminado y el contextual v2 opcional experimental.
+Sin cambios de formato en escenarios, contratos del worker o reglas del torneo.
+
+Validación de este bloque: **170 pruebas Python, 142 Vitest y 44 Laravel (586
+aserciones)**; typecheck, build y Pint correctos. Firefox a 1440/360 px en ES/EN:
+sin desbordamiento general ni errores JavaScript, seis filas de métricas, preset
+entrenado deshabilitado y simulación real de 1.000 torneos sin NaN; los resultados
+se conservan al cambiar de idioma. Los assets locales están reconstruidos.
