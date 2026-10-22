@@ -1,3 +1,4 @@
+import type { TrainedEloArtifact } from './trained-elo';
 import type { CompatiblePreset } from './presets';
 
 export type TeamId = string;
@@ -126,6 +127,7 @@ export interface GprSimulationRequest extends SimulationRequestBase {
     /** Required explicitly for contextual; absent for baseline. Roster adjustments remain disabled. */
     readonly contextualTerms?: ContextualTerms;
     readonly strengths: StrengthProfileSet;
+    readonly learnedModel?: TrainedEloArtifact;
     /** An explicit sensitivity experiment; does not change calibration or individual sigmas. */
     readonly denominator?: number;
     readonly gprOverrides?: Readonly<Record<TeamId, number>>;

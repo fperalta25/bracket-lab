@@ -203,7 +203,7 @@
     "scenario.copy_current_preset": "Copy with current preset",
     "scenario.preset_copied": "Copy created with the Contextual experimental v2 preset. The original is preserved.",
     "research.title": "Historical validation",
-    "research.status": "Research · trained model unavailable",
+    "research.status": "Historical Elo · exploratory evaluation",
     "research.models": "Historical Elo K=32 · confidence slope :slope · estimated availability: :days day",
     "research.limits": "Adjustment selected on 2025. Previously inspected 2026 comparisons are not a blind test. This does not calibrate GPR.",
     "research.uncertainty": "Log loss and Brier: lower is better. 95% CI: log loss advantage over unadjusted Elo, clustered by league/year/split; not verified series.",
@@ -230,5 +230,12 @@
     "comparison.summary": ":count tournaments per model · :mode · seed :seed · GPR :snapshot · D=:denominator",
     "comparison.margin": "Monte Carlo margin per difference: ±:margin pp (95%, conservative bound). This does not measure predictive validity.",
     "comparison.method": "Same scenario, snapshot and seed. Contextual v2 uses manual profiles, with no training or calibration; differences do not imply causality.",
-    "simulation.manual_profiles": "Manual profiles; not trained or calibrated."
+    "simulation.manual_profiles": "Manual profiles; not trained or calibrated.",
+    "simulation.learned": "Historical Elo · trained experimental",
+    "simulation.learned_notice": "Experimental learned model, with no demonstrated superiority. Uneven history across teams and regions.",
+    "simulation.learned_method": ":id · cutoff :cutoff UTC · K=:k · slope :slope · SHA-256 :hash",
+    "simulation.learned_games": ":count games · last data :date",
+    "simulation.learned_prior": "No linked history · initial prior",
+    "simulation.learned_source": "Historical data: ChainCC",
+    "comparison.learned_delta": "Learned − GPR"
 }

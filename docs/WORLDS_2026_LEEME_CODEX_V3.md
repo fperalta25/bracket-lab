@@ -32,3 +32,9 @@ Después, de forma independiente, **V3-B** (`feat/historical-data-audit`): inspe
 ## Criterio de entrega
 
 Por cada rama: tests de regresión, resumen de cambios concretos, cambios de formato de escenario (si los hay), comandos de comprobación ejecutados y cuestiones pendientes. El avance del pipeline debe producir **datos y métricas verificables**, no tablas decorativas de probabilidades.
+
+## Uso experimental autorizado posteriormente
+
+La [decisión de Elo aprendido experimental](WORLDS_2026_DECISION_ELO_APRENDIDO_EXPERIMENTAL.md)
+permite un M0 aprendido opcional con los datos disponibles, aun con incertidumbre sobre
+su mejora. No habilita como validado el contextual v3 ni cambia el GPR predeterminado.

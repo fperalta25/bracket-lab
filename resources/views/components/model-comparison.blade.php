@@ -8,7 +8,7 @@
                 <tr><th scope="col" rowspan="2">{{ __('simulation.team') }}</th><th scope="colgroup" colspan="3">{{ __('results.qualify') }}</th><th scope="colgroup" colspan="3">{{ __('results.champion') }}</th></tr>
                 <tr>
                     @foreach (['qualify', 'champion'] as $metric)
-                        <th scope="col">{{ __('simulation.gpr') }}</th><th scope="col">{{ __('simulation.contextual') }}</th><th scope="col">{{ __('comparison.delta') }}</th>
+                        <th scope="col">{{ __('simulation.gpr') }}</th><th scope="col" x-text="comparisonModelLabel"></th><th scope="col" x-text="comparisonDifferenceLabel"></th>
                     @endforeach
                 </tr>
             </thead>
@@ -24,5 +24,5 @@
     </div>
     <p x-show="comparisonRows.length === 0" class="empty-state">{{ __('simulation.no_matches') }}</p>
     <p x-text="comparisonMargin"></p>
-    <details><summary>{{ __('simulation.method') }}</summary><p>{{ __('comparison.method') }}</p></details>
+    <details><summary>{{ __('simulation.method') }}</summary><p x-text="comparisonMethod"></p><p x-show="comparisonLearned" x-text="comparisonArtifact"></p></details>
 </details></template>

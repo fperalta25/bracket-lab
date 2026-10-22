@@ -4,7 +4,7 @@
     "type": "module",
     "engines": { "node": ">=22.12.0" },
     "scripts": {
-        "build": "vite build",
+        "build": "node scripts/validate-trained-artifacts.mjs && vite build",
         "dev": "vite",
         "typecheck": "tsc --noEmit && tsc -p tsconfig.simulator.json",
         "test": "vitest run",

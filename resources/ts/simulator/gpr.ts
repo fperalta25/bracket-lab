@@ -1,3 +1,4 @@
+import { validateTrainedEloArtifact } from './trained-elo';
 import { isExperimentalPreset, validatePreset } from './presets';
 import { requireCondition } from './errors';
 import type { GameLogProbabilities } from './likelihood';
@@ -88,6 +89,10 @@ export function validateGprRequest(request: GprSimulationRequest): void {
     } else {
         requireCondition(request.contextualTerms === undefined, 'incompatible_model', { field: 'contextual_terms' });
     }
+    if (request.preset === 'historical_elo_trained_v1') {
+        validateTrainedEloArtifact(request.learnedModel!, request.snapshot.teams);
+        requireCondition(request.denominator === undefined && request.gprOverrides === undefined, 'incompatible_model', { field: 'learned_model_overrides' });
+    } else requireCondition(request.learnedModel === undefined, 'incompatible_model', { field: 'learned_model' });
     requireCondition(!('variance' in request) && !('powerScores' in request), 'incompatible_model', { reason: 'legacy_fields' });
     requireCondition(request.snapshot.teams.every((team) => !Object.hasOwn(team, 'powerScore') && !Object.hasOwn(team, 'power_score')),
         'incompatible_model', { reason: 'legacy_team_scores' });

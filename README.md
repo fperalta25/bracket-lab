@@ -13,7 +13,10 @@ sobre cualquier indicación anterior de un MVP solo en español.
 El [anexo estadístico v2](docs/WORLDS_2026_ANEXO_MODELO_ESTADISTICO_V2.md) rige el modelo
 GPR y prevalece sobre la receta histórica de scores 0–100. La [guía v3](docs/WORLDS_2026_LEEME_CODEX_V3.md)
 y el [anexo predictivo v3](docs/WORLDS_2026_ANEXO_MODELO_PREDICTIVO_V3.md) rigen el contrato
-predictivo y la futura validación entrenada; V3-A está implementada, sin modelo entrenado.
+predictivo. Hay un M0 Elo aprendido experimental disponible; el contextual v3 validado
+sigue pendiente. La [decisión de uso experimental](docs/WORLDS_2026_DECISION_ELO_APRENDIDO_EXPERIMENTAL.md)
+recoge la autorización de trabajar con las muestras existentes sin exigir superioridad
+estadística para una opción experimental.
 
 ## Estado
 
@@ -27,15 +30,21 @@ permiten ordenar por cifras, buscar equipos y filtrar por región; el detalle mu
 de ejemplo completo, metodología, semilla y ratings usados. No requiere cuenta y no envía
 las simulaciones al servidor.
 
-**Comparar modelos** ejecuta GPR y contextual v2 experimental con el mismo escenario,
-semilla, snapshot, divisor e iteraciones. Muestra clasificación y campeonato por equipo,
-diferencias en puntos porcentuales y una cota de error Monte Carlo. Requiere un escenario
-sin ganadores ni games fijados; no elimina restricciones para permitir la comparación.
-Cancelar conserva la comparación anterior y la simulación individual no se sustituye.
+Para usar el aprendido, seleccionar **Elo histórico · entrenado experimental** en
+**Modelo** y pulsar **Simular torneo**. Usa ratings propios del historial, K=32 y pendiente
+0,75 elegidos con 2025; no suma bonos manuales v2. Los 16 equipos tienen enlace de fuente,
+pero LOS solo dispone de 89 partidas hasta septiembre de 2025. Metodología muestra
+recuento, último dato, cutoff y hash. GPR permanece predeterminado.
 
-El desplegable **Validación histórica** muestra la comparación del Elo propio con un
-ajuste global de confianza: métricas e intervalos globales/internacionales en ES/EN.
-Es investigación; no calibra el GPR ni habilita el preset entrenado.
+**Comparar modelos** contrasta GPR con el Elo aprendido cuando está seleccionado; en
+los demás casos conserva la comparación con contextual v2 manual. Usa el mismo escenario,
+semilla e iteraciones. El Elo aprendido admite ganadores y scores fijados sin posterior
+latente; el contextual v2 manual sigue requiriendo ausencia de resultados conocidos.
+Cancelar conserva resultados y la comparación no sustituye la simulación individual.
+
+El desplegable **Validación histórica** muestra métricas e intervalos del ajuste de
+confianza del Elo histórico. La evaluación sigue siendo exploratoria: no calibra GPR
+ni demuestra superioridad robusta; permite probar la versión aprendida sin recomendarla.
 
 La configuración y el último resultado completo se conservan en `sessionStorage` durante
 la pestaña, incluido al cambiar de idioma. Si se solicita otro idioma durante una ejecución,
@@ -791,3 +800,42 @@ Siguiente bloque: muestreo reproducible de formas latentes, integración de los
 pesos con la continuación del torneo y fallback explícito por degeneración antes
 de habilitar escenarios contextuales con resultados fijados. No cambia ningún
 formato de escenario ni el comportamiento de GPR/v2 existentes.
+
+## Elo aprendido experimental en uso
+
+`historical_elo_trained_v1` es M0 aprendido del historial: un cuarto preset independiente,
+no una nueva interpretación de `contextual_v1`/v2 ni una activación ficticia del contextual
+v3. El artefacto congelado se guarda en `models/artifacts/internal-elo-trained-2026-10-21-v1.json`.
+Contiene un payload JSON inmutable y SHA-256; el build verifica hash, fuentes versionadas,
+parámetros y cobertura. El runtime acepta exclusivamente el artefacto registrado completo,
+no solo una cadena de hash aportada por el cliente. Futuras versiones deben conservar
+los artefactos anteriores en el registro para reproducir sus escenarios.
+
+Se reconstruyen ratings con el replay de referencia, feedback estimado de un día,
+cuarentena y embargos existentes, excluyendo los 34 registros WLDs de 2026 del snapshot.
+La pendiente de salida 0,75 no modifica los updates K=32 ni se aplica al GPR. Las métricas
+adjuntas corresponden al backtest histórico de referencia con sus sensibilidades; no
+son una evaluación del snapshot final del torneo ni un nuevo holdout ciego. Las identidades
+se enlazan explícitamente; LOS/Los Grandes procede de la documentación del proyecto,
+TLAW/Team Liquid y TES/Top Esports son alias de nombre declarados. Se muestra la antigüedad
+sin inventar partidas de 2026. Una identidad futura sin enlace usa prior/cero partidas.
+
+El motor recibe ratings estáticos y probabilidades logarítmicas estacionarias: conserva
+scores/ganadores/prefijos sin volver a aprender de ellos. No aplica sigmas ni bonos v2,
+no requiere ESS latente y no altera el PRNG, sorteos o reglas. Los controles D/GPR manuales
+no modifican este modelo. ES/EN y formato numérico se aplican únicamente a la presentación.
+
+Los escenarios siguen siendo JSON v1/v2; los nuevos añaden `learnedModel` con el artefacto
+completo. Las versiones anteriores de la aplicación rechazan el preset desconocido,
+sin convertirlo silenciosamente. Escenarios GPR/contextuales existentes no se migran.
+La sesión también conserva el artefacto seleccionado, resultados y comparaciones.
+
+Comprobaciones: **176 pruebas Python, 170 Vitest y 44 Laravel (586 aserciones)**,
+typecheck y build. Las seis regresiones históricas completas se conservan. Firefox
+ES/EN, escritorio/360 px: ejecución de 1.000 torneos aprendidos, cobertura de LOS,
+comparación contra GPR con ganador fijado, artefacto íntegro en exportación/importación,
+recarga y cambio de idioma sin pérdida de resultados ni NaN/errores JS.
+
+Siguiente bloque: contrastar e incorporar factores aprendidos de uno en uno con este
+mismo corpus, manteniendo opción experimental, procedencia y comparación con GPR.
+No se exigen nuevas descargas ni se presenta v3 contextual como validado.

@@ -1,6 +1,6 @@
 import { currentLocale, formatDate, formatNumber, t, type TranslationKey } from '../i18n';
 import { SWISS_16_RULES, FINAL_BUCKETS, SWISS_RECORDS, isExperimentalPreset, validateRequest, validateConstraints,
-    type GprSimulationRequest, type StrengthProfileSet, type TournamentSnapshot, type SimulationOutput, type Team, type Fixture, fixtureWinner } from '../simulator';
+    defaultTrainedEloArtifact, trainedEloPayload, type TrainedEloArtifact, type GprSimulationRequest, type StrengthProfileSet, type TournamentSnapshot, type SimulationOutput, type Team, type Fixture, fixtureWinner } from '../simulator';
 import type { WorkerMessage } from './worker';
 import { copyScenarioWithCurrentPreset, parseScenarioFile, SCENARIO_FILE_LIMIT, validateSavedScenario, type SavedScenario } from './scenarios';
 import { swissRoundState } from './scenario-rounds';
@@ -22,6 +22,7 @@ const columns = {
 export function publicSimulator() {
     const payload = JSON.parse(document.getElementById('simulation-data')!.textContent!) as Payload;
     let base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths };
+    let learnedModel: TrainedEloArtifact | undefined;
     let gprOverrides: GprSimulationRequest['gprOverrides'];
     let contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true };
     let activeWorker: Worker | undefined;
@@ -51,7 +52,7 @@ export function publicSimulator() {
                 if ([1, 2].includes(saved?.version) && saved.snapshotId === payload.snapshot.id && saved.profileId === payload.strengths.id) {
                     const c = saved.controls;
                     if (saved.version === 2) {
-                        base = saved.base; gprOverrides = saved.gprOverrides; contextualTerms = saved.contextualTerms;
+                        base = saved.base; learnedModel = saved.learnedModel; gprOverrides = saved.gprOverrides; contextualTerms = saved.contextualTerms;
                         this.editingRound = Number.isInteger(c.editingRound) && c.editingRound >= 1 && c.editingRound <= 5 ? c.editingRound : 1;
                         this.knockoutRound = Number.isInteger(c.knockoutRound) && c.knockoutRound >= 1 && c.knockoutRound <= 3 ? c.knockoutRound : 1;
                         this.drawIndex = Number.isSafeInteger(c.drawIndex) && c.drawIndex >= 0 ? c.drawIndex : 0;
@@ -97,7 +98,7 @@ export function publicSimulator() {
                         catch { this.comparison = null; }
                     }
                 }
-            } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true }; this.teams = payload.snapshot.teams; this.editingRound = 1; this.knockoutRound = 1; this.drawIndex = 0; }
+            } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; learnedModel = undefined; contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true }; this.teams = payload.snapshot.teams; this.editingRound = 1; this.knockoutRound = 1; this.drawIndex = 0; }
             void this.refreshLibrary();
             window.addEventListener('pagehide', () => this.save());
             // Finish the current run before a language reload, then restore its completed output.
@@ -109,12 +110,15 @@ export function publicSimulator() {
             }
         },
         request(): GprSimulationRequest {
+            if (this.preset === 'historical_elo_trained_v1') learnedModel ??= defaultTrainedEloArtifact();
             return { modelVersion: 'gpr-context-v2', preset: this.preset,
                 snapshot: base.snapshot, strengths: base.strengths,
                 scenario: this.mode === 'custom' ? { mode: 'custom', fixtures: JSON.parse(JSON.stringify(this.draftFixtures)) as Fixture[] } : { mode: this.mode },
-                ...(gprOverrides ? { gprOverrides } : {}), seed: Number(this.seed), iterations: Number(this.iterations), denominator: Number(this.denominator),
+                ...(this.preset === 'historical_elo_trained_v1' ? { learnedModel: learnedModel ?? defaultTrainedEloArtifact() }
+                    : { ...(gprOverrides ? { gprOverrides } : {}), denominator: Number(this.denominator) }), seed: Number(this.seed), iterations: Number(this.iterations),
                 ...(isExperimentalPreset(this.preset) ? { contextualTerms: { ...contextualTerms } } : {}) };
         },
+        get comparisonAvailable() { return this.preset === 'historical_elo_trained_v1' || this.contextualAvailable; },
         get contextualAvailable() {
             return this.mode === 'from_scratch' || !(this.mode === 'custom' ? this.draftFixtures : base.snapshot.fixtures).some((f) => f.status !== 'scheduled' || (f.games?.length ?? 0) > 0);
         },
@@ -135,7 +139,7 @@ export function publicSimulator() {
         },
         save() {
             try {
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, base, gprOverrides, contextualTerms, snapshotId: payload.snapshot.id, profileId: payload.strengths.id,
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, base, learnedModel, gprOverrides, contextualTerms, snapshotId: payload.snapshot.id, profileId: payload.strengths.id,
                     controls: { mode: this.mode, preset: this.preset, iterations: this.iterations, seed: this.seed, denominator: this.denominator,
                         search: this.search, region: this.region, sorts: this.sorts,
                         editingRound: this.editingRound, knockoutRound: this.knockoutRound, drawIndex: this.drawIndex, boardUndo: this.boardUndo, draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, comparison: this.comparison, finishedAt: this.finishedAt }));
@@ -266,7 +270,7 @@ export function publicSimulator() {
             if (copy.request.snapshot.id !== payload.snapshot.id
                 || copy.request.snapshot.teams.map((team) => team.id).sort().join('|') !== payload.snapshot.teams.map((team) => team.id).sort().join('|')) throw new Error('tournament');
             const r = copy.request;
-            base = { snapshot: r.snapshot, strengths: r.strengths }; gprOverrides = r.gprOverrides;
+            base = { snapshot: r.snapshot, strengths: r.strengths }; learnedModel = r.learnedModel; gprOverrides = r.gprOverrides;
             contextualTerms = r.contextualTerms ? { ...r.contextualTerms } : { tournamentForm: true, seriesForm: true, pressure: true, sequence: true };
             this.editingRound = 1; this.knockoutRound = 1; this.drawIndex = 0; this.boardUndo = null; this.boardReset = false;
             this.teams = r.snapshot.teams; this.mode = r.scenario.mode; this.previousMode = this.mode;
@@ -378,6 +382,16 @@ export function publicSimulator() {
             const value = 100 * (comparisonCount(pair.contextual, teamId, metric) - comparisonCount(pair.baseline, teamId, metric)) / pair.baseline.metadata.iterations;
             return t('comparison.points', { value: formatNumber(value, currentLocale(), { maximumFractionDigits: 2, signDisplay: 'exceptZero' }) });
         },
+        learnedMethod(request: GprSimulationRequest) {
+            const learned = trainedEloPayload(request.learnedModel!);
+            return t('simulation.learned_method', { id: learned.modelId, cutoff: formatDate(new Date(learned.cutoffUtc), currentLocale(), { dateStyle: 'short', timeZone: 'UTC' }),
+                k: formatNumber(learned.parameters.k), slope: formatNumber(learned.parameters.logOddsSlope), hash: request.learnedModel!.sha256 });
+        },
+        get comparisonLearned() { return this.comparison?.contextual.metadata.request.modelVersion === 'gpr-context-v2' && this.comparison.contextual.metadata.request.preset === 'historical_elo_trained_v1'; },
+        get comparisonArtifact() { return this.comparisonLearned ? this.learnedMethod(this.comparison!.contextual.metadata.request as GprSimulationRequest) : ''; },
+        get comparisonModelLabel() { return t(this.comparisonLearned ? 'simulation.learned' : 'simulation.contextual'); },
+        get comparisonDifferenceLabel() { return t(this.comparisonLearned ? 'comparison.learned_delta' : 'comparison.delta'); },
+        get comparisonMethod() { return t(this.comparisonLearned ? 'simulation.learned_notice' : 'comparison.method'); },
         get comparisonSummary() {
             if (!this.comparison) return '';
             const r = this.comparison.baseline.metadata.request as GprSimulationRequest;
@@ -424,11 +438,13 @@ export function publicSimulator() {
             if (!this.output) return '';
             const r = this.output.metadata;
             return t('simulation.summary', { count: formatNumber(r.iterations), mode: t(r.sourceMode === 'custom' ? 'scenario.custom' : r.sourceMode === 'from_scratch' ? 'simulation.scratch' : 'simulation.official'),
-                model: t(r.request.modelVersion === 'gpr-context-v2' && isExperimentalPreset(r.request.preset) ? 'simulation.contextual' : 'simulation.gpr') });
+                model: t(r.request.modelVersion === 'gpr-context-v2' && r.request.preset === 'historical_elo_trained_v1' ? 'simulation.learned'
+                    : r.request.modelVersion === 'gpr-context-v2' && isExperimentalPreset(r.request.preset) ? 'simulation.contextual' : 'simulation.gpr') });
         },
         get methodSummary() {
             if (!this.output) return '';
             const r = this.output.metadata.request as GprSimulationRequest;
+            if (r.preset === 'historical_elo_trained_v1') return this.learnedMethod(r);
             return t('simulation.method_values', { seed: r.seed, denominator: r.denominator ?? 400, snapshot: r.strengths.ratingSnapshot.asOf,
                 profile: r.strengths.revision, revision: r.snapshot.revision ?? t('tournament.initial_note'),
                 date: formatDate(new Date(this.finishedAt), currentLocale(), { dateStyle: 'short', timeStyle: 'short' }) });
@@ -442,7 +458,9 @@ export function publicSimulator() {
         get usedRatings() {
             if (!this.output) return [];
             const r = this.output.metadata.request as GprSimulationRequest;
-            return r.snapshot.teams.map((team) => ({ name: team.acronym, rating: r.gprOverrides?.[team.id] ?? r.strengths.profiles.find((p) => p.teamId === team.id)!.gpr }));
+            if (r.preset === 'historical_elo_trained_v1') return trainedEloPayload(r.learnedModel!).teams.map((team) => ({ name: team.acronym, rating: team.rating,
+                history: team.games > 0 ? t('simulation.learned_games', { count: formatNumber(team.games), date: formatDate(new Date(team.lastGameUtc!), currentLocale(), { dateStyle: 'short', timeZone: 'UTC' }) }) : t('simulation.learned_prior') }));
+            return r.snapshot.teams.map((team) => ({ name: team.acronym, rating: r.gprOverrides?.[team.id] ?? r.strengths.profiles.find((p) => p.teamId === team.id)!.gpr, history: '' }));
         },
         get exampleRounds() {
             if (!this.output) return [];
