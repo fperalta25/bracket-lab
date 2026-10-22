@@ -60,3 +60,32 @@ export function seriesLogLikelihood(fixture: Fixture, probability: SeriesLogProb
     };
     return visit(0, 0, undefined);
 }
+
+/** Hypothetical winner constraint, including any known prefix, marginalized over all legal finishes.
+ * It is distinct from an observed final score: never choose a synthetic score as evidence.
+ */
+export function winnerConstraintLogLikelihood(fixture: Fixture, probability: SeriesLogProbability): number {
+    validateSeries(fixture);
+    requireCondition(fixture.status === 'decided', 'invalid_fixture', { field: 'winner_constraint' });
+    const target = (fixture.bestOf + 1) / 2;
+    let prefixA = 0; let prefixB = 0; let previous: string | undefined;
+    let prefixLikelihood = 0;
+    for (const winner of fixture.games ?? []) {
+        const logs = checkedProbabilities(probability, { a: prefixA, b: prefixB, previousWinner: previous });
+        prefixLikelihood += winner === fixture.teamA ? logs.a : logs.b;
+        if (winner === fixture.teamA) prefixA++; else prefixB++;
+        previous = winner;
+    }
+    const memo = new Map<string, number>();
+    const visit = (a: number, b: number, previousWinner: string | undefined): number => {
+        if (a === target || b === target) return (a === target ? fixture.teamA : fixture.teamB) === fixture.winner ? 0 : -Infinity;
+        const key = JSON.stringify([a, b, previousWinner]);
+        const cached = memo.get(key);
+        if (cached !== undefined) return cached;
+        const logs = checkedProbabilities(probability, { a, b, previousWinner });
+        const value = logAddExp(logs.a + visit(a + 1, b, fixture.teamA), logs.b + visit(a, b + 1, fixture.teamB));
+        memo.set(key, value);
+        return value;
+    };
+    return prefixLikelihood + visit(prefixA, prefixB, previous);
+}

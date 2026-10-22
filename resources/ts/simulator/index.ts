@@ -15,3 +15,4 @@ export * from './conditional-series';
 export * from './presets';
 export * from './prediction';
 export * from './prediction-models';
+export * from './posterior';

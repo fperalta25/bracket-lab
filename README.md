@@ -759,3 +759,35 @@ GPR individual, sin NaN/desbordamiento/errores JS, filtros, cancelación antes y
 de completar el primer modelo, recarga, sesión anterior y comparación deshabilitada
 al fijar un ganador. También se verifica comparar antes de una ejecución individual
 y cambiar de idioma durante el cálculo. No cambian el motor, RNG ni worker.
+
+## Base del condicionamiento contextual
+
+Primer bloque de V3-F, sin activar predicciones condicionadas en la web:
+
+- `winnerConstraintLogLikelihood` suma todos los desenlaces legales de un ganador
+  hipotético, incluido un prefijo conocido de games. No convierte el clic en un
+  marcador inventado ni en un resultado oficial. `seriesLogLikelihood` conserva su
+  contrato para observaciones reales: marcador final o secuencia conocida.
+- `diagnosePosterior` calcula pesos de importancia para partículas de igual masa
+  previa y devuelve ESS/degeneración. Usa solo evidencia disponible estrictamente
+  antes del corte UTC; rechaza duplicados y separa observaciones de hipótesis.
+  Condiciona outcomes dados los participantes, sin factor de selección del sorteo.
+- Cada predictor de partícula debe mantener coherentes los estados latentes de
+  torneo/serie. Este bloque no genera partículas, remuestrea ni devuelve pronósticos;
+  el modo es explícitamente `diagnostic_only`. `minEss` es una guarda numérica del
+  llamador, no calibración ni garantía de convergencia.
+
+Diez pruebas nuevas contrastan probabilidades contra enumeración independiente de
+Bo1/3/5, prefijos, soporte cero, posterior de dos estados con solución cerrada,
+fechas/cortes, ausencia de doble conteo y alertas de ESS. Total: **161 Vitest,
+44 Laravel (586 aserciones)**, typecheck y build correctos. Verificación Firefox
+móvil ES/EN de perfiles manuales, preset entrenado deshabilitado y ejecución de
+1.000 torneos experimentales sin NaN/errores JS.
+
+V2 sigue usando perfiles manuales sin entrenamiento/calibración. El Elo histórico
+y su ajuste de confianza son experimentos de investigación, no un artefacto v3
+validado ni una calibración trasladable a GPR. No se habilita el preset entrenado.
+Siguiente bloque: muestreo reproducible de formas latentes, integración de los
+pesos con la continuación del torneo y fallback explícito por degeneración antes
+de habilitar escenarios contextuales con resultados fijados. No cambia ningún
+formato de escenario ni el comportamiento de GPR/v2 existentes.
