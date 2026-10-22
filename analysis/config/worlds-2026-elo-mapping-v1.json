@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "teams": [
+    {
+      "team_id": "6780c4ad-8ad2-57cc-98a3-9f0873d941e0",
+      "acronym": "GEN",
+      "source_name": "Gen.G",
+      "source_team_id": "oe:team:50f58982d91a36557ec8aec52ab014f",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "5c30b367-4be5-5f20-84ab-cf279e50c3fc",
+      "acronym": "AL",
+      "source_name": "Anyone's Legend",
+      "source_team_id": "oe:team:ed28f87f0cfdba0a2a8f183cebae73a",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "06f02a6c-11b0-5d05-bdd2-bdbf06f83b51",
+      "acronym": "TLAW",
+      "source_name": "Team Liquid",
+      "source_team_id": "oe:team:8eb884e168f28402ce685bedebb5250",
+      "basis": "explicit_name_alias"
+    },
+    {
+      "team_id": "d44353f1-63dc-5fad-839a-de20f6f03602",
+      "acronym": "G2",
+      "source_name": "G2 Esports",
+      "source_team_id": "oe:team:7d6673d3a9d00363c6bebc1a630da6e",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "194a50d9-c2fd-5321-8c21-eb8caa4716dd",
+      "acronym": "LOS",
+      "source_name": "Los Grandes",
+      "source_team_id": "oe:team:ca884c91b35e5e37937b19360cf1bbe",
+      "basis": "documented_name_alias",
+      "reference": "docs/WORLDS_2026_TEAM_CONTEXT_RESEARCH.md: LOS — Los Grandes"
+    },
+    {
+      "team_id": "95093b8d-917a-5f94-95ae-4e777755b6b1",
+      "acronym": "TSW",
+      "source_name": "Team Secret Whales",
+      "source_team_id": "oe:team:740de582f50775c516c77ed7b923fd5",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "f604ccbd-6885-5654-82ec-3f4389cd1590",
+      "acronym": "HLE",
+      "source_name": "Hanwha Life Esports",
+      "source_team_id": "oe:team:3a1d18f46bcb3716ebcfcf4ef068934",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "de0ec472-4161-5117-ab0b-ab397f12ff07",
+      "acronym": "BLG",
+      "source_name": "Bilibili Gaming",
+      "source_team_id": "oe:team:d356a144644879dabb5f34cd99c886d",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "a324b5fb-d0bd-5d49-a5aa-0e69eeb5c984",
+      "acronym": "LYON",
+      "source_name": "LYON",
+      "source_team_id": "oe:team:da1143bf9a245b78a8dc86417de85b3",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "9d41c0ae-a2fa-56ba-b5d1-b9f6acaeedf3",
+      "acronym": "MKOI",
+      "source_name": "Movistar KOI",
+      "source_team_id": "oe:team:4acc40654379b4da680be1bd3129dfa",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "d1d30a42-0f82-5f7a-bc95-1141828cc909",
+      "acronym": "T1",
+      "source_name": "T1",
+      "source_team_id": "oe:team:ce499dea30cfce118f4fe85da0227e8",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "53fbb58c-22d9-51ee-99cb-e2cc57c89d3e",
+      "acronym": "TES",
+      "source_name": "Top Esports",
+      "source_team_id": "oe:team:fcec508e780bbd1ad493852640f5b36",
+      "basis": "explicit_name_alias"
+    },
+    {
+      "team_id": "e752de21-6f7e-52d4-99a8-86afc6127791",
+      "acronym": "CFO",
+      "source_name": "CTBC Flying Oyster",
+      "source_team_id": "oe:team:0916b3c324c8577b0c6344f3e067f62",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "6964de86-53c7-5671-89c0-0175e5115278",
+      "acronym": "IG",
+      "source_name": "Invictus Gaming",
+      "source_team_id": "oe:team:53a258f289c26d94431c0496a54e151",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "251fc027-f37d-5ab4-a446-e16828b9cd67",
+      "acronym": "DK",
+      "source_name": "Dplus Kia",
+      "source_team_id": "oe:team:ef69efa6acebe94107f0cf1ba716806",
+      "basis": "exact_source_name"
+    },
+    {
+      "team_id": "15b25f95-81f8-567b-b970-8a40672d0ce8",
+      "acronym": "KC",
+      "source_name": "Karmine Corp",
+      "source_team_id": "oe:team:f3aa9bbd924ce3af42ac53f8326bc7c",
+      "basis": "exact_source_name"
+    }
+  ]
+}
