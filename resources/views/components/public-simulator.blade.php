@@ -17,7 +17,9 @@
 </select></label>
             </div>
             <p class="calibration" x-show="preset === 'contextual_experimental_v2' || preset === 'contextual_v1'">{{ __('simulation.manual_profiles') }}</p>
-            <p class="calibration" x-show="preset === 'historical_elo_trained_v1'">{{ __('simulation.learned_notice') }}</p>
+            <label x-show="preset === 'historical_elo_trained_v1'">{{ __('simulation.learned_variant') }}<select aria-label="{{ __('simulation.learned_variant') }}" x-model="learnedVariant" @change="selectLearnedVariant()"><option value="elo">{{ __('simulation.variant_elo') }}</option><option value="form">{{ __('simulation.variant_form') }}</option></select></label>
+            <p class="calibration" x-show="preset === 'historical_elo_trained_v1' && learnedVariant === 'form'">{{ __('simulation.form_notice') }}</p>
+            <p class="calibration" x-show="preset === 'historical_elo_trained_v1' && learnedVariant === 'elo'">{{ __('simulation.learned_notice') }}</p>
             <section class="scenario-editor" aria-labelledby="swiss-board-title">
                 <div class="section-heading board-heading">
                     <h3 id="swiss-board-title">{{ __('board.title') }}</h3>
@@ -130,7 +132,7 @@
                 </div>
                 <p x-show="rows(table).length === 0" class="empty-state">{{ __('simulation.no_matches') }}</p>
             </section></template>
-            <details class="method"><summary>{{ __('simulation.method') }}</summary><p x-text="methodSummary"></p><p x-show="output.metadata.request.preset === 'historical_elo_trained_v1'"><a href="https://chaincc.lol/free/data">{{ __('simulation.learned_source') }}</a></p><p x-text="samplingError"></p><p>{{ __('simulation.zero_note') }}</p><p>{{ __('board.score_note') }}</p><p x-text="rematches"></p><ul class="ratings-used"><template x-for="item in usedRatings" :key="item.name"><li><strong x-text="item.name"></strong> <span x-text="number(item.rating)"></span> <small x-show="item.history" x-text="item.history"></small></li></template></ul></details>
+            <details class="method"><summary>{{ __('simulation.method') }}</summary><p x-text="methodSummary"></p><p x-show="output.metadata.request.preset === 'historical_elo_trained_v1'"><a href="https://chaincc.lol/free/data">{{ __('simulation.learned_source') }}</a></p><p x-text="samplingError"></p><p>{{ __('simulation.zero_note') }}</p><p>{{ __('board.score_note') }}</p><p x-text="rematches"></p><ul class="ratings-used"><template x-for="item in usedRatings" :key="item.name"><li><strong x-text="item.name"></strong> <span x-text="number(item.rating)"></span> <small x-show="item.history" x-text="item.history"></small><small x-show="item.formDetails" x-text="item.formDetails"></small></li></template></ul></details>
             <details class="example"><summary>{{ __('simulation.example') }}</summary><div class="example-grid"><template x-for="round in exampleRounds" :key="round.key"><section><h3 x-text="round.label"></h3><ol><template x-for="match in round.matches" :key="match.id"><li><span x-text="teamName(match.teamA)"></span><strong x-text="`${match.score.a}–${match.score.b}`"></strong><span x-text="teamName(match.teamB)"></span><small x-text="originLabel(match.origin)"></small></li></template></ol></section></template></div></details>
         </div></template>
     </section>

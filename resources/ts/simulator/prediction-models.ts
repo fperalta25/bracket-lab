@@ -19,7 +19,7 @@ export function preparePredictionModel(request: SimulationRequest) {
     const learned = request.modelVersion === 'gpr-context-v2' && request.preset === 'historical_elo_trained_v1' ? trainedEloPayload(request.learnedModel!) : undefined;
     const divisor = learned ? learned.parameters.divisor / learned.parameters.logOddsSlope
         : request.modelVersion === 'gpr-context-v2' ? request.denominator ?? request.strengths.calibration.eloDenominator : 400;
-    const ratings = learned ? Object.fromEntries(learned.teams.map((team) => [team.teamId, team.rating])) : request.modelVersion === 'legacy-score-v1'
+    const ratings = learned ? Object.fromEntries(learned.teams.map((team) => [team.teamId, team.rating + (team.formRatingAdjustment ?? 0)])) : request.modelVersion === 'legacy-score-v1'
         ? Object.fromEntries(request.snapshot.teams.map((team) => [team.id,
             request.powerScores && Object.hasOwn(request.powerScores, team.id) ? request.powerScores[team.id]! : team.powerScore]))
         : Object.fromEntries(request.strengths.profiles.map((profile) => [profile.teamId,

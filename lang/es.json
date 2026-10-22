@@ -237,5 +237,13 @@
     "simulation.learned_games": ":count partidas · último dato :date",
     "simulation.learned_prior": "Sin historial enlazado · prior inicial",
     "simulation.learned_source": "Datos históricos: ChainCC",
-    "comparison.learned_delta": "Aprendido − GPR"
+    "comparison.learned_delta": "Aprendido − GPR",
+    "simulation.learned_variant": "Versión aprendida",
+    "simulation.variant_elo": "Elo histórico",
+    "simulation.variant_form": "Elo + últimas partidas",
+    "simulation.learned_form": "Elo + últimas partidas · experimental",
+    "simulation.form_notice": "Historial disponible, no necesariamente reciente. Diagnóstico 2026: mejora global ene–ago; empeora sep–oct y en internacionales. Experimental, no recomendado.",
+    "simulation.learned_form_method": ":id · corte :cutoff UTC · K=:k · pendiente :slope · últimos :days días con partidas · coeficiente :coefficient · SHA-256 :hash",
+    "simulation.form_used": ":days días con partidas · :count partidas usadas · ajuste :adjustment Elo",
+    "simulation.form_missing": "Sin partidas para este ajuste"
 }
