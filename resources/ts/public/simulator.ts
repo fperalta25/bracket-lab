@@ -9,6 +9,7 @@ import { advanceKnockoutBoard, chooseKnockoutWinner, knockoutBoardView, redrawKn
 import { listScenarios, storeScenario, removeScenario } from './scenario-storage';
 import { outcomeSupport } from './outcome-support';
 import { probabilityText, qualificationCount } from './presentation';
+import { comparisonRequests, validateComparison, comparisonCount, differenceMargin, type ModelComparison, type ComparisonMetric } from './comparison';
 
 const STORAGE_KEY = 'bracket-lab.public-simulation.v1';
 interface Payload { snapshot: Omit<TournamentSnapshot, 'rules'>; strengths: StrengthProfileSet }
@@ -36,7 +37,8 @@ export function publicSimulator() {
         scenarioName: '', selectedScenarioId: '', activeScenarioId: '', library: [] as SavedScenario[], scenarioMessage: '', libraryBusy: false,
         preset: 'gpr_baseline' as GprSimulationRequest['preset'],
         iterations: 10000, seed: 2026, denominator: 400,
-        busy: false, completed: 0, canceled: false, error: '',
+        busy: false, completed: 0, runTotal: 10000, canceled: false, error: '',
+        comparison: null as ModelComparison | null,
         output: null as SimulationOutput | null, finishedAt: '',
         search: '', region: '',
         sorts: { final: { key: 'champion', descending: true }, swiss: { key: 'qualify', descending: true } },
@@ -90,6 +92,10 @@ export function publicSimulator() {
                         this.output = saved.output;
                         this.finishedAt = saved.finishedAt;
                     }
+                    if (saved.comparison) {
+                        try { validateComparison(saved.comparison); this.comparison = saved.comparison; }
+                        catch { this.comparison = null; }
+                    }
                 }
             } catch { try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be blocked. */ } this.mode = 'official_state'; this.preset = 'gpr_baseline'; this.iterations = 10000; this.seed = 2026; this.denominator = 400; this.previousMode = 'official_state'; this.draftFixtures = []; this.draftInitialized = false; base = { snapshot: { ...payload.snapshot, rules: SWISS_16_RULES }, strengths: payload.strengths }; gprOverrides = undefined; contextualTerms = { tournamentForm: true, seriesForm: true, pressure: true, sequence: true }; this.teams = payload.snapshot.teams; this.editingRound = 1; this.knockoutRound = 1; this.drawIndex = 0; }
             void this.refreshLibrary();
@@ -132,7 +138,7 @@ export function publicSimulator() {
                 sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, base, gprOverrides, contextualTerms, snapshotId: payload.snapshot.id, profileId: payload.strengths.id,
                     controls: { mode: this.mode, preset: this.preset, iterations: this.iterations, seed: this.seed, denominator: this.denominator,
                         search: this.search, region: this.region, sorts: this.sorts,
-                        editingRound: this.editingRound, knockoutRound: this.knockoutRound, drawIndex: this.drawIndex, boardUndo: this.boardUndo, draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, finishedAt: this.finishedAt }));
+                        editingRound: this.editingRound, knockoutRound: this.knockoutRound, drawIndex: this.drawIndex, boardUndo: this.boardUndo, draftFixtures: this.draftFixtures, draftInitialized: this.draftInitialized, scenarioName: this.scenarioName, selectedScenarioId: this.selectedScenarioId, activeScenarioId: this.activeScenarioId }, output: this.output, comparison: this.comparison, finishedAt: this.finishedAt }));
             } catch { /* Storage availability must not prevent simulation. */ }
         },
         boardRequest(): GprSimulationRequest {
@@ -269,7 +275,7 @@ export function publicSimulator() {
             this.preset = r.preset; this.seed = r.seed; this.iterations = r.iterations; this.denominator = r.denominator ?? r.strengths.calibration.eloDenominator;
             this.scenarioName = duplicate ? t('scenario.copy_name', { name: copy.name }).slice(0, 80) : copy.name;
             this.activeScenarioId = duplicate ? '' : copy.id; this.selectedScenarioId = this.activeScenarioId;
-            this.output = null; this.finishedAt = ''; this.error = ''; this.scenarioMessage = ''; this.canceled = false; this.save();
+            this.output = null; this.comparison = null; this.finishedAt = ''; this.error = ''; this.scenarioMessage = ''; this.canceled = false; this.save();
         },
         loadScenario(duplicate = false) {
             const doc = this.library.find((item) => item.id === this.selectedScenarioId);
@@ -313,26 +319,40 @@ export function publicSimulator() {
             } catch { this.error = t('scenario.error_file'); }
             finally { input.value = ''; this.libraryBusy = false; }
         },
-        start() {
+        start(compare = false) {
             if (this.busy || this.libraryBusy) return;
             this.error = ''; this.canceled = false; this.completed = 0;
             try {
                 const request = this.request();
-                validateRequest(request);
+                const requests = compare ? comparisonRequests(request, contextualTerms) : [request];
+                for (const item of requests) validateRequest(item);
+                let first: SimulationOutput | undefined;
+                this.runTotal = requests.length * request.iterations;
                 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
                 activeWorker = worker; this.busy = true; this.save();
                 worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
                     if (activeWorker !== worker) return;
-                    if (event.data.type === 'progress') this.completed = event.data.completed;
+                    if (event.data.type === 'progress') this.completed = event.data.completed + (first ? request.iterations : 0);
                     else {
                         if (event.data.type === 'result') {
-                            this.output = event.data.output; this.finishedAt = new Date().toISOString();
+                            if (compare && !first) {
+                                first = event.data.output; this.completed = request.iterations;
+                                worker.postMessage(requests[1]); return;
+                            }
+                            if (compare) {
+                                const pair = { baseline: first!, contextual: event.data.output };
+                                try { validateComparison(pair); }
+                                catch { this.error = t('simulation.error_data'); this.finish(); return; }
+                                this.comparison = pair;
+                            } else {
+                                this.output = event.data.output; this.finishedAt = new Date().toISOString();
+                            }
                         } else this.error = t(event.data.context.reason === 'contextual_posterior_required' ? 'simulation.error_posterior' : 'simulation.error_data');
                         this.finish();
                     }
                 };
                 worker.onerror = (event) => { if (activeWorker !== worker) return; event.preventDefault(); this.error = t('simulation.error_worker'); this.finish(); };
-                worker.postMessage(request);
+                worker.postMessage(requests[0]);
             } catch { this.error = t('simulation.error_data'); this.finish(); }
         },
         finish() {
@@ -340,6 +360,34 @@ export function publicSimulator() {
             if (pendingLanguage) window.location.assign(pendingLanguage);
         },
         cancel() { this.canceled = true; this.finish(); },
+        get comparisonRows(): Team[] {
+            if (!this.comparison) return [];
+            const query = this.search.trim().toLowerCase();
+            return this.comparison.baseline.metadata.request.snapshot.teams.filter((team) => (!this.region || team.region === this.region)
+                && `${team.acronym} ${team.name}`.toLowerCase().includes(query)).sort((a, b) => {
+                    const delta = comparisonCount(this.comparison!.baseline, b.id, 'champion') - comparisonCount(this.comparison!.baseline, a.id, 'champion');
+                    return delta || a.id.localeCompare(b.id);
+                });
+        },
+        comparisonPercent(teamId: string, metric: ComparisonMetric, model: 'baseline' | 'contextual') {
+            const output = this.comparison![model];
+            return probabilityText(comparisonCount(output, teamId, metric), output.metadata.iterations, currentLocale());
+        },
+        comparisonDelta(teamId: string, metric: ComparisonMetric) {
+            const pair = this.comparison!;
+            const value = 100 * (comparisonCount(pair.contextual, teamId, metric) - comparisonCount(pair.baseline, teamId, metric)) / pair.baseline.metadata.iterations;
+            return t('comparison.points', { value: formatNumber(value, currentLocale(), { maximumFractionDigits: 2, signDisplay: 'exceptZero' }) });
+        },
+        get comparisonSummary() {
+            if (!this.comparison) return '';
+            const r = this.comparison.baseline.metadata.request as GprSimulationRequest;
+            return t('comparison.summary', { count: formatNumber(r.iterations), seed: formatNumber(r.seed),
+                snapshot: formatDate(new Date(r.strengths.ratingSnapshot.asOf), currentLocale(), { dateStyle: 'short', timeZone: 'UTC' }), denominator: formatNumber(r.denominator ?? r.strengths.calibration.eloDenominator),
+                mode: t(r.scenario.mode === 'custom' ? 'scenario.custom' : r.scenario.mode === 'from_scratch' ? 'simulation.scratch' : 'simulation.official') });
+        },
+        get comparisonMargin() {
+            return this.comparison ? t('comparison.margin', { margin: formatNumber(100 * differenceMargin(this.comparison.baseline.metadata.iterations), currentLocale(), { maximumFractionDigits: 2 }) }) : '';
+        },
         count(team: Team, table: Table, key: string): number {
             const aggregate = this.output!.aggregates.teams[team.id]!;
             if (key === 'qualify') return qualificationCount(aggregate);

@@ -221,5 +221,13 @@
     "research.dates": "Cutoff: 21 Oct 2026 UTC. 2026 windows: 8 Jan–31 Aug and 8 Sep–20 Oct. Dates interpreted as UTC.",
     "research.no_interval": "Not estimable",
     "research.log_loss": "Log loss",
-    "research.brier": "Brier"
+    "research.brier": "Brier",
+    "comparison.run": "Compare models",
+    "comparison.title": "Model comparison",
+    "comparison.delta": "Contextual − GPR",
+    "comparison.points": ":value pp",
+    "comparison.unavailable": "Comparison requires a scenario without fixed winners or games.",
+    "comparison.summary": ":count tournaments per model · :mode · seed :seed · GPR :snapshot · D=:denominator",
+    "comparison.margin": "Monte Carlo margin per difference: ±:margin pp (95%, conservative bound). This does not measure predictive validity.",
+    "comparison.method": "Same scenario, snapshot and seed. Experimental, uncalibrated contextual v2; differences do not imply causality."
 }
