@@ -221,5 +221,13 @@
     "research.dates": "Corte: 21 oct 2026 UTC. Ventanas de 2026: 8 ene–31 ago y 8 sep–20 oct. Fechas interpretadas en UTC.",
     "research.no_interval": "No estimable",
     "research.log_loss": "Log loss",
-    "research.brier": "Brier"
+    "research.brier": "Brier",
+    "comparison.run": "Comparar modelos",
+    "comparison.title": "Comparación de modelos",
+    "comparison.delta": "Contextual − GPR",
+    "comparison.points": ":value pp",
+    "comparison.unavailable": "La comparación requiere un escenario sin ganadores ni games fijados.",
+    "comparison.summary": ":count torneos por modelo · :mode · semilla :seed · GPR :snapshot · D=:denominator",
+    "comparison.margin": "Margen Monte Carlo por diferencia: ±:margin pp (95 %, cota conservadora). No mide validez predictiva.",
+    "comparison.method": "Mismo escenario, snapshot y semilla. Contextual v2 experimental, sin calibrar; las diferencias no implican causalidad."
 }

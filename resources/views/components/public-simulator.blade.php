@@ -96,10 +96,12 @@
 </select></label>
             </div></details>
             <button class="primary-button" type="submit">{{ __('simulation.run') }}</button>
+            <button type="button" :disabled="!contextualAvailable" @click="start(true)" aria-describedby="comparison-availability">{{ __('comparison.run') }}</button>
+            <p id="comparison-availability" class="calibration" x-show="!contextualAvailable">{{ __('comparison.unavailable') }}</p>
         </fieldset>
         <div class="run-progress" x-show="busy" role="status" aria-live="polite">
-            <progress :value="completed" :max="iterations" aria-label="{{ __('simulation.title') }}"></progress>
-            <span x-text="translate('simulation.progress').replace(':done', number(completed)).replace(':total', number(iterations))"></span>
+            <progress :value="completed" :max="runTotal" aria-label="{{ __('simulation.title') }}"></progress>
+            <span x-text="translate('simulation.progress').replace(':done', number(completed)).replace(':total', number(runTotal))"></span>
             <button type="button" @click="cancel()">{{ __('simulation.cancel') }}</button>
         </div>
         <p x-show="canceled" role="status">{{ __('simulation.canceled') }}</p>
@@ -107,13 +109,14 @@
     </form>
     <section id="resultados" class="section" aria-labelledby="resultados-titulo" x-cloak>
         <h2 id="resultados-titulo">{{ __('simulation.results') }}</h2>
-        <p x-show="!output" class="empty-state">{{ __('simulation.empty') }}</p>
+        <p x-show="!output && !comparison" class="empty-state">{{ __('simulation.empty') }}</p>
+        <div class="result-filters" x-show="output || comparison">
+            <label>{{ __('simulation.search') }}<input type="search" x-model="search" @input="save()"></label>
+            <label>{{ __('simulation.region') }}<select aria-label="{{ __('simulation.region') }}" x-model="region" @change="save()"><option value="">{{ __('simulation.all_regions') }}</option><template x-for="item in regions" :key="item"><option :value="item" x-text="item"></option></template></select></label>
+        </div>
+        <x-model-comparison />
         <template x-if="output"><div>
             <p class="result-summary" x-text="resultSummary"></p>
-            <div class="result-filters">
-                <label>{{ __('simulation.search') }}<input type="search" x-model="search" @input="save()"></label>
-                <label>{{ __('simulation.region') }}<select aria-label="{{ __('simulation.region') }}" x-model="region" @change="save()"><option value="">{{ __('simulation.all_regions') }}</option><template x-for="item in regions" :key="item"><option :value="item" x-text="item"></option></template></select></label>
-            </div>
             <template x-for="table in tables" :key="table"><section class="results-table-section">
                 <h3 x-text="translate(table === 'final' ? 'simulation.final_table' : 'simulation.swiss_table')"></h3>
                 <div class="table-scroll" tabindex="0" role="region" :aria-label="translate(table === 'final' ? 'simulation.final_table' : 'simulation.swiss_table')">

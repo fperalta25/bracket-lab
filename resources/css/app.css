@@ -218,3 +218,6 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 
 .predictive-research h3 { margin: 1rem 0 .5rem; font-size: .95rem; }
 .predictive-research .table-scroll:focus-visible { outline: 2px solid #88d3d0; outline-offset: 3px; }
+.model-comparison thead tr:nth-child(2) th:first-child { position: static; text-align: right; }
+
+.model-comparison th[scope="colgroup"] { text-align: left; }
