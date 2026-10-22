@@ -1,0 +1,36 @@
+{
+  "protocol_version": "residual-form-research-v1",
+  "baseline_metrics_sha256": "c9be83eee9299e1bdcea5c307c56e6bed7a8c38e5049656eef6354d8a7ca7f7f",
+  "baseline_protocol_sha256": "da8b10937b5bc557881fa96c6725d354d57574dc0d141f09957d3e3377265a12",
+  "coefficients": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "aggregation": "mean_residual_per_team_source_day",
+  "shrinkage_days": 3,
+  "selection_period": "development_2025",
+  "selection_delay_days": 1,
+  "selection_metric": "log_loss",
+  "tie_tolerance": 1e-12,
+  "include_zero_effect_baseline": true,
+  "promotion_allowed": false,
+  "evaluation_interpretation": "2026 diagnostic, previously inspected; no reselection or blind-test claim",
+  "bootstrap_replicates": 1000,
+  "bootstrap_seed": 42,
+  "cluster_fields": [
+    "league_id",
+    "year",
+    "split"
+  ],
+  "experiment_id": "last-observed-form-v1",
+  "confidence_metrics_sha256": "2c4747c16e4bcc2e9e434b2389c609cfecec2fcb0222c0c91396488125a9e2dd",
+  "residual_reference": "fixed_confidence_scaled_elo_output",
+  "form_mode": "last_observed_source_days",
+  "source_day_counts": [
+    3,
+    5,
+    10
+  ],
+  "design_reason": "Calendar window selected independently on 2025 is inactive at the target cutoff; evaluate last available observations with visible age, no 2026 parameter selection."
+}
