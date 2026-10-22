@@ -221,3 +221,5 @@ progress { accent-color: #88d3d0; max-width: 100%; }
 .model-comparison thead tr:nth-child(2) th:first-child { position: static; text-align: right; }
 
 .model-comparison th[scope="colgroup"] { text-align: left; }
+
+.method p { overflow-wrap: anywhere; }

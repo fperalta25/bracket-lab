@@ -203,7 +203,7 @@
     "scenario.copy_current_preset": "Copiar con preset actual",
     "scenario.preset_copied": "Copia creada con el preset Contextual experimental v2. El original se conserva.",
     "research.title": "Validación histórica",
-    "research.status": "Investigación · sin modelo entrenado habilitado",
+    "research.status": "Elo histórico · evaluación exploratoria",
     "research.models": "Elo histórico K=32 · pendiente de confianza :slope · disponibilidad estimada: :days día",
     "research.limits": "Ajuste elegido con 2025. Comparaciones de 2026 ya inspeccionadas; no son una prueba ciega. No calibra el GPR.",
     "research.uncertainty": "Log loss y Brier: menor es mejor. IC 95 %: ventaja de log loss frente al Elo sin ajustar, con agrupación por liga/año/split; no por series verificadas.",
@@ -230,5 +230,12 @@
     "comparison.summary": ":count torneos por modelo · :mode · semilla :seed · GPR :snapshot · D=:denominator",
     "comparison.margin": "Margen Monte Carlo por diferencia: ±:margin pp (95 %, cota conservadora). No mide validez predictiva.",
     "comparison.method": "Mismo escenario, snapshot y semilla. Contextual v2 con perfiles manuales, sin entrenamiento ni calibración; las diferencias no implican causalidad.",
-    "simulation.manual_profiles": "Perfiles manuales; sin entrenamiento ni calibración."
+    "simulation.manual_profiles": "Perfiles manuales; sin entrenamiento ni calibración.",
+    "simulation.learned": "Elo histórico · entrenado experimental",
+    "simulation.learned_notice": "Modelo aprendido experimental, sin superioridad demostrada. Historial desigual entre equipos y regiones.",
+    "simulation.learned_method": ":id · corte :cutoff UTC · K=:k · pendiente :slope · SHA-256 :hash",
+    "simulation.learned_games": ":count partidas · último dato :date",
+    "simulation.learned_prior": "Sin historial enlazado · prior inicial",
+    "simulation.learned_source": "Datos históricos: ChainCC",
+    "comparison.learned_delta": "Aprendido − GPR"
 }

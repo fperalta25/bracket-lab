@@ -8,7 +8,7 @@
         <fieldset :disabled="busy || libraryBusy">
             <div class="control-grid">
                 <label>{{ __('simulation.from') }}<select aria-label="{{ __('simulation.from') }}" x-model="mode" @change="changeMode()"><option value="official_state">{{ __('simulation.official') }}</option><option value="from_scratch">{{ __('simulation.scratch') }}</option><option value="custom">{{ __('scenario.custom') }}</option></select></label>
-                <label>{{ __('simulation.model') }}<select aria-label="{{ __('simulation.model') }}" x-model="preset" @change="save()"><option value="gpr_baseline">{{ __('simulation.gpr') }}</option><option value="contextual_experimental_v2" :disabled="!contextualAvailable">{{ __('simulation.contextual') }}</option><template x-if="preset === 'contextual_v1'"><option value="contextual_v1" :disabled="!contextualAvailable">{{ __('simulation.contextual_legacy') }}</option></template><option value="contextual_trained_v3" disabled>{{ __('simulation.trained_unavailable') }}</option></select></label>
+                <label>{{ __('simulation.model') }}<select aria-label="{{ __('simulation.model') }}" x-model="preset" @change="save()"><option value="gpr_baseline">{{ __('simulation.gpr') }}</option><option value="contextual_experimental_v2" :disabled="!contextualAvailable">{{ __('simulation.contextual') }}</option><template x-if="preset === 'contextual_v1'"><option value="contextual_v1" :disabled="!contextualAvailable">{{ __('simulation.contextual_legacy') }}</option></template><option value="historical_elo_trained_v1">{{ __('simulation.learned') }}</option><option value="contextual_trained_v3" disabled>{{ __('simulation.trained_unavailable') }}</option></select></label>
                 <label>{{ __('simulation.iterations') }}<select aria-label="{{ __('simulation.iterations') }}" x-model.number="iterations" @change="save()">
                     <template x-if="![1000, 10000, 50000].includes(iterations)"><option :value="iterations" x-text="number(iterations)"></option></template>
                 @foreach ([1000, 10000, 50000] as $count)
@@ -17,6 +17,7 @@
 </select></label>
             </div>
             <p class="calibration" x-show="preset === 'contextual_experimental_v2' || preset === 'contextual_v1'">{{ __('simulation.manual_profiles') }}</p>
+            <p class="calibration" x-show="preset === 'historical_elo_trained_v1'">{{ __('simulation.learned_notice') }}</p>
             <section class="scenario-editor" aria-labelledby="swiss-board-title">
                 <div class="section-heading board-heading">
                     <h3 id="swiss-board-title">{{ __('board.title') }}</h3>
@@ -89,7 +90,7 @@
             </details>
             <details class="settings"><summary>{{ __('simulation.advanced') }}</summary><div class="control-grid">
                 <label>{{ __('simulation.seed') }}<input type="number" min="0" max="4294967295" step="1" required x-model.number="seed" @change="save()"></label>
-                <label>{{ __('simulation.denominator') }}<select aria-label="{{ __('simulation.denominator') }}" x-model.number="denominator" @change="save()">
+                <label x-show="preset !== 'historical_elo_trained_v1'">{{ __('simulation.denominator') }}<select aria-label="{{ __('simulation.denominator') }}" x-model.number="denominator" :disabled="preset === 'historical_elo_trained_v1'" @change="save()">
                     <template x-if="![320, 400, 520].includes(denominator)"><option :value="denominator" x-text="number(denominator)"></option></template>
                 @foreach ([320, 400, 520] as $scale)
                     <option value="{{ $scale }}">{{ $scale }}</option>
@@ -97,8 +98,8 @@
 </select></label>
             </div></details>
             <button class="primary-button" type="submit">{{ __('simulation.run') }}</button>
-            <button type="button" :disabled="!contextualAvailable" @click="start(true)" aria-describedby="comparison-availability">{{ __('comparison.run') }}</button>
-            <p id="comparison-availability" class="calibration" x-show="!contextualAvailable">{{ __('comparison.unavailable') }}</p>
+            <button type="button" :disabled="!comparisonAvailable" @click="start(true)" aria-describedby="comparison-availability">{{ __('comparison.run') }}</button>
+            <p id="comparison-availability" class="calibration" x-show="!comparisonAvailable">{{ __('comparison.unavailable') }}</p>
         </fieldset>
         <div class="run-progress" x-show="busy" role="status" aria-live="polite">
             <progress :value="completed" :max="runTotal" aria-label="{{ __('simulation.title') }}"></progress>
@@ -129,7 +130,7 @@
                 </div>
                 <p x-show="rows(table).length === 0" class="empty-state">{{ __('simulation.no_matches') }}</p>
             </section></template>
-            <details class="method"><summary>{{ __('simulation.method') }}</summary><p x-text="methodSummary"></p><p x-text="samplingError"></p><p>{{ __('simulation.zero_note') }}</p><p>{{ __('board.score_note') }}</p><p x-text="rematches"></p><ul class="ratings-used"><template x-for="item in usedRatings" :key="item.name"><li><strong x-text="item.name"></strong> <span x-text="number(item.rating)"></span></li></template></ul></details>
+            <details class="method"><summary>{{ __('simulation.method') }}</summary><p x-text="methodSummary"></p><p x-show="output.metadata.request.preset === 'historical_elo_trained_v1'"><a href="https://chaincc.lol/free/data">{{ __('simulation.learned_source') }}</a></p><p x-text="samplingError"></p><p>{{ __('simulation.zero_note') }}</p><p>{{ __('board.score_note') }}</p><p x-text="rematches"></p><ul class="ratings-used"><template x-for="item in usedRatings" :key="item.name"><li><strong x-text="item.name"></strong> <span x-text="number(item.rating)"></span> <small x-show="item.history" x-text="item.history"></small></li></template></ul></details>
             <details class="example"><summary>{{ __('simulation.example') }}</summary><div class="example-grid"><template x-for="round in exampleRounds" :key="round.key"><section><h3 x-text="round.label"></h3><ol><template x-for="match in round.matches" :key="match.id"><li><span x-text="teamName(match.teamA)"></span><strong x-text="`${match.score.a}–${match.score.b}`"></strong><span x-text="teamName(match.teamB)"></span><small x-text="originLabel(match.origin)"></small></li></template></ol></section></template></div></details>
         </div></template>
     </section>
